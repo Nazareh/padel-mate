@@ -2,7 +2,7 @@ import PlayerSelector from "@/components/PlayerSelector";
 import ScoreInput from "@/components/ScoreInput";
 import { COLORS, globalStyles } from "@/constants/GlobalStyles";
 import { SetStateAction, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function UploadResults() {
   const [playerA1, setPlayerA1] = useState("p0");
@@ -110,14 +110,28 @@ export default function UploadResults() {
           </View>
         </View>
       </View>
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={() => {}}
+            >
+              <Text style={styles.submitButtonText}>Upload Match Result</Text>
+            </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screenContainer: {
-    flex: 1,
+    backgroundColor: COLORS.card,
+    borderRadius: 12,
+    marginHorizontal: 20,
     padding: 20,
+    shadowColor: COLORS.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    marginTop: 20,
   },
   teamSection: {
     paddingHorizontal: 16,
@@ -130,10 +144,10 @@ const styles = StyleSheet.create({
   },
   scoreGrid: {
     marginTop: 10,
-    marginBottom: 20,
     backgroundColor: COLORS.background,
     borderRadius: 8,
     padding: 10,
+    elevation: 5
   },
   scoreHeader: {
     flexDirection: "row",
@@ -160,5 +174,22 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     fontSize: 14,
     marginRight: 10,
+  },
+    submitButton: {
+    backgroundColor: COLORS.primary,
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 8,
+  },
+  submitButtonText: {
+    color: COLORS.card,
+    fontSize: 18,
+    fontWeight: "700",
+    textTransform: "uppercase",
   },
 });

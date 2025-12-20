@@ -52,7 +52,11 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: 'center',
-    justifyContent:'flex-start'
+    justifyContent:'flex-start',
+        backgroundColor: COLORS.card,
+    borderRadius: 12,
+    padding: 10,
+    elevation: 5,
     
   },
   label: {

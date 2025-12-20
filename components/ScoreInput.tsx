@@ -33,6 +33,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    borderRadius: 12,
+    padding: 5,
+    elevation: 5,
+    marginTop: 8,
   },
   label: {
     width: 100,
