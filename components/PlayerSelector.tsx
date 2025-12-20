@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
+
 import { Picker } from "@react-native-picker/picker";
 import { COLORS } from "@/constants/GlobalStyles";
 
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.card,
     borderRadius: 8,
     backgroundColor: COLORS.background,
-    height: 30,
+    height: 35,
     flexGrow: 1,
     justifyContent: "center",
   },

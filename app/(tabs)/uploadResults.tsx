@@ -12,7 +12,7 @@ export default function UploadResults() {
   const [selectedPlayers, setSelectedPlayers] = useState([""]);
 
   return (
-    <View>
+    <View style={styles.screenContainer}>
       <View style={styles.teamSection}>
         <Text style={globalStyles.sectionTitle}> Select Team A</Text>
         <PlayerSelector
@@ -31,8 +31,6 @@ export default function UploadResults() {
           }}
           excluding={selectedPlayers}
         />
-
-        <TextInput />
       </View>
       <View style={styles.teamSection}>
         <Text style={globalStyles.sectionTitle}> Select Team B</Text>
@@ -52,16 +50,15 @@ export default function UploadResults() {
           }}
           excluding={selectedPlayers}
         />
-
-        <TextInput />
       </View>
-      <View>
+      <View style={styles.teamSection}>
         <Text style={globalStyles.sectionTitle}>
           {" "}
           Match Score (Games per Set){" "}
         </Text>
         <View style={styles.scoreGrid}>
           <View style={styles.scoreHeader}>
+            <View style={{ width: 100 }} />
             <Text style={styles.scoreHeaderText}>Set 1</Text>
             <Text style={styles.scoreHeaderText}>Set 2</Text>
             <Text style={styles.scoreHeaderText}>Set 3</Text>
@@ -118,9 +115,18 @@ export default function UploadResults() {
 }
 
 const styles = StyleSheet.create({
+  screenContainer: {
+    flex: 1,
+    padding: 20,
+  },
   teamSection: {
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    paddingBottom: 16,
+    marginBottom: 16,
     justifyContent: "space-between",
     gap: 10,
+    backgroundColor: COLORS.card,
   },
   scoreGrid: {
     marginTop: 10,

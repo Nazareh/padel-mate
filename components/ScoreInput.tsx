@@ -16,7 +16,6 @@ export default function ScoreInput({
 }: Props) {
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{`Set ${set}`}</Text>
       <TextInput
         style={styles.input}
         keyboardType="numeric"
