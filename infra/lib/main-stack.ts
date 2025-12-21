@@ -1,7 +1,6 @@
 import * as cdk from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
 import * as cognito from "aws-cdk-lib/aws-cognito";
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class MainStack extends cdk.Stack {
 
@@ -12,6 +11,7 @@ export class MainStack extends cdk.Stack {
 
     this.createUserPool();
     this.createUserPoolClient();
+    
   }
 
   private createUserPool() {
@@ -70,6 +70,3 @@ export class MainStack extends cdk.Stack {
     });
   }
 }
-
-
-// 
