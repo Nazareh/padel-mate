@@ -1,7 +1,10 @@
-import { Text } from "react-native";
+import { Link } from "expo-router";
+import { View } from "react-native";
 
-export default function Home(){
+export default function Home() {
     return (
-        <Text> Home </Text>
+        <View>
+            <Link href="/(tabs)/signup">Go to Sign Up</Link>
+        </View>
     )
 }

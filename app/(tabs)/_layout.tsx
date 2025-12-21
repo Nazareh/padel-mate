@@ -31,14 +31,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="uploadResults"
+        name="signup"
         options={{
-          title: "Upload Results",
+          title: "Sign Up",
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={
-                focused ? "information-circle" : "information-circle-outline"
-              }
+              name={focused ? "person-add-sharp" : "person-add-outline"}
               color={color}
               size={24}
             />
