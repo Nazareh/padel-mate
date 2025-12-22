@@ -30,20 +30,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="signup"
-        options={{
-          title: "Sign Up",
-          headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "person-add-sharp" : "person-add-outline"}
-              color={color}
-              size={24}
-            />
-          ),
-        }}
-      />
     </Tabs>
   );
 }

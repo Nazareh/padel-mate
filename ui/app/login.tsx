@@ -37,20 +37,19 @@ export default function SignUpScreen() {
                         <Text style={globalStyles.headerTitle}>Sign Up</Text>
                         <View style={{ width: 40 }} />
                     </View>
-                    <Logo title='Join Padel Mate'
-                        subtitle='Create an account to upload match results and track your rating and stats' />
+                    <Logo title='Welcome Back'
+                        subtitle='Enter your details to sign in to your account.' />
 
                     <View style={globalStyles.form}>
                         <MyTextInput icon="email" value="" placeholder="Email" keyboardType="email-address" onValueChange={() => { }} />
                         <MyTextInput isPassword={true} icon="lock" value="" placeholder="Password" onValueChange={() => { }} />
-                        <MyTextInput isPassword={true} icon="lock-reset" value="" placeholder="Confirm Password" onValueChange={() => { }} />
 
-                        <Button label="Create Account" onPress={() => { }} />
+                        <Button label="Log In" onPress={() => { }} />
                     </View>
                     <Divider text='Or log in with' />
 
                     <SocialRow />
-                    <FooterNote text="Already have an account? " highlightedText="Log In" onPress={() => { }} />
+                    <FooterNote text="Don't have an account? " highlightedText="Sign Up" href="/sign-up" />
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
