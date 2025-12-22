@@ -1,21 +1,20 @@
 import { COLORS, FONT_SIZE, SPACING } from "@/constants/GlobalStyles";
-import { Link } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 type Props = {
     text: string;
-    highlightedText?: string;
-    href: '/sign-up' | '/login';
+    linkText?: string;
+    onPress: () => void;
 };
 
-export default function FooterNote({ text, highlightedText, href }: Props) {
+export default function FooterNote({ text, linkText, onPress }: Props) {
     return (
         <View style={styles.loginRow}>
             <Text style={styles.loginText}>
                 {text}{" "}
-                <Link style={styles.loginLink} href={href}>
-                    {highlightedText}
-                </Link>
+                <Text style={styles.loginLink} onPress={onPress}>
+                    {linkText}
+                </Text>
             </Text>
         </View >
     );

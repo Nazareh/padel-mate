@@ -26,7 +26,7 @@ export default function MyTextInput({ icon, value, isPassword, placeholder, keyb
                 keyboardType={keyboardType ?? 'default'}
                 autoCapitalize="none"
                 autoCorrect={false}
-                secureTextEntry={!showPassword}
+                secureTextEntry={isPassword && !showPassword}
 
             />
             {isPassword &&
