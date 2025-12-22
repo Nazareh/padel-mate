@@ -11,7 +11,7 @@ export class MainStack extends cdk.Stack {
 
     this.createUserPool();
     this.createUserPoolClient();
-    
+
   }
 
   private createUserPool() {
@@ -26,7 +26,7 @@ export class MainStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       userVerification: {
         emailSubject: 'Padel Mate - Verify your email for our super awesome app!',
-        emailBody: 'Thanks for signing up to Padel Mate! Please click the link below to verify your emailx` <br/> <br/> {##Verify Email##}',
+        emailBody: 'Thanks for signing up to Padel Mate! Please [click here]({##Verify Email##}) to verify your email` <br/> <br/> {##Verify Email##}',
         emailStyle: cognito.VerificationEmailStyle.LINK,
       },
       standardAttributes: {
@@ -60,6 +60,7 @@ export class MainStack extends cdk.Stack {
       accessTokenValidity: cdk.Duration.days(1),
       authFlows: {
         userSrp: true,
+        userPassword: true,
       },
     });
 
