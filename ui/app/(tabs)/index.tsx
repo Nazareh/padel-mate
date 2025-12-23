@@ -1,10 +1,15 @@
-import { Link } from "expo-router";
-import { View } from "react-native";
+import { AuthContext } from "@/auth/authContext";
+import Button from "@/components/Button";
+import { useContext } from "react";
+import { View, Text } from "react-native";
 
 export default function Home() {
+
+    const { logOut } = useContext(AuthContext);
+
     return (
         <View>
-            <Link href="/(tabs)/signup">Go to Sign Up</Link>
+            <Button label="Logout" onPress={logOut} />
         </View>
     )
 }

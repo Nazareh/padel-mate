@@ -4,13 +4,13 @@ import FooterNote from '@/components/FooterNote';
 import Logo from '@/components/Logo';
 import SocialRow from '@/components/SocialRow';
 import MyTextInput from '@/components/TextInput';
-import { COLORS, globalStyles } from '@/constants/GlobalStyles';
-import { MaterialIcons } from "@expo/vector-icons";
+import { globalStyles } from '@/constants/GlobalStyles';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { signOut, signIn, signInWithRedirect } from "aws-amplify/auth";
+import { useContext, useState } from 'react';
+
 import LoadingOverlay from '@/components/LoadingOverlay';
 import {
+    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -18,6 +18,7 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AuthContext } from '@/auth/authContext';
 
 export default function SignUpScreen() {
     const [email, setEmail] = useState("");
@@ -25,35 +26,22 @@ export default function SignUpScreen() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const { logInWithEmail } = useContext(AuthContext);
+
     const handleLogin = async () => {
-        if (!email || !password) {
-            setError("Please fill in both fields");
-            return;
-        }
-        setIsLoading(true);
-        setError(null);
 
         try {
-            signOut({
-                global: true
-            });
-            const { isSignedIn, nextStep, ...otherProps } = await signIn({
-                username: email,
-                password,
-                options: {
-                    authFlowType: "USER_PASSWORD_AUTH",
-                },
-            });
-                console.log("✅ Sign-in success:", { isSignedIn, nextStep, otherProps });
-        } catch (error: any) {
-            console.error("❌ Error signing in:", error);
-            console.error("Full error keys:", Object.keys(error));
-            if (error?.underlyingError) {
-                console.error(
-                    "Underlying error:",
-                    JSON.stringify(error.underlyingError, null, 2)
-                );
+            setIsLoading(true);
+            setError(null);
+
+            if (!email || !password) {
+                setError("Please fill in both fields");
+                Alert.alert("Please fill in both fields");
+                return;
             }
+            await logInWithEmail(email, password);
+        } catch (error: any) {
+            console.log("Login error:", error);
             setError(error.message || "Something went wrong. Please try again.");
         } finally {
             setIsLoading(false);
