@@ -39,5 +39,6 @@ yarn-error.*
 app-example
 
 # generated native folders
-/ios
-/android
+ui/ios
+ui/android
+ui/src/aws-exports.js
