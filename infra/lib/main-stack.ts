@@ -12,6 +12,11 @@ export class MainStack extends cdk.Stack {
     this.createUserPool();
     this.createUserPoolClient();
 
+    new cdk.CfnOutput(this, 'Region', {
+      value: this.region,
+      exportName: `${this.stackName}:Region`,
+    });
+
   }
 
   private createUserPool() {
@@ -26,7 +31,7 @@ export class MainStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       userVerification: {
         emailSubject: 'Padel Mate - Verify your email for our super awesome app!',
-        emailBody: 'Thanks for signing up to Padel Mate! Please click the link below to verify your email.` <br/> <br/> {##Verify Email##}',
+        emailBody: 'Thanks for signing up to Padel Mate! Please click the link below to verify your email. <br/> <br/> {##Verify Email##}',
         emailStyle: cognito.VerificationEmailStyle.LINK,
       },
       standardAttributes: {
@@ -48,7 +53,11 @@ export class MainStack extends cdk.Stack {
       },
     });
 
-    this.userPool.addClient
+    new cdk.CfnOutput(this, 'CognitoUserPoolId', {
+      value: this.userPool.userPoolId,
+      exportName: `${this.stackName}:CognitoUserPoolId`,
+    });
+
 
   }
 
@@ -58,6 +67,7 @@ export class MainStack extends cdk.Stack {
       userPoolClientName: `${this.stackName}-user-pool-client`,
       idTokenValidity: cdk.Duration.days(1),
       accessTokenValidity: cdk.Duration.days(1),
+      generateSecret: false,
       authFlows: {
         userSrp: true,
         userPassword: true,
@@ -68,6 +78,17 @@ export class MainStack extends cdk.Stack {
       cognitoDomain: {
         domainPrefix: `${this.stackName}-padel-mate`,
       },
+
+    });
+    new cdk.CfnOutput(this, 'CognitoAppClientId', {
+      value: appClient.userPoolClientId,
+      exportName: `${this.stackName}:CognitoAppClientId`,
+    });
+
+    const cognitoDomain = `https://${this.stackName}-padel-mate.auth.${this.region}.amazoncognito.com`;
+    new cdk.CfnOutput(this, 'CognitoDomain', {
+      value: cognitoDomain,
+      exportName: `${this.stackName}:CognitoDomain`,
     });
   }
 }
