@@ -1,29 +1,32 @@
 import { Tabs } from "expo-router";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { COLORS } from "@/constants/GlobalStyles";
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#ffd33d",
+        tabBarActiveTintColor: COLORS.primary,
         headerStyle: {
-          backgroundColor: "#25292e",
+          backgroundColor: COLORS.backgroundDark,
         },
         headerShadowVisible: false,
-        headerTintColor: "#fff",
+        headerTintColor: COLORS.textLight,
         tabBarStyle: {
-          backgroundColor: "#25292e",
+          backgroundColor: COLORS.backgroundDark,
         },
       }}
     >
+
       <Tabs.Screen
-        name="index"
+        name="player-stats"
         options={{
-          title: "Home",
+          headerShown: false,
+          title: "My Stats",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? "home-sharp" : "home-outline"}
+              name={focused ? "person-sharp" : "person-outline"}
               color={color}
               size={24}
             />
@@ -31,13 +34,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="dashboard"
+        name="index"
         options={{
-          headerShown: false,
-          title: "Dashboard",
+          title: "Logout",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? "home-sharp" : "home-outline"}
+              name={focused ? "log-out-sharp" : "log-out-outline"}
               color={color}
               size={24}
             />

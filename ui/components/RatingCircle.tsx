@@ -3,7 +3,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Svg, { Circle, } from 'react-native-svg';
 
-const ratingValue = 5.42;
+const ratingValue = 1785;
 const topPct = 15;
 const trendValue = -158;
 
@@ -31,7 +31,7 @@ export default function HeaderProfile() {
                     <Text style={styles.ratingLabel}>RATING</Text>
                 </View>
             </View>
-            <Text style={styles.regionText}>Top {topPct}% in your region</Text>
+            <Text style={styles.regionText}>Top {topPct}% in your club</Text>
 
             {trendValue >= 0 && (
                 <View style={styles.trendContainer}>
@@ -57,11 +57,11 @@ const styles = StyleSheet.create({
         borderRadius: BORDER_RADIUS.full, borderWidth: 6, borderColor: COLORS.sufaceDark,
     },
     ratingTextContainer: { position: 'absolute', alignItems: 'center' },
-    ratingValue: { color: 'white', fontSize: FONT_SIZE.xxxl, fontWeight: 'bold' },
-    ratingLabel: { color: COLORS.primary, fontSize: 12, fontWeight: 'bold', letterSpacing: 1 },
-    regionText: { color: COLORS.textLight, fontSize: 14, marginTop: 15 },
+    ratingValue: { color: COLORS.textLight, fontSize: FONT_SIZE.xxxl, fontWeight: 'bold' },
+    ratingLabel: { color: COLORS.primary, fontSize: FONT_SIZE.sm, fontWeight: 'bold', letterSpacing: 1 },
+    regionText: { color: COLORS.textLight, fontSize: FONT_SIZE.sm, marginTop: SPACING.md },
 
-    trendContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
-    upTrendText: { color: COLORS.primary, fontSize: 12, fontWeight: '600', marginLeft: 4 },
-    downTrendText: { color: COLORS.red, fontSize: 12, fontWeight: '600', marginLeft: 4 },
+    trendContainer: { flexDirection: 'row', alignItems: 'center', marginTop: SPACING.xs },
+    upTrendText: { color: COLORS.primary, fontSize: FONT_SIZE.sm, fontWeight: '600', marginLeft: SPACING.xs },
+    downTrendText: { color: COLORS.red, fontSize: FONT_SIZE.sm, fontWeight: '600', marginLeft: SPACING.xs },
 })
