@@ -70,13 +70,13 @@ export default function SignUpScreen() {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={globalStyles.safeArea}
             >
-                <ScrollView contentContainerStyle={globalStyles.container}>
+                <ScrollView contentContainerStyle={globalStyles.largeContainer}>
                     <LoadingOverlay visible={false} />
                     <View style={globalStyles.header}>
                         <TouchableOpacity
                             accessibilityLabel="Back"
                             onPress={() => { router.back() }}
-                            style={globalStyles.iconButton}
+                            style={globalStyles.socialIconButton}
                         >
                             <MaterialIcons name="arrow-back" size={20} color={COLORS.textLight} />
                         </TouchableOpacity>

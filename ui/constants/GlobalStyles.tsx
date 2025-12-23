@@ -2,6 +2,7 @@ import { StyleSheet } from "react-native";
 
 export const COLORS = {
   primary: "#19e66b",
+  red: "#ef4444",
   primaryShade: "#19e66b33",
   backgroundLight: "#f6f8f7",
   backgroundDark: "#112117",
@@ -9,6 +10,7 @@ export const COLORS = {
   surfaceBorder: "#346548",
   textLight: "#f6f8f7",
   textDark: "#93c8a8",
+
 
 };
 export const SPACING = {
@@ -45,10 +47,15 @@ export const globalStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.backgroundDark,
   },
-  container: {
-    padding: 24,
+  largeContainer: {
+    padding: SPACING.lg,
     minHeight: 800,
   },
+  mdContainer: {
+    padding: SPACING.md,
+    paddingBottom: 120,
+  },
+  avatar: { width: 56, height: 56, borderRadius: 28, borderWidth: 2, borderColor: "rgba(25,230,107,0.2)" },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -56,6 +63,18 @@ export const globalStyles = StyleSheet.create({
     paddingBottom: 12,
   },
   iconButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    // gap: 8,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: BORDER_RADIUS.full,
+    backgroundColor: COLORS.primaryShade,
+    borderWidth: 1,
+    borderColor: COLORS.surfaceBorder
+  },
+
+  socialIconButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -65,6 +84,7 @@ export const globalStyles = StyleSheet.create({
   },
   headerTitle: {
     color: COLORS.primary,
+    fontSize: FONT_SIZE.lg,
     fontWeight: "600",
     textTransform: "uppercase",
     letterSpacing: 1,

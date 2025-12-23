@@ -8,6 +8,9 @@ import { globalStyles } from '@/constants/GlobalStyles';
 import { router } from 'expo-router';
 import { useContext, useState } from 'react';
 
+const HERO_IMAGE = 'https://lh3.googleusercontent.com/aida-public/AB6AXuB02fs3ChJVGuH8rZq3lcajhzWKZp2fdUvTJ7ndvu_yEbX93K501jkjtTV-vJ0LCCQMxIklO-14g0lpiJu8wmtzX30jwqnfOboswtRIEid7pGA36fJyJ_g8O4GHrs7rA_kqz_UJzeJEYITcHhAp6Vwz1MQahgWQGrRPCSF5D-D1plTuSFidW2YXAZAwVylEsO99dforuMcb657NFT_tZs9TPp8YNI-oZjxWCCxEAAAns2luffTXgKf8uTGvW1Pjf9VnQLmZU4JU_uw';
+
+
 import LoadingOverlay from '@/components/LoadingOverlay';
 import {
     Alert,
@@ -54,7 +57,7 @@ export default function SignUpScreen() {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={globalStyles.safeArea}
             >
-                <ScrollView contentContainerStyle={globalStyles.container}>
+                <ScrollView contentContainerStyle={globalStyles.largeContainer}>
                     <LoadingOverlay visible={isLoading} />
                     <View style={{ ...globalStyles.header, justifyContent: "center" }}>
                         <Text style={{ ...globalStyles.headerTitle, alignContent: "center" }}>Log In</Text>

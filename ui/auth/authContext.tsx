@@ -20,7 +20,7 @@ export const AuthContext = createContext<AuthState>({
 
 export function AuthProvider({ children }: PropsWithChildren) {
 
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(true);
     const [userId, setUserId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
 
