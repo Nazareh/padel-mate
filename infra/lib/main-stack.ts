@@ -1,13 +1,17 @@
 import * as cdk from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
 import * as cognito from "aws-cdk-lib/aws-cognito";
+import * as apigateway from "aws-cdk-lib/aws-apigateway"
 import { createLambda, createTable } from './utils';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
+import { HttpMethod } from "aws-cdk-lib/aws-lambda";
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 
 export class MainStack extends cdk.Stack {
 
   private userPool: cognito.UserPool;
   private playerTable: Table;
+  private getPlayersFn: NodejsFunction;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -18,6 +22,7 @@ export class MainStack extends cdk.Stack {
     this.createUserPoolClient();
     this.createDynamoDBTables();
     this.createLambdaFunctions();
+    this.createApiGateway();
 
     new cdk.CfnOutput(this, 'Region', {
       value: this.region,
@@ -38,6 +43,13 @@ export class MainStack extends cdk.Stack {
     });
     this.playerTable.grantReadWriteData(onboardPlayerFn);
     this.userPool.addTrigger(cognito.UserPoolOperation.POST_CONFIRMATION, onboardPlayerFn);
+
+    this.getPlayersFn = createLambda(this, "get-players-fn", this.stackName, {
+      environment: {
+        PLAYER_TABLE_NAME: this.playerTable.tableName,
+      },
+    });
+    this.playerTable.grantReadData(this.getPlayersFn);
 
   }
 
@@ -79,8 +91,6 @@ export class MainStack extends cdk.Stack {
       value: this.userPool.userPoolId,
       exportName: `${this.stackName}:CognitoUserPoolId`,
     });
-
-
   }
 
   private createUserPoolClient() {
@@ -112,5 +122,65 @@ export class MainStack extends cdk.Stack {
       value: cognitoDomain,
       exportName: `${this.stackName}:CognitoDomain`,
     });
+  }
+
+  private createApiGateway() {
+
+    // const auth = new apigateway.CognitoUserPoolsAuthorizer(this, "authorizer", {
+    //   cognitoUserPools: [this.userPool],
+    // });
+
+    // const cognitoAuthConfig = {
+    //   authorizer: auth,
+    //   authorizationType: apigateway.AuthorizationType.COGNITO,
+    // };
+
+    const api = new apigateway.RestApi(this, `${this.stackName}-my-padel-mate-api`, {
+      restApiName: `${this.stackName}-My Padel Mate API`,
+      description: "This API receives Padel match results",
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: apigateway.Cors.ALL_METHODS,
+      },
+    });
+
+    const key = api.addApiKey(`${this.stackName}-ApiKey`, {
+      apiKeyName: `${this.stackName}-ApiKey`,
+    });
+
+    const usagePlan = api.addUsagePlan(`${this.stackName}-UsagePlan`, {
+      name: `${this.stackName}-Usage Plan`,
+      throttle: {
+        rateLimit: 100,
+        burstLimit: 200,
+      },
+      quota: {
+        limit: this.stackName === "prod" ? 3000 : 500,
+        period: apigateway.Period.DAY,
+      },
+    });
+
+    usagePlan.addApiKey(key);
+    usagePlan.addApiStage({
+      stage: api.deploymentStage,
+    });
+
+    const apiRoot = api.root.addResource("v1");
+
+    const playerResource = apiRoot.addResource("players");
+    playerResource.addMethod(
+      HttpMethod.GET,
+      new apigateway.LambdaIntegration(this.getPlayersFn, {}),
+      { apiKeyRequired: false }
+      // cognitoAuthConfig
+    )
+
+    const playerIdResource = playerResource.addResource("{playerId}");
+    playerIdResource.addMethod(
+      HttpMethod.GET,
+      new apigateway.LambdaIntegration(this.getPlayersFn, {}),
+      { apiKeyRequired: false }
+      // cognitoAuthConfig
+    );
   }
 }
