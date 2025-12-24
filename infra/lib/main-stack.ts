@@ -12,6 +12,8 @@ export class MainStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    cdk.Tags.of(this).add('StackName', this.stackName);
+
     this.createUserPool();
     this.createUserPoolClient();
     this.createDynamoDBTables();
