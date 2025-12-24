@@ -35,5 +35,5 @@ exports.handler = async (event: PostConfirmationTriggerEvent): Promise<any> => {
         throw err; // let Cognito know the trigger failed
     }
 
-    return;
+    return event;
 };
