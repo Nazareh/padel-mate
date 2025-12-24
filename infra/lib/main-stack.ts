@@ -1,16 +1,21 @@
 import * as cdk from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
 import * as cognito from "aws-cdk-lib/aws-cognito";
+import { createLambda, createTable } from './utils';
+import { Table } from 'aws-cdk-lib/aws-dynamodb';
 
 export class MainStack extends cdk.Stack {
 
   private userPool: cognito.UserPool;
+  private playerTable: Table;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     this.createUserPool();
     this.createUserPoolClient();
+    this.createDynamoDBTables();
+    this.createLambdaFunctions();
 
     new cdk.CfnOutput(this, 'Region', {
       value: this.region,
@@ -18,8 +23,23 @@ export class MainStack extends cdk.Stack {
     });
 
   }
+  createDynamoDBTables() {
+    const playerTableName = `${this.stackName}-player`;
+    this.playerTable = createTable(this, playerTableName, this.stackName);
+  }
 
-  private createUserPool() {
+  createLambdaFunctions() {
+    const onboardPlayerFn = createLambda(this, "onboard-player-fn", this.stackName, {
+      environment: {
+        PLAYER_TABLE_NAME: this.playerTable.tableName,
+      },
+    });
+    this.playerTable.grantReadWriteData(onboardPlayerFn);
+    this.userPool.addTrigger(cognito.UserPoolOperation.POST_CONFIRMATION, onboardPlayerFn);
+
+  }
+
+  createUserPool() {
     this.userPool = new cognito.UserPool(this, `${this.stackName}-user-pool`, {
       userPoolName: `${this.stackName}-user-pool`,
       email: cognito.UserPoolEmail.withCognito(),
