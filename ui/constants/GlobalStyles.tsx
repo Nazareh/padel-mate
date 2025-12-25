@@ -2,15 +2,17 @@ import { StyleSheet } from "react-native";
 
 export const COLORS = {
   primary: "#19e66b",
+  secondary: "#244732",
   red: "#ef4444",
   lightBlue: "#a4c4f6ff",
   primaryShade: "#19e66b33",
   backgroundLight: "#f6f8f7",
   backgroundDark: "#112117",
-  sufaceDark: "#1a3224",
+  surfaceDark: "#1a3224",
   surfaceBorder: "#346548",
   textLight: "#f6f8f7",
   textDark: "#93c8a8",
+
 
 
 };
@@ -108,7 +110,7 @@ export const globalStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     height: 56,
-    backgroundColor: COLORS.sufaceDark,
+    backgroundColor: COLORS.secondary,
     borderRadius: BORDER_RADIUS.full,
     paddingHorizontal: SPACING.md,
     borderWidth: 1,

@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     ratingCircleContainer: {
         justifyContent: 'center', alignItems: 'center',
         width: 180, height: 180, backgroundColor: COLORS.backgroundDark,
-        borderRadius: BORDER_RADIUS.full, borderWidth: 6, borderColor: COLORS.sufaceDark,
+        borderRadius: BORDER_RADIUS.full, borderWidth: 6, borderColor: COLORS.surfaceDark,
     },
     ratingTextContainer: { position: 'absolute', alignItems: 'center' },
     ratingValue: { color: COLORS.textLight, fontSize: FONT_SIZE.xxxl, fontWeight: 'bold' },

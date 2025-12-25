@@ -104,17 +104,20 @@ export default function SearchPlayersModal({
                             renderItem={({ item }) => (
                                 <PlayerRow player={item}
                                     onToggle={() => {
-                                        console.log('toggling', item.id, teamMate);
-                                        toggle(item.id)
+                                        if (selectedList.length < 3 || selectedList.find((p) => p.id === item.id)) {
+                                            toggle(item.id)
+                                        }
                                     }}
                                     selected={!!selectedIds[item.id]}
                                     teamMateSelected={teamMateSelected}
                                     setTeamMate={() => {
-                                        setTeamMateSelected(!teamMateSelected);
-                                        setTeamMate(!teamMateSelected ? item.id : '');
+                                        if (selectedList.length < 3 || selectedList.find((p) => p.id === item.id)) {
+                                            setTeamMateSelected(!teamMateSelected);
+                                            setTeamMate(!teamMateSelected ? item.id : '');
+                                        }
                                     }}
                                     teamMate={teamMate}
-                                    allowAddButton={selectedList.length < 3}
+                                    allowAddButton={selectedList.length < 3 || selectedList.length === 3 && selectedIds[item.id]}
                                 />
                             )}
                             ItemSeparatorComponent={() => <View style={{ height: 6 }} />}
@@ -140,6 +143,7 @@ type PlayerRowProps = {
     setTeamMate: () => void;
     allowAddButton: boolean
 };
+
 function PlayerRow({ player, onToggle, teamMate, setTeamMate, selected, teamMateSelected, allowAddButton }: PlayerRowProps) {
     return (
         <View style={styles.row}>
@@ -161,7 +165,7 @@ function PlayerRow({ player, onToggle, teamMate, setTeamMate, selected, teamMate
                     <View style={styles.tagRow}>
                         {(!teamMate || teamMate === player.id) && (
                             <Pressable onPress={() => {
-                                onToggle()
+                                if (!selected) { onToggle() }
                                 setTeamMate()
                             }}
                                 style={[styles.teammateTag, teamMateSelected && styles.checkboxSelected]}
@@ -173,11 +177,16 @@ function PlayerRow({ player, onToggle, teamMate, setTeamMate, selected, teamMate
                     </View>
                 </View>
             </View>
-            (< Pressable onPress={onToggle}
+            <Pressable onPress={() => {
+                onToggle()
+                if (teamMateSelected && teamMate === player.id) {
+                    setTeamMate()
+                }
+            }}
                 disabled={!selected && !allowAddButton}
                 style={[styles.checkbox, selected && styles.checkboxSelected]} accessibilityRole="checkbox" accessibilityState={{ checked: selected }}>
-                {selected ? <MaterialIcons name="check" size={FONT_SIZE.xl} color={COLORS.sufaceDark} /> : null}
-            </Pressable>)
+                {selected ? <MaterialIcons name="check" size={FONT_SIZE.xl} color={COLORS.surfaceDark} /> : null}
+            </Pressable>
         </View >
     );
 }
@@ -205,7 +214,7 @@ const styles = StyleSheet.create({
     backdropTouchable: { flex: 1 },
     sheet: {
         height: Math.round(SCREEN_HEIGHT * 0.80),
-        backgroundColor: COLORS.sufaceDark,
+        backgroundColor: COLORS.surfaceDark,
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         overflow: 'hidden',
@@ -269,7 +278,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: BORDER_RADIUS.full,
-        backgroundColor: COLORS.sufaceDark,
+        backgroundColor: COLORS.surfaceDark,
         borderWidth: 1,
         borderColor: COLORS.backgroundLight,
     },

@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         borderRadius: 999,
-        backgroundColor: COLORS.sufaceDark,
+        backgroundColor: COLORS.surfaceDark,
         borderWidth: 1,
         borderColor: COLORS.surfaceBorder,
         alignItems: "center",

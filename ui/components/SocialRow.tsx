@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
         width: 56,
         height: 56,
         borderRadius: BORDER_RADIUS.full,
-        backgroundColor: COLORS.sufaceDark,
+        backgroundColor: COLORS.surfaceDark,
         borderWidth: 1,
         borderColor: COLORS.surfaceBorder,
         alignItems: "center",
