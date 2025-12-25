@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 export const COLORS = {
   primary: "#19e66b",
   red: "#ef4444",
+  lightBlue: "#a4c4f6ff",
   primaryShade: "#19e66b33",
   backgroundLight: "#f6f8f7",
   backgroundDark: "#112117",
@@ -55,6 +56,11 @@ export const globalStyles = StyleSheet.create({
     padding: SPACING.md,
     paddingBottom: 120,
   },
+
+  xsContainer: {
+    padding: SPACING.sm,
+    paddingBottom: 20,
+  },
   avatar: { width: 56, height: 56, borderRadius: 28, borderWidth: 2, borderColor: "rgba(25,230,107,0.2)" },
   header: {
     flexDirection: "row",
@@ -93,7 +99,27 @@ export const globalStyles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 18,
   },
-
+  title: {
+    color: COLORS.textLight,
+    fontSize: FONT_SIZE.xxl,
+    fontWeight: "700",
+  },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: 56,
+    backgroundColor: COLORS.sufaceDark,
+    borderRadius: BORDER_RADIUS.full,
+    paddingHorizontal: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.surfaceBorder,
+    marginBottom: SPACING.sm,
+  },
+  input: {
+    flex: 1,
+    color: COLORS.textLight,
+    fontSize: SPACING.md,
+  },
   form: {
     marginTop: 8,
     gap: 12,

@@ -1,4 +1,4 @@
-import { COLORS, FONT_SIZE, SPACING } from "@/constants/GlobalStyles";
+import { COLORS, FONT_SIZE, globalStyles, SPACING } from "@/constants/GlobalStyles";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -13,7 +13,7 @@ export default function Logo({ title, subtitle }: Props) {
             <View style={styles.logoWrap}>
                 <MaterialIcons name="sports-tennis" size={40} color={COLORS.primary} />
             </View>
-            {title && <Text style={styles.title}>{title}</Text>}
+            {title && <Text style={globalStyles.title}>{title}</Text>}
             {subtitle && <Text style={styles.subtitle}>
                 {subtitle}
             </Text>}
@@ -37,11 +37,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         marginBottom: SPACING.md,
         shadowColor: COLORS.primary,
-    },
-    title: {
-        color: COLORS.textLight,
-        fontSize: FONT_SIZE.xxl,
-        fontWeight: "700",
     },
     subtitle: {
         color: COLORS.textDark,

@@ -10,10 +10,12 @@ import {
     FlatList,
     TouchableOpacity,
     Dimensions,
-    Alert,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { COLORS } from '@/constants/GlobalStyles';
+import { BORDER_RADIUS, COLORS, FONT_SIZE, globalStyles, SPACING } from '@/constants/GlobalStyles';
+import Button from './Button';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -21,7 +23,7 @@ export type Player = {
     id: string;
     name: string;
     avatar?: string;
-    score?: number | string;
+    latestRating?: number | string;
     isTeammate?: boolean;
 };
 
@@ -40,6 +42,7 @@ export default function SearchPlayersModal({
 }: Props) {
     const [query, setQuery] = useState('');
     const [teamMate, setTeamMate] = useState('');
+    const [teamMateSelected, setTeamMateSelected] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Record<string, boolean>>({});
 
     const mergedPlayers = useMemo(() => players, [players]);
@@ -64,60 +67,80 @@ export default function SearchPlayersModal({
 
     return (
         <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
-            <View style={styles.backdrop}>
-                <Pressable style={styles.backdropTouchable} onPress={onClose} accessibilityLabel="Close modal" />
-                <View style={styles.sheet}>
-                    <View style={styles.handleContainer}>
-                        <View style={styles.handle} />
-                    </View>
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={globalStyles.safeArea}>
+                <View style={styles.backdrop}>
+                    <Pressable style={styles.backdropTouchable} onPress={onClose} accessibilityLabel="Close modal" />
+                    <View style={styles.sheet}>
+                        <View style={styles.handleContainer}>
+                            <View style={styles.handle} />
+                        </View>
 
-                    <View style={styles.headerRow}>
-                        <Text style={styles.title}>Add Players</Text>
-                        <Pressable onPress={onClose} hitSlop={8} style={styles.cancelBtn}>
-                            <Text style={styles.cancelText}>Cancel</Text>
-                        </Pressable>
-                    </View>
+                        <View style={styles.headerRow}>
+                            <Text style={globalStyles.title}>Add Players</Text>
+                            <Pressable onPress={onClose} hitSlop={8} style={styles.cancelBtn}>
+                                <Text style={styles.cancelText}>Cancel</Text>
+                            </Pressable>
+                        </View>
 
-                    <View style={styles.searchContainer}>
-                        <View style={styles.searchInner}>
-                            <MaterialIcons name="search" size={22} color="#7c7c7c" />
-                            <TextInput
-                                style={styles.searchInput}
-                                placeholder="Search name, username..."
-                                placeholderTextColor="#93c8a8"
-                                value={query}
-                                onChangeText={setQuery}
-                                clearButtonMode="while-editing"
-                                accessibilityLabel="Search players"
-                            />
+                        <View style={globalStyles.xsContainer}>
+                            <View style={globalStyles.inputRow}>
+                                <MaterialIcons name="search" size={22} color={COLORS.textDark} />
+                                <TextInput
+                                    style={globalStyles.input}
+                                    placeholder="Search name..."
+                                    placeholderTextColor={COLORS.textDark}
+                                    value={query}
+                                    onChangeText={setQuery}
+                                    clearButtonMode="while-editing"
+                                    accessibilityLabel="Search players"
+                                />
+                            </View>
+                        </View>
+
+                        <FlatList
+                            contentContainerStyle={styles.listContainer}
+                            data={query ? filtered : recentSection(players, filtered)}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => (
+                                <PlayerRow player={item}
+                                    onToggle={() => {
+                                        console.log('toggling', item.id, teamMate);
+                                        toggle(item.id)
+                                    }}
+                                    selected={!!selectedIds[item.id]}
+                                    teamMateSelected={teamMateSelected}
+                                    setTeamMate={() => {
+                                        setTeamMateSelected(!teamMateSelected);
+                                        setTeamMate(!teamMateSelected ? item.id : '');
+                                    }}
+                                    teamMate={teamMate}
+                                    allowAddButton={selectedList.length < 3}
+                                />
+                            )}
+                            ItemSeparatorComponent={() => <View style={{ height: 6 }} />}
+                        />
+
+                        <View style={styles.footer}>
+                            <Button onPress={handleAdd} label={`Add ${selectedList.length} Players`}
+                                badgeText={`${selectedList.length}/3`} />
                         </View>
                     </View>
-
-                    <FlatList
-                        contentContainerStyle={styles.listContainer}
-                        data={query ? filtered : recentSection(players, filtered)}
-                        keyExtractor={(item) => item.id}
-                        renderItem={({ item }) => (
-                            <PlayerRow player={item} onToggle={() => toggle(item.id)} selected={!!selectedIds[item.id]} setTeamMate={() => setTeamMate(item.id)} />
-                        )}
-                        ItemSeparatorComponent={() => <View style={{ height: 6 }} />}
-                    />
-
-                    <View style={styles.footer}>
-                        <TouchableOpacity style={styles.addButton} onPress={handleAdd} disabled={selectedList.length === 0}>
-                            <Text style={styles.addText}>Add {selectedList.length} Players</Text>
-                            <View style={styles.badge}>
-                                <Text style={styles.badgeText}>{selectedList.length}/3</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
                 </View>
-            </View>
+            </KeyboardAvoidingView>
         </Modal>
     );
 }
 
-function PlayerRow({ player, onToggle, setTeamMate, selected }: { player: Player; onToggle: () => void; selected: boolean; setTeamMate: () => void; }) {
+type PlayerRowProps = {
+    player: Player;
+    onToggle: () => void;
+    selected: boolean;
+    teamMateSelected: boolean;
+    teamMate?: string;
+    setTeamMate: () => void;
+    allowAddButton: boolean
+};
+function PlayerRow({ player, onToggle, teamMate, setTeamMate, selected, teamMateSelected, allowAddButton }: PlayerRowProps) {
     return (
         <View style={styles.row}>
             <View style={styles.rowLeft}>
@@ -125,43 +148,38 @@ function PlayerRow({ player, onToggle, setTeamMate, selected }: { player: Player
                     {player.avatar ? (
                         <Image source={{ uri: player.avatar }} style={styles.avatar} />
                     ) : (
-                        <View style={styles.initials}>{getInitials(player.name)}</View>
+                        <View style={styles.initials}>{player.name}</View>
                     )}
-                    {typeof player.score !== 'undefined' && (
+                    {typeof player.latestRating !== 'undefined' && (
                         <View style={styles.countBadge}>
-                            <Text style={styles.countText}>{player.score}</Text>
+                            <Text style={styles.countText}>{player.latestRating}</Text>
                         </View>
                     )}
                 </View>
                 <View style={styles.nameWrap}>
                     <Text style={styles.playerName}>{player.name}</Text>
                     <View style={styles.tagRow}>
-                        {player.isTeammate && (
+                        {(!teamMate || teamMate === player.id) && (
                             <Pressable onPress={() => {
-                                setTeamMate(player.id);
                                 onToggle()
+                                setTeamMate()
                             }}
-                                style={[styles.checkbox, selected && styles.checkboxSelected]} accessibilityRole="checkbox" accessibilityState={{ checked: selected }}>
-                                {selected ? <MaterialIcons name="check" size={18} color="#000" /> : null}
+                                style={[styles.teammateTag, teamMateSelected && styles.checkboxSelected]}
+                                accessibilityRole="checkbox"
+                                accessibilityState={{ checked: teamMateSelected }}>
+                                <Text style={[styles.teammateText, teamMateSelected && styles.teammateTextSelected]}>Teammate</Text>
                             </Pressable>
-                            // <View style={styles.teammateTag}>
-                            //     <Text style={styles.teammateText}>Teammate</Text>
-                            // </View>
                         )}
                     </View>
                 </View>
             </View>
-
-            <Pressable onPress={onToggle} style={[styles.checkbox, selected && styles.checkboxSelected]} accessibilityRole="checkbox" accessibilityState={{ checked: selected }}>
-                {selected ? <MaterialIcons name="check" size={18} color="#000" /> : null}
-            </Pressable>
-        </View>
+            (< Pressable onPress={onToggle}
+                disabled={!selected && !allowAddButton}
+                style={[styles.checkbox, selected && styles.checkboxSelected]} accessibilityRole="checkbox" accessibilityState={{ checked: selected }}>
+                {selected ? <MaterialIcons name="check" size={FONT_SIZE.xl} color={COLORS.sufaceDark} /> : null}
+            </Pressable>)
+        </View >
     );
-}
-
-function getInitials(name: string) {
-    const parts = name.split(' ');
-    return ((parts[0] || '').charAt(0) + (parts[1] || '').charAt(0)).toUpperCase();
 }
 
 function recentSection(recent: Player[], remaining: Player[]) {
@@ -171,11 +189,11 @@ function recentSection(recent: Player[], remaining: Player[]) {
 
 
 const defaultPlayers: Player[] = [
-    { id: 'u1', name: 'Alex Padel', avatar: 'https://i.pravatar.cc/150?u=alex', score: 1660, isTeammate: true },
-    { id: 'u2', name: 'Sarah Smash', avatar: 'https://i.pravatar.cc/150?u=sarah', score: 1500 },
-    { id: 'u3', name: 'Davide Vibora', avatar: 'https://i.pravatar.cc/150?u=davide', score: 1420 },
-    { id: 'u4', name: 'Marcus Lob', avatar: 'https://i.pravatar.cc/150?u=marcus', score: 1820 },
-    { id: 'u5', name: 'Julia Love', score: 950 },
+    { id: 'u1', name: 'Alex Padel', avatar: 'https://i.pravatar.cc/150?u=alex', latestRating: 1660 },
+    { id: 'u2', name: 'Sarah Smash', avatar: 'https://i.pravatar.cc/150?u=sarah', latestRating: 1500 },
+    { id: 'u3', name: 'Davide Vibora', avatar: 'https://i.pravatar.cc/150?u=davide', latestRating: 1420 },
+    { id: 'u4', name: 'Marcus Lob', avatar: 'https://i.pravatar.cc/150?u=marcus', latestRating: 1820 },
+    { id: 'u5', name: 'Julia Love', latestRating: 950 },
 ];
 
 const styles = StyleSheet.create({
@@ -186,8 +204,8 @@ const styles = StyleSheet.create({
     },
     backdropTouchable: { flex: 1 },
     sheet: {
-        height: Math.round(SCREEN_HEIGHT * 0.92),
-        backgroundColor: '#f6f8f7',
+        height: Math.round(SCREEN_HEIGHT * 0.80),
+        backgroundColor: COLORS.sufaceDark,
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         overflow: 'hidden',
@@ -203,18 +221,7 @@ const styles = StyleSheet.create({
     },
     title: { fontSize: 20, fontWeight: '700', color: '#111' },
     cancelBtn: { padding: 6 },
-    cancelText: { color: '#6b6b6b', fontSize: 14 },
-    searchContainer: { paddingHorizontal: 20, paddingVertical: 8 },
-    searchInner: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        height: 48,
-        backgroundColor: '#fff',
-        borderRadius: 999,
-        paddingHorizontal: 12,
-        elevation: 1,
-    },
-    searchInput: { flex: 1, marginLeft: 8, color: '#111', fontSize: 16 },
+    cancelText: { color: COLORS.textDark, fontSize: 14 },
     listContainer: { paddingHorizontal: 8, paddingBottom: 160, paddingTop: 6 },
     row: {
         flexDirection: 'row',
@@ -254,29 +261,30 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    countText: { color: '#19e66b', fontSize: 10, fontWeight: '700' },
+    countText: { color: COLORS.primary, fontSize: 10, fontWeight: '700' },
     nameWrap: { flexDirection: 'column' },
-    playerName: { fontSize: 16, fontWeight: '700', color: '#111' },
+    playerName: { fontSize: FONT_SIZE.lg, fontWeight: '700', color: COLORS.textLight },
     tagRow: { flexDirection: 'row', marginTop: 4 },
     teammateTag: {
         paddingHorizontal: 10,
         paddingVertical: 4,
-        borderRadius: 999,
-        backgroundColor: '#fff',
+        borderRadius: BORDER_RADIUS.full,
+        backgroundColor: COLORS.sufaceDark,
         borderWidth: 1,
-        borderColor: '#e6e6e6',
+        borderColor: COLORS.backgroundLight,
     },
-    teammateText: { fontSize: 10, fontWeight: '700', color: '#6b6b6b' },
+    teammateText: { fontSize: 10, fontWeight: '700', color: COLORS.textDark },
+    teammateTextSelected: { fontSize: 10, fontWeight: '700', color: COLORS.backgroundDark },
     checkbox: {
         width: 44,
         height: 44,
-        borderRadius: 999,
-        borderWidth: 2,
-        borderColor: '#d1d1d1',
+        borderRadius: BORDER_RADIUS.full,
+        borderWidth: 1,
+        borderColor: COLORS.backgroundLight,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    checkboxSelected: { borderColor: '#19e66b', backgroundColor: '#19e66b' },
+    checkboxSelected: { borderColor: COLORS.primary, backgroundColor: COLORS.primary },
     footer: {
         position: 'absolute',
         left: 0,
@@ -285,16 +293,4 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: 'transparent',
     },
-    addButton: {
-        height: 56,
-        borderRadius: 999,
-        backgroundColor: '#19e66b',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'row',
-        gap: 12,
-    },
-    addText: { color: '#000', fontWeight: '800', fontSize: 16 },
-    badge: { marginLeft: 12, backgroundColor: 'rgba(0,0,0,0.08)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-    badgeText: { color: '#111', fontWeight: '700' },
 });

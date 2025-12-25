@@ -1,4 +1,4 @@
-import { BORDER_RADIUS, COLORS, SPACING } from "@/constants/GlobalStyles";
+import { BORDER_RADIUS, COLORS, globalStyles, SPACING } from "@/constants/GlobalStyles";
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
@@ -15,7 +15,7 @@ type Props = {
 export default function MyTextInput({ icon, value, isPassword, placeholder, keyboardType, onValueChange }: Props) {
     const [showPassword, setShowPassword] = useState(false);
     return (
-        <View style={styles.inputRow}>
+        <View style={globalStyles.inputRow}>
             <MaterialIcons name={icon} size={20} color={COLORS.textDark} style={{ marginRight: 10 }} />
             <TextInput
                 placeholder={placeholder}
@@ -47,16 +47,5 @@ const styles = StyleSheet.create({
         flex: 1,
         color: COLORS.textLight,
         fontSize: SPACING.md,
-    },
-    inputRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        height: 56,
-        backgroundColor: COLORS.sufaceDark,
-        borderRadius: BORDER_RADIUS.full,
-        paddingHorizontal: SPACING.md,
-        borderWidth: 1,
-        borderColor: COLORS.surfaceBorder,
-        marginBottom: SPACING.sm,
     },
 });
