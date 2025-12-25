@@ -67,7 +67,7 @@ export default function SearchPlayersModal({
 
     return (
         <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={globalStyles.safeArea}>
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={globalStyles.safeArea}>
                 <View style={styles.backdrop}>
                     <Pressable style={styles.backdropTouchable} onPress={onClose} accessibilityLabel="Close modal" />
                     <View style={styles.sheet}>
@@ -152,13 +152,11 @@ function PlayerRow({ player, onToggle, teamMate, setTeamMate, selected, teamMate
                     {player.avatar ? (
                         <Image source={{ uri: player.avatar }} style={styles.avatar} />
                     ) : (
-                        <View style={styles.initials}>{player.name}</View>
+                        <View style={styles.initials}></View>
                     )}
-                    {typeof player.latestRating !== 'undefined' && (
-                        <View style={styles.countBadge}>
-                            <Text style={styles.countText}>{player.latestRating}</Text>
-                        </View>
-                    )}
+                    <View style={styles.countBadge}>
+                        <Text style={styles.countText}>{player.latestRating}</Text>
+                    </View>
                 </View>
                 <View style={styles.nameWrap}>
                     <Text style={styles.playerName}>{player.name}</Text>
@@ -213,10 +211,10 @@ const styles = StyleSheet.create({
     },
     backdropTouchable: { flex: 1 },
     sheet: {
-        height: Math.round(SCREEN_HEIGHT * 0.80),
+        height: Math.round(SCREEN_HEIGHT * 0.90),
         backgroundColor: COLORS.surfaceDark,
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
+        borderTopLeftRadius: SPACING.lg,
+        borderTopRightRadius: SPACING.lg,
         overflow: 'hidden',
     },
     handleContainer: { alignItems: 'center', paddingVertical: 8 },
@@ -243,18 +241,21 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     rowLeft: { flexDirection: 'row', alignItems: 'center' },
-    avatarWrap: { width: 56, height: 56, marginRight: 12 },
+    avatarWrap: {
+        width: 56, height: 56, marginRight: 12,
+    },
     avatar: { width: 56, height: 56, borderRadius: 999 },
     initials: {
         width: 56,
         height: 56,
-        borderRadius: 999,
-        backgroundColor: '#244732',
+        borderRadius: BORDER_RADIUS.full,
         alignItems: 'center',
         justifyContent: 'center',
-        color: COLORS.primary,
+        borderColor: COLORS.primaryShade,
+        backgroundColor: COLORS.backgroundDark,
+        borderWidth: 2,
         fontWeight: '700',
-        fontSize: 18,
+        fontSize: FONT_SIZE.xl,
     },
     countBadge: {
         position: 'absolute',
