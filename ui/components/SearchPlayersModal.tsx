@@ -17,8 +17,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { BORDER_RADIUS, COLORS, FONT_SIZE, globalStyles, SPACING } from '@/constants/GlobalStyles';
 import Button from './Button';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-
 export type Player = {
     id: string;
     name: string;
@@ -206,12 +204,12 @@ const defaultPlayers: Player[] = [
 const styles = StyleSheet.create({
     backdrop: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.35)',
+        backgroundColor: COLORS.backgroundDark,
         justifyContent: 'flex-end',
     },
     backdropTouchable: { flex: 1 },
     sheet: {
-        height: Math.round(SCREEN_HEIGHT * 0.90),
+        height: '90%',
         backgroundColor: COLORS.surfaceDark,
         borderTopLeftRadius: SPACING.lg,
         borderTopRightRadius: SPACING.lg,
@@ -226,7 +224,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingBottom: 8,
     },
-    title: { fontSize: 20, fontWeight: '700', color: '#111' },
+    title: { fontSize: FONT_SIZE.xl, fontWeight: '700', color: '#111' },
     cancelBtn: { padding: 6 },
     cancelText: { color: COLORS.textDark, fontSize: 14 },
     listContainer: { paddingHorizontal: 8, paddingBottom: 160, paddingTop: 6 },
