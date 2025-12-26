@@ -3,11 +3,13 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Svg, { Circle, } from 'react-native-svg';
 
-const ratingValue = 1785;
-const topPct = 15;
-const trendValue = -158;
 
-export default function HeaderProfile() {
+type RatingCircleProps = {
+    latestRating: number;
+    trendValue: number | null | undefined;
+}
+
+export default function RatingCircle({ latestRating, trendValue }: RatingCircleProps) {
     return (
         <View style={styles.heroSection}>
             <View style={styles.ratingCircleContainer}>
@@ -27,19 +29,18 @@ export default function HeaderProfile() {
                     />
                 </Svg>
                 <View style={styles.ratingTextContainer}>
-                    <Text style={styles.ratingValue}>{ratingValue}</Text>
+                    <Text style={styles.ratingValue}>{latestRating}</Text>
                     <Text style={styles.ratingLabel}>RATING</Text>
                 </View>
             </View>
-            <Text style={styles.regionText}>Top {topPct}% in your club</Text>
 
-            {trendValue >= 0 && (
+            {trendValue && trendValue >= 0 && (
                 <View style={styles.trendContainer}>
                     <MaterialIcons name="trending-up" size={FONT_SIZE.sm} color={COLORS.primary} />
                     <Text style={styles.upTrendText}>{trendValue} last 10 games</Text>
                 </View>)
             }
-            {trendValue < 0 && (
+            {trendValue && trendValue < 0 && (
                 <View style={styles.trendContainer}>
                     <MaterialIcons name="trending-down" size={FONT_SIZE.sm} color={COLORS.red} />
                     <Text style={styles.downTrendText}>{Math.abs(trendValue)} last 10 games</Text>

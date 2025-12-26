@@ -1,10 +1,12 @@
-import { createContext, PropsWithChildren, useState, useMemo, useContext } from "react";
+import { createContext, PropsWithChildren, useState, useMemo, useContext, useEffect } from "react";
+import { AuthContext, useAuthContext } from "./authContext";
 
 type PlayerData = {
     playerId: string | null;
     givenName: string | null;
     familyName: string | null;
     latestRating: number | null;
+    trendValue: number | null;
 }
 
 type PlayerContextType = {
@@ -18,6 +20,9 @@ type PlayerContextType = {
 export const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 
 export function PlayerProvider({ children }: PropsWithChildren) {
+
+    const { userId, isAuthenticated } = useAuthContext();
+
     const baseUrl = "https://kwn86hlgb0.execute-api.ap-southeast-2.amazonaws.com/prod/v1/players";
 
     const [player, setPlayer] = useState<PlayerData>();
@@ -28,7 +33,13 @@ export function PlayerProvider({ children }: PropsWithChildren) {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${baseUrl}/${id}`);
+            const response = await fetch(`${baseUrl}/${id}`, {
+                method: 'GET',
+                headers: {
+                    //     'Authorization': `Bearer ${token}`, // Pass the Amplify JWT
+                    'Content-Type': 'application/json'
+                }
+            });
             if (!response.ok) throw new Error('Failed to fetch player data');
 
             const result: PlayerData = await response.json();
@@ -39,6 +50,14 @@ export function PlayerProvider({ children }: PropsWithChildren) {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (isAuthenticated && userId) {
+            fetchData(userId);
+        } else if (!isAuthenticated) {
+            setPlayer(undefined);
+        }
+    }, [userId, isAuthenticated]);
 
     const value = useMemo(() => ({
         player,
@@ -54,7 +73,7 @@ export function PlayerProvider({ children }: PropsWithChildren) {
     );
 }
 
-export const usePlayer = () => {
+export const usePlayerContext = () => {
     const context = useContext(PlayerContext);
     if (!context) {
         throw new Error("usePlayer must be used within a PlayerProvider");

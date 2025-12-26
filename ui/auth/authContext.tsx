@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useState, useEffect } from "react";
+import { createContext, PropsWithChildren, useState, useEffect, useContext } from "react";
 import { signOut, signIn, getCurrentUser, fetchAuthSession } from "aws-amplify/auth";
 
 type AuthState = {
@@ -75,3 +75,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
         </AuthContext.Provider>
     );
 }
+
+export const useAuthContext = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error("useAuthContext must be used within a AuthProvider");
+    }
+    return context;
+};
