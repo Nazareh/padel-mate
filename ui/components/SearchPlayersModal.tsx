@@ -16,6 +16,18 @@ import MyTextInput from './TextInput';
 import { Player } from '@/model/Player';
 import PlayerRow from './PlayerRow';
 
+const defaultPlayers: Player[] = [
+    { id: 'u1', name: 'Alex Padel', avatar: 'https://i.pravatar.cc/150?u=alex', latestRating: 1660 },
+    { id: 'u2', name: 'Sarah Smash', avatar: 'https://i.pravatar.cc/150?u=sarah', latestRating: 1500 },
+    { id: 'u3', name: 'Davide Vibora', avatar: 'https://i.pravatar.cc/150?u=davide', latestRating: 1420 },
+    { id: 'u4', name: 'Marcus Lob', avatar: 'https://i.pravatar.cc/150?u=marcus', latestRating: 1820 },
+    { id: 'u5', name: 'Julia Love', latestRating: 950 },
+    { id: 'u6', name: 'Julia Love', latestRating: 950 },
+    { id: 'u7', name: 'Julia Love', latestRating: 950 },
+    { id: 'u8', name: 'Julia Love', latestRating: 950 },
+    { id: 'u9', name: 'Julia Love', latestRating: 950 },
+];
+
 type Props = {
     visible: boolean;
     onClose: () => void;
@@ -110,18 +122,6 @@ function recentSection(recent: Player[], remaining: Player[]) {
 }
 
 
-const defaultPlayers: Player[] = [
-    { id: 'u1', name: 'Alex Padel', avatar: 'https://i.pravatar.cc/150?u=alex', latestRating: 1660 },
-    { id: 'u2', name: 'Sarah Smash', avatar: 'https://i.pravatar.cc/150?u=sarah', latestRating: 1500 },
-    { id: 'u3', name: 'Davide Vibora', avatar: 'https://i.pravatar.cc/150?u=davide', latestRating: 1420 },
-    { id: 'u4', name: 'Marcus Lob', avatar: 'https://i.pravatar.cc/150?u=marcus', latestRating: 1820 },
-    { id: 'u5', name: 'Julia Love', latestRating: 950 },
-    { id: 'u6', name: 'Julia Love', latestRating: 950 },
-    { id: 'u7', name: 'Julia Love', latestRating: 950 },
-    { id: 'u8', name: 'Julia Love', latestRating: 950 },
-    { id: 'u9', name: 'Julia Love', latestRating: 950 },
-];
-
 const styles = StyleSheet.create({
     sheet: {
         height: '90%',
@@ -131,14 +131,17 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         paddingHorizontal: SPACING.lg,
     },
-    title: { fontSize: FONT_SIZE.xl, fontWeight: '700', color: '#111' },
-    listContainer: { paddingHorizontal: 8, paddingBottom: 100, paddingTop: 6 },
+    listContainer: {
+        paddingHorizontal: SPACING.sm,
+        paddingBottom: 100,
+        paddingTop: SPACING.sm
+    },
     footer: {
         position: 'absolute',
         left: 0,
         right: 0,
         bottom: 0,
-        padding: 20,
+        padding: SPACING.lg,
         backgroundColor: 'transparent',
     },
 });
