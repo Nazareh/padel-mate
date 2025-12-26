@@ -1,19 +1,19 @@
 import { Amplify } from "aws-amplify";
 import { Stack } from "expo-router";
 import awsConfig from "@/src/aws-exports";
-// import { Authenticator } from "@aws-amplify/ui-react-native";
 import { AuthContext, AuthProvider } from "@/auth/authContext";
 import { useContext } from "react";
+import { PlayerProvider } from "@/auth/playerContext";
 
 Amplify.configure(awsConfig);
 
 export default function RootLayout() {
   return (
-    // <Authenticator.Provider>
-      <AuthProvider>
+    <AuthProvider>
+      <PlayerProvider>
         <RootContent />
-      </AuthProvider>
-    // </Authenticator.Provider>
+      </PlayerProvider>
+    </AuthProvider>
   );
 }
 

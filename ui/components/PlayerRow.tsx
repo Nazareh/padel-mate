@@ -1,4 +1,4 @@
-import { BORDER_RADIUS, COLORS, FONT_SIZE } from "@/constants/GlobalStyles";
+import { BORDER_RADIUS, COLORS, FONT_SIZE, SPACING } from "@/constants/GlobalStyles";
 import { Player } from "@/model/Player";
 import { MaterialIcons } from "@expo/vector-icons";
 import { View, Image, Text, StyleSheet, Pressable } from "react-native";
@@ -65,9 +65,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingVertical: 12,
-        marginHorizontal: 6,
-        borderRadius: 20,
-        backgroundColor: 'transparent',
+        marginHorizontal: SPACING.sm,
     },
     rowLeft: {
         flexDirection: 'row',
@@ -76,12 +74,12 @@ const styles = StyleSheet.create({
     avatarWrap: {
         width: 56,
         height: 56,
-        marginRight: 12,
+        marginRight: SPACING.sm,
     },
     avatar: {
         width: 56,
         height: 56,
-        borderRadius: 999
+        borderRadius: BORDER_RADIUS.full
     },
     initials: {
         width: 56,
@@ -122,8 +120,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    countText: { color: COLORS.primary, fontSize: 10, fontWeight: '700' },
-    nameWrap: { flexDirection: 'column' },
+    countText: {
+        color: COLORS.primary,
+        fontSize: 10,
+        fontWeight: '700'
+    },
+    nameWrap: {
+        flexDirection: 'column',
+        width: '70%'
+    },
     playerName: { fontSize: FONT_SIZE.lg, fontWeight: '700', color: COLORS.textLight },
     tagRow: { flexDirection: 'row', marginTop: 4 },
     teammateTag: {

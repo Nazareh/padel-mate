@@ -21,7 +21,7 @@ const defaultPlayers: Player[] = [
     { id: 'u2', name: 'Sarah Smash', avatar: 'https://i.pravatar.cc/150?u=sarah', latestRating: 1500 },
     { id: 'u3', name: 'Davide Vibora', avatar: 'https://i.pravatar.cc/150?u=davide', latestRating: 1420 },
     { id: 'u4', name: 'Marcus Lob', avatar: 'https://i.pravatar.cc/150?u=marcus', latestRating: 1820 },
-    { id: 'u5', name: 'Julia Love', latestRating: 950 },
+    { id: 'u5', name: 'Gabriella De Azambuja Turmina', latestRating: 950 },
     { id: 'u6', name: 'Julia Love', latestRating: 950 },
     { id: 'u7', name: 'Julia Love', latestRating: 950 },
     { id: 'u8', name: 'Julia Love', latestRating: 950 },
