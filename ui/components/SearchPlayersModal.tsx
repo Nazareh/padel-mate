@@ -8,14 +8,15 @@ import {
     TextInput,
     Image,
     FlatList,
-    TouchableOpacity,
-    Dimensions,
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BORDER_RADIUS, COLORS, FONT_SIZE, globalStyles, SPACING } from '@/constants/GlobalStyles';
 import Button from './Button';
+import HandleContainer from './HandleContainer';
+import ModalHeader from './ModalHeader';
+import MyTextInput from './TextInput';
 
 export type Player = {
     id: string;
@@ -66,35 +67,16 @@ export default function SearchPlayersModal({
     return (
         <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={globalStyles.safeArea}>
-                <View style={styles.backdrop}>
-                    <Pressable style={styles.backdropTouchable} onPress={onClose} accessibilityLabel="Close modal" />
+                <View style={globalStyles.safeArea}>
+                    <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel="Close modal" />
                     <View style={styles.sheet}>
-                        <View style={styles.handleContainer}>
-                            <View style={styles.handle} />
-                        </View>
-
-                        <View style={styles.headerRow}>
-                            <Text style={globalStyles.title}>Add Players</Text>
-                            <Pressable onPress={onClose} hitSlop={8} style={styles.cancelBtn}>
-                                <Text style={styles.cancelText}>Cancel</Text>
-                            </Pressable>
-                        </View>
-
-                        <View style={globalStyles.xsContainer}>
-                            <View style={globalStyles.inputRow}>
-                                <MaterialIcons name="search" size={22} color={COLORS.textDark} />
-                                <TextInput
-                                    style={globalStyles.input}
-                                    placeholder="Search name..."
-                                    placeholderTextColor={COLORS.textDark}
-                                    value={query}
-                                    onChangeText={setQuery}
-                                    clearButtonMode="while-editing"
-                                    accessibilityLabel="Search players"
-                                />
-                            </View>
-                        </View>
-
+                        <HandleContainer />
+                        <ModalHeader onClose={onClose} title="Add Players" />
+                        <MyTextInput
+                            icon={'search'}
+                            value={query}
+                            placeholder={'Search name...'}
+                            onValueChange={setQuery} />
                         <FlatList
                             contentContainerStyle={styles.listContainer}
                             data={query ? filtered : recentSection(players, filtered)}
@@ -199,40 +181,27 @@ const defaultPlayers: Player[] = [
     { id: 'u3', name: 'Davide Vibora', avatar: 'https://i.pravatar.cc/150?u=davide', latestRating: 1420 },
     { id: 'u4', name: 'Marcus Lob', avatar: 'https://i.pravatar.cc/150?u=marcus', latestRating: 1820 },
     { id: 'u5', name: 'Julia Love', latestRating: 950 },
+    { id: 'u6', name: 'Julia Love', latestRating: 950 },
+    { id: 'u7', name: 'Julia Love', latestRating: 950 },
+    { id: 'u8', name: 'Julia Love', latestRating: 950 },
+    { id: 'u9', name: 'Julia Love', latestRating: 950 },
 ];
 
 const styles = StyleSheet.create({
-    backdrop: {
-        flex: 1,
-        backgroundColor: COLORS.backgroundDark,
-        justifyContent: 'flex-end',
-    },
-    backdropTouchable: { flex: 1 },
     sheet: {
         height: '90%',
         backgroundColor: COLORS.surfaceDark,
         borderTopLeftRadius: SPACING.lg,
         borderTopRightRadius: SPACING.lg,
         overflow: 'hidden',
-    },
-    handleContainer: { alignItems: 'center', paddingVertical: 8 },
-    handle: { width: 48, height: 6, borderRadius: 10, backgroundColor: '#cfcfcf' },
-    headerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingBottom: 8,
+        paddingHorizontal: SPACING.lg,
     },
     title: { fontSize: FONT_SIZE.xl, fontWeight: '700', color: '#111' },
-    cancelBtn: { padding: 6 },
-    cancelText: { color: COLORS.textDark, fontSize: 14 },
-    listContainer: { paddingHorizontal: 8, paddingBottom: 160, paddingTop: 6 },
+    listContainer: { paddingHorizontal: 8, paddingBottom: 100, paddingTop: 6 },
     row: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 12,
         paddingVertical: 12,
         marginHorizontal: 6,
         borderRadius: 20,
@@ -279,7 +248,12 @@ const styles = StyleSheet.create({
         borderRadius: BORDER_RADIUS.full,
         backgroundColor: COLORS.surfaceDark,
         borderWidth: 1,
-        borderColor: COLORS.backgroundLight,
+        borderColor: COLORS.backgroundLight100,
+    },
+    noTag: {
+        height: 32,
+        paddingHorizontal: 20,
+        paddingVertical: 4,
     },
     teammateText: { fontSize: 10, fontWeight: '700', color: COLORS.textDark },
     teammateTextSelected: { fontSize: 10, fontWeight: '700', color: COLORS.backgroundDark },
@@ -288,7 +262,7 @@ const styles = StyleSheet.create({
         height: 44,
         borderRadius: BORDER_RADIUS.full,
         borderWidth: 1,
-        borderColor: COLORS.backgroundLight,
+        borderColor: COLORS.backgroundLight100,
         alignItems: 'center',
         justifyContent: 'center',
     },

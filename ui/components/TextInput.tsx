@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 
 type Props = {
-    icon: 'email' | 'lock' | 'lock-reset' | 'person';
+    icon: 'email' | 'lock' | 'lock-reset' | 'person' | 'search';
     value: string;
     placeholder: string;
     keyboardType?: 'default' | 'email-address' | 'numeric';

@@ -6,7 +6,8 @@ export const COLORS = {
   red: "#ef4444",
   lightBlue: "#a4c4f6ff",
   primaryShade: "#19e66b33",
-  backgroundLight: "#f6f8f7",
+  backgroundLight100: "#f6f8f7",
+  backgroundLight200: "#cfcfcf",
   backgroundDark: "#112117",
   surfaceDark: "#1a3224",
   surfaceBorder: "#346548",
@@ -58,11 +59,6 @@ export const globalStyles = StyleSheet.create({
     padding: SPACING.md,
     paddingBottom: 120,
   },
-
-  xsContainer: {
-    padding: SPACING.sm,
-    paddingBottom: 20,
-  },
   avatar: { width: 56, height: 56, borderRadius: 28, borderWidth: 2, borderColor: "rgba(25,230,107,0.2)" },
   header: {
     flexDirection: "row",
@@ -73,7 +69,6 @@ export const globalStyles = StyleSheet.create({
   iconButton: {
     flexDirection: "row",
     alignItems: "center",
-    // gap: 8,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
     borderRadius: BORDER_RADIUS.full,
