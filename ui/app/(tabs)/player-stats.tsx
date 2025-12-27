@@ -1,5 +1,4 @@
 import { usePlayerContext } from "@/auth/playerContext";
-import ErrorNotification from "@/components/ErrorNotification";
 import HeaderProfile from "@/components/HeaderProfile";
 import RatingCircle from "@/components/RatingCircle";
 import { globalStyles } from "@/constants/GlobalStyles";
@@ -25,9 +24,6 @@ export default function PlayerStats() {
                     trendValue={playerContext.player?.trendValue}
                 />
             </ScrollView>
-            <ErrorNotification onClose={function (): void {
-                throw new Error("Function not implemented.");
-            }} />
         </SafeAreaView>
     )
 }
