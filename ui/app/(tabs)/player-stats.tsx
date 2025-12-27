@@ -1,9 +1,8 @@
-import { AuthContext } from "@/auth/authContext";
 import { usePlayerContext } from "@/auth/playerContext";
+import ErrorNotification from "@/components/ErrorNotification";
 import HeaderProfile from "@/components/HeaderProfile";
 import RatingCircle from "@/components/RatingCircle";
 import { globalStyles } from "@/constants/GlobalStyles";
-import { useContext } from "react";
 import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -26,6 +25,9 @@ export default function PlayerStats() {
                     trendValue={playerContext.player?.trendValue}
                 />
             </ScrollView>
+            <ErrorNotification onClose={function (): void {
+                throw new Error("Function not implemented.");
+            }} />
         </SafeAreaView>
     )
 }

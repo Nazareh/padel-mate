@@ -1,6 +1,6 @@
 import { BORDER_RADIUS, COLORS, FONT_SIZE, globalStyles, SPACING } from "@/constants/GlobalStyles";
 import { MaterialIcons } from "@expo/vector-icons";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import Svg, { Circle, } from 'react-native-svg';
 
 
@@ -42,7 +42,7 @@ export default function RatingCircle({ latestRating, trendValue }: RatingCircleP
             }
             {trendValue && trendValue < 0 && (
                 <View style={styles.trendContainer}>
-                    <MaterialIcons name="trending-down" size={FONT_SIZE.sm} color={COLORS.red} />
+                    <MaterialIcons name="trending-down" size={FONT_SIZE.sm} color={COLORS.red400} />
                     <Text style={styles.downTrendText}>{Math.abs(trendValue)} last 10 games</Text>
                 </View>)
             }
@@ -64,5 +64,5 @@ const styles = StyleSheet.create({
 
     trendContainer: { flexDirection: 'row', alignItems: 'center', marginTop: SPACING.xs },
     upTrendText: { color: COLORS.primary, fontSize: FONT_SIZE.sm, fontWeight: '600', marginLeft: SPACING.xs },
-    downTrendText: { color: COLORS.red, fontSize: FONT_SIZE.sm, fontWeight: '600', marginLeft: SPACING.xs },
+    downTrendText: { color: COLORS.red400, fontSize: FONT_SIZE.sm, fontWeight: '600', marginLeft: SPACING.xs },
 })

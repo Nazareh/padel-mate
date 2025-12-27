@@ -3,7 +3,12 @@ import { StyleSheet } from "react-native";
 export const COLORS = {
   primary: "#19e66b",
   secondary: "#244732",
-  red: "#ef4444",
+  red200: "#fecaca",
+  red300: "#f87171",
+  red400: "#ef4444",
+  red600: "#b91c1c",
+  red700: "#7f1d1d",
+  red900: "#520707ff",
   lightBlue: "#a4c4f6ff",
   primaryShade: "#19e66b33",
   backgroundLight100: "#f6f8f7",
@@ -36,9 +41,7 @@ export const FONT_SIZE = {
 };
 
 export const BORDER_RADIUS = {
-  default: "1rem",
-  lg: "2rem",
-  xl: "3rem",
+  md: 20,
   full: 999,
 };
 
@@ -120,5 +123,13 @@ export const globalStyles = StyleSheet.create({
   form: {
     marginTop: 8,
     gap: 12,
+  },
+  footer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    padding: SPACING.lg,
+    backgroundColor: 'transparent',
   },
 });

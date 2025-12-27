@@ -105,7 +105,7 @@ export default function SearchPlayersModal({
                             ItemSeparatorComponent={() => <View style={{ height: 6 }} />}
                         />
 
-                        <View style={styles.footer}>
+                        <View style={globalStyles.footer}>
                             <Button onPress={handleAdd} label={`Add ${selectedList.length} Players`}
                                 badgeText={`${selectedList.length}/3`} />
                         </View>
@@ -135,13 +135,5 @@ const styles = StyleSheet.create({
         paddingHorizontal: SPACING.sm,
         paddingBottom: 100,
         paddingTop: SPACING.sm
-    },
-    footer: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        bottom: 0,
-        padding: SPACING.lg,
-        backgroundColor: 'transparent',
     },
 });

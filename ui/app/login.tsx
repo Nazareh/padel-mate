@@ -10,7 +10,6 @@ import { useContext, useState } from 'react';
 
 const HERO_IMAGE = 'https://lh3.googleusercontent.com/aida-public/AB6AXuB02fs3ChJVGuH8rZq3lcajhzWKZp2fdUvTJ7ndvu_yEbX93K501jkjtTV-vJ0LCCQMxIklO-14g0lpiJu8wmtzX30jwqnfOboswtRIEid7pGA36fJyJ_g8O4GHrs7rA_kqz_UJzeJEYITcHhAp6Vwz1MQahgWQGrRPCSF5D-D1plTuSFidW2YXAZAwVylEsO99dforuMcb657NFT_tZs9TPp8YNI-oZjxWCCxEAAAns2luffTXgKf8uTGvW1Pjf9VnQLmZU4JU_uw';
 
-
 import LoadingOverlay from '@/components/LoadingOverlay';
 import {
     Alert,
@@ -21,7 +20,8 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AuthContext } from '@/auth/authContext';
+import { AuthContext, useAuthContext } from '@/auth/authContext';
+import ErrorNotification from '@/components/ErrorNotification';
 
 export default function SignUpScreen() {
     const [email, setEmail] = useState("");
@@ -29,7 +29,7 @@ export default function SignUpScreen() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const { logInWithEmail } = useContext(AuthContext);
+    const { logInWithEmail } = useAuthContext();
 
     const handleLogin = async () => {
 
@@ -39,7 +39,6 @@ export default function SignUpScreen() {
 
             if (!email || !password) {
                 setError("Please fill in both fields");
-                Alert.alert("Please fill in both fields");
                 return;
             }
             await logInWithEmail(email, password);
@@ -75,6 +74,11 @@ export default function SignUpScreen() {
                     <SocialRow />
                     <FooterNote text="Don't have an account? " linkText="Sign Up" onPress={() => { router.push("/sign-up") }} />
                 </ScrollView>
+                {error && (
+                    <ErrorNotification
+                        title={'Error'}
+                        message={error}
+                        onClose={() => setError(null)} />)}
             </KeyboardAvoidingView>
         </SafeAreaView>
     )

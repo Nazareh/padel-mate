@@ -1,13 +1,15 @@
-import { AuthContext } from "@/auth/authContext";
+import { useAuthContext } from "@/auth/authContext";
 import Button from "@/components/Button";
+import ErrorNotification from "@/components/ErrorNotification";
 import SearchPlayersModal from "@/components/SearchPlayersModal";
-import { useContext, useState } from "react";
-import { View, Text } from "react-native";
+import { useState } from "react";
+import { View } from "react-native";
 
 export default function Home() {
 
-    const { logOut } = useContext(AuthContext);
+    const { logOut } = useAuthContext();
     const [show, setShow] = useState(false);
+    const [error, setError] = useState('hkjhjh');
 
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

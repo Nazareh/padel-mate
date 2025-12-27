@@ -20,6 +20,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LoadingOverlay from '@/components/LoadingOverlay';
+import ErrorNotification from '@/components/ErrorNotification';
 
 
 export default function SignUpScreen() {
@@ -33,11 +34,11 @@ export default function SignUpScreen() {
 
     const handleSignUp = async () => {
         if (!givenName || !familyName || !email || !password || !confirmPassword) {
-            Alert.alert("Error", "Please fill in all fields");
+            setError("Please fill in both fields");
             return;
         }
         if (password !== confirmPassword) {
-            Alert.alert("Error", "Passwords do not match");
+            setError("Passwords do not match");
             return;
         }
 
@@ -58,8 +59,7 @@ export default function SignUpScreen() {
             Alert.alert("Success", "Account created successfully! Please check your email to verify your account.");
             router.replace("/login");
         }).catch((error) => {
-            console.error("❌ Error signing up:", error);
-            Alert.alert("Error", error.message || "An error occurred during sign-up");
+            setError(error);
         });
 
     }
@@ -99,6 +99,11 @@ export default function SignUpScreen() {
                     <SocialRow />
                     <FooterNote text="Already have an account? " linkText="Log In" onPress={() => { router.back() }} />
                 </ScrollView>
+                {error && (
+                    <ErrorNotification
+                        title={'Error'}
+                        message={error}
+                        onClose={() => setError(null)} />)}
             </KeyboardAvoidingView>
         </SafeAreaView>
     )
