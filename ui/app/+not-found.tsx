@@ -25,6 +25,6 @@ const styles = StyleSheet.create({
   button: {
     fontSize: 20,
     textDecorationLine: "underline",
-    color: COLORS.textDark,
+    color: COLORS.textLightGreen,
   },
 });

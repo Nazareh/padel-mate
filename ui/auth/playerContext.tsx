@@ -7,6 +7,7 @@ type PlayerData = {
     familyName: string | null;
     latestRating: number | null;
     trendValue: number | null;
+    avatarUrl: string | null;
 }
 
 type PlayerContextType = {
@@ -43,7 +44,9 @@ export function PlayerProvider({ children }: PropsWithChildren) {
             if (!response.ok) throw new Error('Failed to fetch player data');
 
             const result: PlayerData = await response.json();
-            setPlayer(result);
+            result.avatarUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAYoKwAo7DWpPFkockZCdu3uocG0MVC5hyTQnzuY3hGZIW9cZAH0PUwXh8R3Td2atRJhwqlfmTlXpO9CPZCCvgS5wAB2Aq1ONsZgJZ6IbHyiXR0pFkaPsU5Tmfl6XciDTfvmXRWLa7CjrkGTw2YWVImSwTIiG1QxPdMDA8w2MzeHyVVjgL1fPzgwUZGYI7tDdeiOcgRpI7bLiVosEk67nDnu8720FkWcqGV9GoS5PiVmlKaLbA7OkTta6LZf7XmkBR0DN7qfZgf4IA"
+
+            setPlayer({ ...result });
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {

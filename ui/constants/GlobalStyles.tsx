@@ -9,7 +9,7 @@ export const COLORS = {
   red600: "#b91c1c",
   red700: "#7f1d1d",
   red900: "#520707ff",
-  lightBlue: "#a4c4f6ff",
+  lightBlue: "#60a5fa",
   primaryShade: "#19e66b33",
   backgroundLight100: "#f6f8f7",
   backgroundLight200: "#cfcfcf",
@@ -17,7 +17,8 @@ export const COLORS = {
   surfaceDark: "#1a3224",
   surfaceBorder: "#346548",
   textLight: "#f6f8f7",
-  textDark: "#93c8a8",
+  textLightGreen: "#93c8a8",
+  textDark: '#112218'
 
 
 
@@ -42,6 +43,7 @@ export const FONT_SIZE = {
 
 export const BORDER_RADIUS = {
   md: 20,
+  lg: 35,
   full: 999,
 };
 
@@ -68,6 +70,18 @@ export const globalStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingBottom: 12,
+  },
+
+  card: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.surfaceDark,
+    borderRadius: BORDER_RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.surfaceBorder,
+    padding: SPACING.md,
+    gap: SPACING.md,
+    flexWrap: 'wrap', // Allows inner content to flow
   },
   iconButton: {
     flexDirection: "row",
@@ -103,6 +117,22 @@ export const globalStyles = StyleSheet.create({
     color: COLORS.textLight,
     fontSize: FONT_SIZE.xxl,
     fontWeight: "700",
+  },
+  labelTitle: {
+    fontSize: FONT_SIZE.md,
+    fontWeight: "700",
+    color: COLORS.textLight,
+  },
+  section: {
+    marginTop: SPACING.xl,
+    gap: SPACING.md,
+  },
+  sectionTitle: {
+    fontSize: FONT_SIZE.lg,
+    fontWeight: "700",
+    color: COLORS.textLight,
+    marginBottom: SPACING.xs,
+    paddingHorizontal: SPACING.xs,
   },
   inputRow: {
     flexDirection: "row",

@@ -18,6 +18,20 @@ export default function TabLayout() {
         },
       }}
     >
+      <Tabs.Screen
+        name="log-match"
+        options={{
+          headerShown: false,
+          title: "Log Match",
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "tennisball-sharp" : "tennisball-outline"}
+              color={color}
+              size={24}
+            />
+          ),
+        }}
+      />
 
       <Tabs.Screen
         name="player-stats"
@@ -26,7 +40,7 @@ export default function TabLayout() {
           title: "My Stats",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? "person-sharp" : "person-outline"}
+              name={focused ? "trending-up-sharp" : "trending-up-outline"}
               color={color}
               size={24}
             />

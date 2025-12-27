@@ -16,10 +16,10 @@ export default function MyTextInput({ icon, value, isPassword, placeholder, keyb
     const [showPassword, setShowPassword] = useState(false);
     return (
         <View style={globalStyles.inputRow}>
-            <MaterialIcons name={icon} size={20} color={COLORS.textDark} style={{ marginRight: 10 }} />
+            <MaterialIcons name={icon} size={20} color={COLORS.textLightGreen} style={{ marginRight: 10 }} />
             <TextInput
                 placeholder={placeholder}
-                placeholderTextColor={COLORS.textDark}
+                placeholderTextColor={COLORS.textLightGreen}
                 style={styles.input}
                 value={value}
                 onChangeText={onValueChange}
@@ -34,7 +34,7 @@ export default function MyTextInput({ icon, value, isPassword, placeholder, keyb
                     <MaterialIcons
                         name={showPassword ? "visibility" : "visibility-off"}
                         size={20}
-                        color={COLORS.textDark}
+                        color={COLORS.textLightGreen}
                     />
                 </TouchableOpacity>}
         </View>

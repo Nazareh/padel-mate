@@ -25,6 +25,6 @@ const styles = StyleSheet.create({
         marginBottom: SPACING.xl
     },
     cancelBtn: { padding: SPACING.xs },
-    cancelText: { color: COLORS.textDark, fontSize: 14 },
+    cancelText: { color: COLORS.textLightGreen, fontSize: 14 },
 
 });

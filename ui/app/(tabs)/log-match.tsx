@@ -7,17 +7,20 @@ import {
     Pressable,
     Image,
     StyleSheet,
-    SafeAreaView,
     Platform,
     StatusBar,
-    KeyboardAvoidingView
+    KeyboardAvoidingView,
+    Switch
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-// import { LinearGradient } from "expo-linear-gradient"; // Optional: for the footer fade
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, globalStyles } from "@/constants/GlobalStyles";
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { usePlayerContext } from "@/auth/playerContext";
 
 export default function LogMatchScreen() {
-    const [notes, setNotes] = useState("");
+    const [isRated, setIsRated] = useState(true);
+
+    const { player } = usePlayerContext();
 
     return (
         <SafeAreaView style={globalStyles.safeArea}>
@@ -25,13 +28,7 @@ export default function LogMatchScreen() {
 
             {/* Header */}
             <View style={styles.headerContainer}>
-                <Pressable style={styles.closeButton}>
-                    <MaterialIcons name="close" size={28} color={COLORS.textLight} />
-                </Pressable>
                 <Text style={styles.headerTitle}>Log Match</Text>
-                <Pressable style={styles.postButton}>
-                    <Text style={styles.postButtonText}>Post</Text>
-                </Pressable>
             </View>
 
             <KeyboardAvoidingView
@@ -39,28 +36,56 @@ export default function LogMatchScreen() {
                 style={{ flex: 1 }}
             >
                 <ScrollView
-                    contentContainerStyle={[globalStyles.mdContainer, { paddingBottom: 120 }]}
+                    contentContainerStyle={globalStyles.mdContainer}
                     showsVerticalScrollIndicator={false}
                 >
 
                     {/* Date & Time Card */}
-                    <Pressable style={styles.card}>
-                        <View style={styles.iconCirclePrimary}>
-                            <MaterialIcons name="calendar-today" size={20} color={COLORS.primary} />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.label}>Date & Time</Text>
-                            <Text style={styles.valueText}>Today, 18:30</Text>
-                        </View>
-                        <MaterialIcons name="chevron-right" size={24} color={COLORS.textDark} />
-                    </Pressable>
+                    <View style={globalStyles.section} >
+                        <Pressable style={globalStyles.card}>
+                            <View style={styles.iconCirclePrimary}>
+                                <MaterialIcons name="calendar-today" size={20} color={COLORS.primary} />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.label}>Date & Time</Text>
+                                <Text style={styles.valueText}>Today, 18:30</Text>
+                            </View>
+                            <MaterialIcons name="chevron-right" size={24} color={COLORS.textLightGreen} />
+                        </Pressable>
 
+                        <Pressable
+                            style={globalStyles.card}
+                            onPress={() => setIsRated(!isRated)}
+                        >
+                            <View style={styles.row}>
+                                {/* Icon Container */}
+                                <View style={styles.iconCircleBlue}>
+                                    <MaterialIcons name="emoji-events" size={24} color={COLORS.textLight} />
+                                </View>
+
+                                {/* Text Info */}
+                                <View style={{ flex: 1 }}>
+                                    <Text style={styles.labelTitle}>Rated Match</Text>
+                                    <Text style={styles.labelSubtitle}>Affects player statistics</Text>
+                                </View>
+
+                                {/* Toggle Switch */}
+                                <Switch
+                                    value={isRated}
+                                    onValueChange={setIsRated}
+                                    trackColor={{ false: "#52525b", true: COLORS.primary }}
+                                    thumbColor={COLORS.textLight}
+                                    style={{ transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }] }}
+                                />
+                            </View>
+                        </Pressable>
+                    </View>
                     {/* Players Section */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Players</Text>
+                    <View style={globalStyles.section}>
+                        <Text style={globalStyles.sectionTitle}>Players</Text>
 
                         {/* My Team */}
-                        <View style={styles.card}>
+                        <View style={globalStyles.card}>
                             <View style={styles.cardHeader}>
                                 <MaterialIcons name="group" size={20} color={COLORS.primary} />
                                 <Text style={styles.cardHeaderTitle}>MY TEAM</Text>
@@ -69,7 +94,7 @@ export default function LogMatchScreen() {
                             <View style={styles.row}>
                                 <View style={styles.avatarSmall}>
                                     <Image
-                                        source={{ uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuCQ-nDmecACcWd684k527qjKXKaCk0lC8ETJp_GezLxKGwzJ0McQvIT0IHJm2YsMSJUcqfv1md9p98DLDJYuh_tWwQ-uSSlD_IG6q7s7EbizWAm65MYODQ82qn1VpbEeOPf5lJHvtZXen4zc2xbD4vMupjtuy7-raeyhGdZmizva1-VMDn9xehKSTB7eYbimt8beS9JOQqxgE-rA3f7AV0NJ5XuERaX29djrQnoDdbWRf-HYcEo-kooymnaBnUAuBia-RTko9z_Lic" }}
+                                        source={{ uri: player?.avatarUrl! }}
                                         style={styles.avatarImage}
                                     />
                                 </View>
@@ -84,14 +109,14 @@ export default function LogMatchScreen() {
                                 </View>
                                 <TextInput
                                     placeholder="Add Partner"
-                                    placeholderTextColor={COLORS.textDark}
+                                    placeholderTextColor={COLORS.textLightGreen}
                                     style={styles.playerInput}
                                 />
                             </View>
                         </View>
 
                         {/* Opponents */}
-                        <View style={styles.card}>
+                        <View style={globalStyles.card}>
                             <View style={styles.cardHeader}>
                                 <MaterialIcons name="sports-mma" size={20} color={COLORS.red400} />
                                 <Text style={styles.cardHeaderTitle}>OPPONENTS</Text>
@@ -99,11 +124,11 @@ export default function LogMatchScreen() {
 
                             <View style={styles.row}>
                                 <View style={styles.iconCircleGray}>
-                                    <MaterialIcons name="person" size={16} color={COLORS.textDark} />
+                                    <MaterialIcons name="person" size={16} color={COLORS.textLightGreen} />
                                 </View>
                                 <TextInput
                                     placeholder="Player 3"
-                                    placeholderTextColor={COLORS.textDark}
+                                    placeholderTextColor={COLORS.textLightGreen}
                                     style={styles.playerInput}
                                 />
                             </View>
@@ -112,11 +137,11 @@ export default function LogMatchScreen() {
 
                             <View style={styles.row}>
                                 <View style={styles.iconCircleGray}>
-                                    <MaterialIcons name="person" size={16} color={COLORS.textDark} />
+                                    <MaterialIcons name="person" size={16} color={COLORS.textLightGreen} />
                                 </View>
                                 <TextInput
                                     placeholder="Player 4"
-                                    placeholderTextColor={COLORS.textDark}
+                                    placeholderTextColor={COLORS.textLightGreen}
                                     style={styles.playerInput}
                                 />
                             </View>
@@ -124,10 +149,10 @@ export default function LogMatchScreen() {
                     </View>
 
                     {/* Match Score Section */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Match Score</Text>
+                    <View style={globalStyles.section}>
+                        <Text style={globalStyles.sectionTitle}>Match Score</Text>
 
-                        <View style={styles.card}>
+                        <View style={globalStyles.card}>
                             {/* Score Header */}
                             <View style={styles.scoreGrid}>
                                 <View style={styles.scoreLabelCol} />
@@ -152,14 +177,14 @@ export default function LogMatchScreen() {
                                     keyboardType="numeric"
                                     maxLength={1}
                                     placeholder="-"
-                                    placeholderTextColor={COLORS.textDark}
+                                    placeholderTextColor={COLORS.textLightGreen}
                                 />
                                 <TextInput
                                     style={styles.scoreInput}
                                     keyboardType="numeric"
                                     maxLength={1}
                                     placeholder="-"
-                                    placeholderTextColor={COLORS.textDark}
+                                    placeholderTextColor={COLORS.textLightGreen}
                                 />
                             </View>
 
@@ -181,32 +206,18 @@ export default function LogMatchScreen() {
                                     keyboardType="numeric"
                                     maxLength={1}
                                     placeholder="-"
-                                    placeholderTextColor={COLORS.textDark}
+                                    placeholderTextColor={COLORS.textLightGreen}
                                 />
                                 <TextInput
                                     style={styles.scoreInput}
                                     keyboardType="numeric"
                                     maxLength={1}
                                     placeholder="-"
-                                    placeholderTextColor={COLORS.textDark}
+                                    placeholderTextColor={COLORS.textLightGreen}
                                 />
                             </View>
                         </View>
                     </View>
-
-                    {/* Notes Section */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Notes</Text>
-                        <TextInput
-                            style={styles.notesInput}
-                            multiline
-                            placeholder="How was the game? Any highlights?"
-                            placeholderTextColor={COLORS.textDark}
-                            value={notes}
-                            onChangeText={setNotes}
-                        />
-                    </View>
-
                 </ScrollView>
             </KeyboardAvoidingView>
 
@@ -232,7 +243,7 @@ const styles = StyleSheet.create({
     headerContainer: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: "center",
         paddingHorizontal: SPACING.md,
         paddingVertical: SPACING.sm,
         backgroundColor: COLORS.backgroundDark,
@@ -266,30 +277,6 @@ const styles = StyleSheet.create({
         fontSize: FONT_SIZE.md,
     },
 
-    // --- Layout & Cards ---
-    section: {
-        marginTop: SPACING.xl,
-        gap: SPACING.md,
-    },
-    sectionTitle: {
-        fontSize: FONT_SIZE.lg,
-        fontWeight: "700",
-        color: COLORS.textLight,
-        marginBottom: SPACING.xs,
-        paddingHorizontal: SPACING.xs,
-    },
-    card: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: COLORS.surfaceDark,
-        borderRadius: BORDER_RADIUS.md,
-        borderWidth: 1,
-        borderColor: COLORS.surfaceBorder,
-        padding: SPACING.md,
-        gap: SPACING.md,
-        flexWrap: 'wrap', // Allows inner content to flow
-    },
-
     // --- Date & Time ---
     iconCirclePrimary: {
         width: 40,
@@ -301,7 +288,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: FONT_SIZE.sm,
-        color: COLORS.textDark, // Using the green-ish textDark from your palette
+        color: COLORS.textLightGreen, // Using the green-ish textDark from your palette
         fontWeight: "500",
     },
     valueText: {
@@ -322,7 +309,7 @@ const styles = StyleSheet.create({
     cardHeaderTitle: {
         fontSize: FONT_SIZE.sm,
         fontWeight: "700",
-        color: COLORS.textDark,
+        color: COLORS.textLightGreen,
         letterSpacing: 1,
     },
     row: {
@@ -371,6 +358,14 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
     },
+    iconCircleBlue: {
+        width: 40,
+        height: 40,
+        borderRadius: BORDER_RADIUS.full,
+        backgroundColor: "rgba(30, 58, 138, 0.3)", // Matches dark:bg-blue-900/30
+        alignItems: "center",
+        justifyContent: "center",
+    },
     playerInput: {
         flex: 1,
         fontSize: FONT_SIZE.md,
@@ -395,7 +390,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 10,
         fontWeight: 'bold',
-        color: COLORS.textDark,
+        color: COLORS.textLightGreen,
         letterSpacing: 1,
     },
     scoreTeamLabelPrimary: {
@@ -408,7 +403,7 @@ const styles = StyleSheet.create({
     scoreTeamLabelGray: {
         fontSize: FONT_SIZE.sm,
         fontWeight: "bold",
-        color: COLORS.textDark,
+        color: COLORS.textLightGreen,
         textTransform: 'uppercase',
         letterSpacing: 1,
     },
@@ -479,5 +474,19 @@ const styles = StyleSheet.create({
         color: COLORS.backgroundDark,
         fontSize: FONT_SIZE.lg,
         fontWeight: "700",
-    }
+    },
+
+    labelTitle: {
+        fontSize: FONT_SIZE.md,
+        fontWeight: "700",
+        color: COLORS.textLight,
+    },
+    labelSubtitle: {
+        fontSize: FONT_SIZE.sm,
+        fontWeight: "500",
+        color: "#9ca3af", // Matches text-gray-400
+        marginTop: 2,
+    },
+    // Update existing row style if not already flex:1
+
 });

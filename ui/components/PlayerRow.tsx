@@ -36,10 +36,10 @@ export default function PlayerRow({ player, onToggle, teamMate, setTeamMate, sel
                                 if (!selected) { onToggle() }
                                 setTeamMate()
                             }}
-                                style={[styles.teammateTag, teamMateSelected && styles.checkboxSelected]}
+                                style={[styles.teammateTag, teamMateSelected && styles.teamMateCheckboxSelected]}
                                 accessibilityRole="checkbox"
                                 accessibilityState={{ checked: teamMateSelected }}>
-                                <Text style={[styles.teammateText, teamMateSelected && styles.teammateTextSelected]}>Teammate</Text>
+                                <Text style={[styles.teammateText, teamMateSelected && styles.teamMateCheckboxSelected]}>Teammate</Text>
                             </Pressable>
                         )}
                     </View>
@@ -106,6 +106,11 @@ const styles = StyleSheet.create({
         borderColor: COLORS.primary,
         backgroundColor: COLORS.primary
     },
+    teamMateCheckboxSelected: {
+        borderColor: COLORS.lightBlue,
+        backgroundColor: COLORS.lightBlue,
+        color: COLORS.textDark
+    },
     countBadge: {
         position: 'absolute',
         right: -6,
@@ -129,8 +134,15 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         width: '70%'
     },
-    playerName: { fontSize: FONT_SIZE.lg, fontWeight: '700', color: COLORS.textLight },
-    tagRow: { flexDirection: 'row', marginTop: 4 },
+    playerName: {
+        fontSize: FONT_SIZE.lg,
+        fontWeight: '700',
+        color: COLORS.textLight
+    },
+    tagRow: {
+        flexDirection: 'row',
+        marginTop: 4
+    },
     teammateTag: {
         paddingHorizontal: 10,
         paddingVertical: 4,
@@ -139,7 +151,15 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: COLORS.backgroundLight100,
     },
-    teammateText: { fontSize: 10, fontWeight: '700', color: COLORS.textDark },
-    teammateTextSelected: { fontSize: 10, fontWeight: '700', color: COLORS.backgroundDark },
+    teammateText: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: COLORS.textLightGreen
+    },
+    teammateTextSelected: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: COLORS.backgroundDark
+    },
 
 })

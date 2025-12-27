@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
         shadowColor: COLORS.primary,
     },
     subtitle: {
-        color: COLORS.textDark,
+        color: COLORS.textLightGreen,
         textAlign: "center",
         marginTop: SPACING.sm,
         maxWidth: 280,
