@@ -1,4 +1,4 @@
-import { BORDER_RADIUS, COLORS, FONT_SIZE, globalStyles, SPACING } from "@/constants/GlobalStyles";
+import { BORDER_RADIUS, COLORS, FONT_SIZE, SPACING } from "@/constants/GlobalStyles";
 import { MaterialIcons } from "@expo/vector-icons";
 import { View, Text, StyleSheet } from "react-native";
 import Svg, { Circle, } from 'react-native-svg';
