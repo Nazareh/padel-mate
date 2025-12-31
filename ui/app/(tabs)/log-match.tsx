@@ -16,10 +16,11 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, globalStyles } from "@/constants/GlobalStyles";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePlayerContext } from "@/auth/playerContext";
+import { DateTimeSelector } from "@/components/DateTimeSelector";
 
 export default function LogMatchScreen() {
+    const [matchDate, setMatchDate] = useState(new Date());
     const [isRated, setIsRated] = useState(true);
-
     const { player } = usePlayerContext();
 
     return (
@@ -42,16 +43,10 @@ export default function LogMatchScreen() {
 
                     {/* Date & Time Card */}
                     <View style={globalStyles.section} >
-                        <Pressable style={globalStyles.card}>
-                            <View style={styles.iconCirclePrimary}>
-                                <MaterialIcons name="calendar-today" size={20} color={COLORS.primary} />
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.label}>Date & Time</Text>
-                                <Text style={styles.valueText}>Today, 18:30</Text>
-                            </View>
-                            <MaterialIcons name="chevron-right" size={24} color={COLORS.textLightGreen} />
-                        </Pressable>
+                        <DateTimeSelector
+                            date={matchDate}
+                            onDateChange={setMatchDate}
+                        />
 
                         <Pressable
                             style={globalStyles.card}
@@ -82,7 +77,20 @@ export default function LogMatchScreen() {
                     </View>
                     {/* Players Section */}
                     <View style={globalStyles.section}>
-                        <Text style={globalStyles.sectionTitle}>Players</Text>
+                        <View style={styles.row}>
+
+                            <Text style={globalStyles.sectionTitle}>Players</Text>
+                            <View style={styles.row}>
+                                <View style={styles.iconCirclePrimarySmall}>
+                                    <MaterialIcons name="add" size={16} color={COLORS.primary} />
+                                </View>
+                                <TextInput
+                                    placeholder="Add other players"
+                                    placeholderTextColor={COLORS.textLightGreen}
+                                    style={styles.playerInput}
+                                />
+                            </View>
+                        </View>
 
                         {/* My Team */}
                         <View style={globalStyles.card}>
@@ -105,10 +113,10 @@ export default function LogMatchScreen() {
 
                             <View style={styles.row}>
                                 <View style={styles.iconCirclePrimarySmall}>
-                                    <MaterialIcons name="add" size={16} color={COLORS.primary} />
+                                    <MaterialIcons name="person" size={16} color={COLORS.textLightGreen} />
                                 </View>
                                 <TextInput
-                                    placeholder="Add Partner"
+                                    placeholder="Partner"
                                     placeholderTextColor={COLORS.textLightGreen}
                                     style={styles.playerInput}
                                 />
@@ -234,7 +242,7 @@ export default function LogMatchScreen() {
                 </Pressable>
             </View>
 
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }
 
