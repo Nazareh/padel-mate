@@ -61,7 +61,7 @@ export default function LogMatchScreen() {
                             <IconButton
                                 onPress={() => setShowSearchPlayersModal(true)}
                                 icon={"add"}>
-                                <Text style={globalStyles.label}>Add other players</Text>
+
                             </IconButton>
                         </View>
 
@@ -204,7 +204,7 @@ export default function LogMatchScreen() {
                             visible={showSearchPlayersModal}
                             onClose={() => setShowSearchPlayersModal(false)}
                             onAdd={(selected) => {
-                                console.log('selected players', selected);
+                                // console.log('r players', selected);
                                 setShowSearchPlayersModal(false);
                             }}
                         />)

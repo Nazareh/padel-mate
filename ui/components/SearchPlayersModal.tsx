@@ -8,7 +8,7 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
-import { COLORS, FONT_SIZE, globalStyles, SPACING } from '@/constants/GlobalStyles';
+import { COLORS, globalStyles, SPACING } from '@/constants/GlobalStyles';
 import Button from './Button';
 import HandleContainer from './HandleContainer';
 import ModalHeader from './ModalHeader';
@@ -61,6 +61,7 @@ export default function SearchPlayersModal({
     const selectedList = useMemo(() => mergedPlayers.filter((p) => selectedIds[p.id]), [mergedPlayers, selectedIds]);
 
     const handleAdd = () => {
+        console.log(mergedPlayers)
         onAdd(selectedList);
         setSelectedIds({});
         onClose();
