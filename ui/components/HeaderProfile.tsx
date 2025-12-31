@@ -2,9 +2,6 @@ import { COLORS, globalStyles } from "@/constants/GlobalStyles";
 import { MaterialIcons } from "@expo/vector-icons";
 import { View, Image, Text, TouchableOpacity } from "react-native";
 
-// 
-// const givenName = "Nazareh";
-
 type ProfileData = {
     givenName: string;
     avatarImageUrl: string;

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
+import { View, Text, Pressable, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { BORDER_RADIUS, COLORS, FONT_SIZE, globalStyles, SPACING } from '@/constants/GlobalStyles';
+import { COLORS, globalStyles } from '@/constants/GlobalStyles';
 
 interface DateTimeSelectorProps {
     date: Date;
@@ -50,14 +50,16 @@ export const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ date, onDate
         <View>
             <Pressable
                 onPress={() => setShow(true)}
-                style={({ pressed }) => [globalStyles.card, pressed && styles.pressed]}
+                style={globalStyles.card}
             >
-                <View style={styles.iconCircle}>
+                <View style={
+                    globalStyles.iconButton
+                }>
                     <MaterialIcons name="calendar-today" size={20} color={COLORS.primary} />
                 </View>
-                <View style={styles.textContainer}>
-                    <Text style={styles.label}>Date & Time</Text>
-                    <Text style={styles.valueText}>{formatDate(date)}</Text>
+                <View >
+                    <Text style={globalStyles.label}>Date & Time</Text>
+                    <Text style={globalStyles.labelTitle}>{formatDate(date)}</Text>
                 </View>
                 <MaterialIcons name="chevron-right" size={24} color={COLORS.textLightGreen} />
             </Pressable>
@@ -76,45 +78,3 @@ export const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ date, onDate
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        marginTop: SPACING.sm,
-    },
-    selectorCard: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: COLORS.surfaceDark,
-        borderRadius: BORDER_RADIUS.md,
-        borderWidth: 1,
-        borderColor: COLORS.surfaceBorder,
-        padding: SPACING.md,
-        gap: SPACING.md,
-    },
-    pressed: {
-        opacity: 0.7,
-        backgroundColor: COLORS.secondary,
-    },
-    iconCircle: {
-        width: 40,
-        height: 40,
-        borderRadius: BORDER_RADIUS.full,
-        backgroundColor: "rgba(25, 230, 107, 0.15)",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    textContainer: {
-        flex: 1,
-    },
-    label: {
-        fontSize: FONT_SIZE.sm,
-        color: COLORS.textLightGreen,
-        fontWeight: "500",
-        marginBottom: 2,
-    },
-    valueText: {
-        fontSize: FONT_SIZE.md,
-        color: COLORS.textLight,
-        fontWeight: "700",
-    },
-});

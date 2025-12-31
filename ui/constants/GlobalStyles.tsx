@@ -123,6 +123,12 @@ export const globalStyles = StyleSheet.create({
     fontWeight: "700",
     color: COLORS.textLight,
   },
+  label: {
+    fontSize: FONT_SIZE.sm,
+    color: COLORS.textLightGreen,
+    fontWeight: "500",
+    marginBottom: 2,
+  },
   section: {
     marginTop: SPACING.xl,
     gap: SPACING.md,
