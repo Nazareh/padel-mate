@@ -17,6 +17,7 @@ import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, globalStyles } from "@/const
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePlayerContext } from "@/auth/playerContext";
 import { DateTimeSelector } from "@/components/DateTimeSelector";
+import RatedMatchToogle from "@/components/RatedMatchToogle";
 
 export default function LogMatchScreen() {
     const [matchDate, setMatchDate] = useState(new Date());
@@ -47,33 +48,9 @@ export default function LogMatchScreen() {
                             date={matchDate}
                             onDateChange={setMatchDate}
                         />
-
-                        <Pressable
-                            style={globalStyles.card}
-                            onPress={() => setIsRated(!isRated)}
-                        >
-                            <View style={styles.row}>
-                                {/* Icon Container */}
-                                <View style={styles.iconCircleBlue}>
-                                    <MaterialIcons name="emoji-events" size={24} color={COLORS.textLight} />
-                                </View>
-
-                                {/* Text Info */}
-                                <View style={{ flex: 1 }}>
-                                    <Text style={styles.labelTitle}>Rated Match</Text>
-                                    <Text style={styles.labelSubtitle}>Affects player statistics</Text>
-                                </View>
-
-                                {/* Toggle Switch */}
-                                <Switch
-                                    value={isRated}
-                                    onValueChange={setIsRated}
-                                    trackColor={{ false: "#52525b", true: COLORS.primary }}
-                                    thumbColor={COLORS.textLight}
-                                    style={{ transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }] }}
-                                />
-                            </View>
-                        </Pressable>
+                        <RatedMatchToogle
+                            value={isRated}
+                            onValueChange={() => setIsRated(!isRated)} />
                     </View>
                     {/* Players Section */}
                     <View style={globalStyles.section}>
@@ -483,18 +460,4 @@ const styles = StyleSheet.create({
         fontSize: FONT_SIZE.lg,
         fontWeight: "700",
     },
-
-    labelTitle: {
-        fontSize: FONT_SIZE.md,
-        fontWeight: "700",
-        color: COLORS.textLight,
-    },
-    labelSubtitle: {
-        fontSize: FONT_SIZE.sm,
-        fontWeight: "500",
-        color: "#9ca3af", // Matches text-gray-400
-        marginTop: 2,
-    },
-    // Update existing row style if not already flex:1
-
 });
