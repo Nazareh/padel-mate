@@ -204,7 +204,7 @@ export default function LogMatchScreen() {
                             visible={showSearchPlayersModal}
                             onClose={() => setShowSearchPlayersModal(false)}
                             onAdd={(selected) => {
-                                // console.log('r players', selected);
+                                console.log('players', selected);
                                 setShowSearchPlayersModal(false);
                             }}
                         />)

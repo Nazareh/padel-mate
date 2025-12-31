@@ -42,28 +42,51 @@ export default function SearchPlayersModal({
     players = defaultPlayers,
 }: Props) {
     const [query, setQuery] = useState('');
-    const [teamMate, setTeamMate] = useState('');
-    const [teamMateSelected, setTeamMateSelected] = useState(false);
+    const [teamMateId, setTeamMateId] = useState<string | null>(null);
     const [selectedIds, setSelectedIds] = useState<Record<string, boolean>>({});
 
-    const mergedPlayers = useMemo(() => players, [players]);
-
-    const filtered = useMemo(() => {
+    // 1. Filter the list based on search query
+    const filteredPlayers = useMemo(() => {
         const q = query.trim().toLowerCase();
-        if (!q) return mergedPlayers;
-        return mergedPlayers.filter((p) => p.name.toLowerCase().includes(q));
-    }, [mergedPlayers, query]);
+        if (!q) return players;
+        return players.filter((p) => p.name.toLowerCase().includes(q));
+    }, [players, query]);
 
-    const toggle = (id: string) => {
-        setSelectedIds((s) => ({ ...s, [id]: !s[id] }));
+    // 2. Derive the actual selected list from the IDs
+    // We add the 'isTeammate' flag here dynamically
+    const selectedList = useMemo(() => {
+        return players
+            .filter((p) => selectedIds[p.id])
+            .map((p) => ({
+                ...p,
+                isTeammate: p.id === teamMateId,
+            }));
+    }, [players, selectedIds, teamMateId]);
+
+    const toggleSelection = (id: string) => {
+        setSelectedIds((prev) => {
+            const isRemoving = !!prev[id];
+            // If we are unselecting the player who was the teammate, clear teammate status
+            if (isRemoving && id === teamMateId) {
+                setTeamMateId(null);
+            }
+            return { ...prev, [id]: !prev[id] };
+        });
     };
 
-    const selectedList = useMemo(() => mergedPlayers.filter((p) => selectedIds[p.id]), [mergedPlayers, selectedIds]);
+    const handleToggleTeammate = (id: string) => {
+        // If they aren't selected yet, select them first
+        if (!selectedIds[id]) {
+            toggleSelection(id);
+        }
+        // Toggle teammate ID: if already teammate, remove it; otherwise set it
+        setTeamMateId((prev) => (prev === id ? null : id));
+    };
 
     const handleAdd = () => {
-        console.log(mergedPlayers)
-        onAdd(selectedList);
+        onAdd(selectedList); // This now contains the isTeammate attribute!
         setSelectedIds({});
+        setTeamMateId(null);
         onClose();
     };
 
@@ -81,28 +104,27 @@ export default function SearchPlayersModal({
                             placeholder={'Search name...'}
                             onValueChange={setQuery} />
                         <FlatList
-                            contentContainerStyle={styles.listContainer}
-                            data={query ? filtered : recentSection(players, filtered)}
+                            data={filteredPlayers}
                             keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <PlayerRow player={item}
-                                    onToggle={() => {
-                                        if (selectedList.length < 3 || selectedList.find((p) => p.id === item.id)) {
-                                            toggle(item.id)
-                                        }
-                                    }}
-                                    selected={!!selectedIds[item.id]}
-                                    teamMateSelected={teamMateSelected}
-                                    setTeamMate={() => {
-                                        if (selectedList.length < 3 || selectedList.find((p) => p.id === item.id)) {
-                                            setTeamMateSelected(!teamMateSelected);
-                                            setTeamMate(!teamMateSelected ? item.id : '');
-                                        }
-                                    }}
-                                    teamMate={teamMate}
-                                    allowAddButton={selectedList.length < 3 || selectedList.length === 3 && selectedIds[item.id]}
-                                />
-                            )}
+                            contentContainerStyle={styles.listContainer}
+                            renderItem={({ item }) => {
+                                const isSelected = !!selectedIds[item.id];
+                                const isTeammate = teamMateId === item.id;
+                                const canAddMore = selectedList.length < 3;
+
+                                return (
+                                    <PlayerRow
+                                        player={item}
+                                        selected={isSelected}
+                                        teamMate={teamMateId || ''} // Pass ID for highlight
+                                        onToggle={() => {
+                                            if (canAddMore || isSelected) toggleSelection(item.id);
+                                        }}
+                                        setTeamMate={() => handleToggleTeammate(item.id)}
+                                        allowAddButton={canAddMore || isSelected}
+                                        teamMateSelected={teamMateId !== null} />
+                                );
+                            }}
                             ItemSeparatorComponent={() => <View style={{ height: 6 }} />}
                         />
 
