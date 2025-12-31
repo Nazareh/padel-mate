@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 
 export const COLORS = {
   primary: "#19e66b",
@@ -42,6 +42,7 @@ export const FONT_SIZE = {
 };
 
 export const BORDER_RADIUS = {
+  sm: 12,
   md: 20,
   lg: 35,
   full: 999,
@@ -171,7 +172,7 @@ export const globalStyles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    padding: SPACING.lg,
+    padding: SPACING.md,
     backgroundColor: 'transparent',
   },
   row: {

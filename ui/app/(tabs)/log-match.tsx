@@ -4,14 +4,10 @@ import {
     Text,
     TextInput,
     ScrollView,
-    Pressable,
-    Image,
     StyleSheet,
     Platform,
     StatusBar,
     KeyboardAvoidingView,
-    Switch,
-    TouchableOpacity
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, globalStyles } from "@/constants/GlobalStyles";
@@ -23,6 +19,7 @@ import IconButton from "@/components/IconButton";
 import SearchPlayersModal from "@/components/SearchPlayersModal";
 import { Player } from "@/model/Player";
 import PlayerAvatar from "@/components/PlayerAvatar";
+import Button from "@/components/Button";
 
 export default function LogMatchScreen() {
     const [matchDate, setMatchDate] = useState(new Date());
@@ -201,18 +198,12 @@ export default function LogMatchScreen() {
             </KeyboardAvoidingView>
 
             {/* Sticky Footer */}
-            <View style={styles.footerContainer}>
-                <Pressable
-                    style={({ pressed }) => [
-                        styles.saveButton,
-                        pressed && styles.saveButtonPressed
-                    ]}
-                >
-                    <MaterialIcons name="save" size={24} color={COLORS.backgroundDark} />
-                    <Text style={styles.saveButtonText}>Save Match</Text>
-                </Pressable>
+            <View style={globalStyles.footer}>
+                <Button
+                    label={"Save Match"}
+                    onPress={() => { }}
+                />
             </View>
-
         </SafeAreaView >
     );
 }
@@ -235,47 +226,6 @@ const styles = StyleSheet.create({
         textAlign: "center",
         flex: 1,
     },
-    closeButton: {
-        width: 40,
-        height: 40,
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: BORDER_RADIUS.full,
-    },
-    postButton: {
-        height: 40,
-        paddingHorizontal: SPACING.md,
-        justifyContent: "center",
-        alignItems: "center",
-        borderRadius: BORDER_RADIUS.full,
-        backgroundColor: "rgba(25, 230, 107, 0.1)", // Primary/10
-    },
-    postButtonText: {
-        color: COLORS.primary,
-        fontWeight: "700",
-        fontSize: FONT_SIZE.md,
-    },
-
-    // --- Date & Time ---
-    iconCirclePrimary: {
-        width: 40,
-        height: 40,
-        borderRadius: BORDER_RADIUS.full,
-        backgroundColor: "rgba(25, 230, 107, 0.2)",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    label: {
-        fontSize: FONT_SIZE.sm,
-        color: COLORS.textLightGreen, // Using the green-ish textDark from your palette
-        fontWeight: "500",
-    },
-    valueText: {
-        fontSize: FONT_SIZE.md,
-        color: COLORS.textLight,
-        fontWeight: "600",
-        marginTop: 2,
-    },
 
     // --- Players Section ---
     cardHeader: {
@@ -294,59 +244,9 @@ const styles = StyleSheet.create({
     divider: {
         width: '100%',
         height: 1,
-        backgroundColor: "rgba(255, 255, 255, 0.05)",
+        backgroundColor: COLORS.primaryShade,
         marginVertical: SPACING.xs,
     },
-    avatarSmall: {
-        width: 32,
-        height: 32,
-        borderRadius: BORDER_RADIUS.full,
-        backgroundColor: "rgba(255,255,255,0.1)",
-        overflow: 'hidden',
-    },
-    avatarImage: {
-        width: '100%',
-        height: '100%',
-        opacity: 0.8,
-    },
-    playerText: {
-        flex: 1,
-        fontSize: FONT_SIZE.md,
-        fontWeight: "500",
-        color: COLORS.textLight,
-    },
-    iconCirclePrimarySmall: {
-        width: 32,
-        height: 32,
-        borderRadius: BORDER_RADIUS.full,
-        backgroundColor: "rgba(25, 230, 107, 0.2)",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    iconCircleGray: {
-        width: 32,
-        height: 32,
-        borderRadius: BORDER_RADIUS.full,
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    iconCircleBlue: {
-        width: 40,
-        height: 40,
-        borderRadius: BORDER_RADIUS.full,
-        backgroundColor: "rgba(30, 58, 138, 0.3)", // Matches dark:bg-blue-900/30
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    playerInput: {
-        flex: 1,
-        fontSize: FONT_SIZE.md,
-        fontWeight: "500",
-        color: COLORS.textLight,
-        padding: 0, // Reset default Android padding
-    },
-
     // --- Score Grid ---
     scoreGrid: {
         flexDirection: 'row',
@@ -361,7 +261,7 @@ const styles = StyleSheet.create({
     scoreColHeader: {
         flex: 1,
         textAlign: 'center',
-        fontSize: 10,
+        fontSize: FONT_SIZE.sm,
         fontWeight: 'bold',
         color: COLORS.textLightGreen,
         letterSpacing: 1,
@@ -383,7 +283,7 @@ const styles = StyleSheet.create({
     scoreInput: {
         flex: 1,
         height: 48,
-        borderRadius: 12,
+        borderRadius: BORDER_RADIUS.sm,
         backgroundColor: COLORS.backgroundDark,
         borderWidth: 2,
         borderColor: 'transparent',
@@ -393,59 +293,7 @@ const styles = StyleSheet.create({
         color: COLORS.textLight,
     },
     scoreInputActive: {
-        borderColor: "rgba(25, 230, 107, 0.2)",
+        borderColor: COLORS.primaryShade,
         color: COLORS.textLight, // Assuming text-gray-900 maps to light in dark mode context
-    },
-
-    // --- Notes ---
-    notesInput: {
-        width: '100%',
-        minHeight: 100,
-        backgroundColor: "#1e3328", // Specifically matches 'input-bg' from HTML config
-        borderRadius: BORDER_RADIUS.md,
-        borderWidth: 1,
-        borderColor: COLORS.surfaceBorder,
-        padding: SPACING.md,
-        fontSize: FONT_SIZE.md,
-        color: COLORS.textLight,
-        textAlignVertical: 'top',
-    },
-
-    // --- Footer ---
-    footerContainer: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        padding: SPACING.md,
-        paddingBottom: Platform.OS === 'ios' ? 0 : SPACING.md, // Extra padding if needed
-        height: 100, // Height for the gradient area
-        justifyContent: 'flex-end',
-    },
-    saveButton: {
-        width: '100%',
-        height: 56,
-        borderRadius: BORDER_RADIUS.full,
-        backgroundColor: COLORS.primary,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: SPACING.sm,
-        // Shadow for Android
-        elevation: 8,
-        // Shadow for iOS
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
-    },
-    saveButtonPressed: {
-        transform: [{ scale: 0.98 }],
-        opacity: 0.9,
-    },
-    saveButtonText: {
-        color: COLORS.backgroundDark,
-        fontSize: FONT_SIZE.lg,
-        fontWeight: "700",
     },
 });

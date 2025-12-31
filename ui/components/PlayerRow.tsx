@@ -1,7 +1,7 @@
 import { BORDER_RADIUS, COLORS, FONT_SIZE, SPACING } from "@/constants/GlobalStyles";
 import { Player } from "@/model/Player";
 import { MaterialIcons } from "@expo/vector-icons";
-import { View, Image, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import PlayerAvatar from "./PlayerAvatar";
 
 type PlayerRowProps = {
