@@ -75,12 +75,13 @@ export default function SearchPlayersModal({
     };
 
     const handleToggleTeammate = (id: string) => {
-        // If they aren't selected yet, select them first
-        if (!selectedIds[id]) {
+        const isBecomingTeammate = teamMateId !== id;
+
+        setTeamMateId(isBecomingTeammate ? id : null);
+
+        if (isBecomingTeammate && !selectedIds[id]) {
             toggleSelection(id);
         }
-        // Toggle teammate ID: if already teammate, remove it; otherwise set it
-        setTeamMateId((prev) => (prev === id ? null : id));
     };
 
     const handleAdd = () => {
@@ -116,13 +117,17 @@ export default function SearchPlayersModal({
                                     <PlayerRow
                                         player={item}
                                         selected={isSelected}
-                                        teamMate={teamMateId || ''} // Pass ID for highlight
+                                        teamMate={teamMateId || ''}
                                         onToggle={() => {
                                             if (canAddMore || isSelected) toggleSelection(item.id);
                                         }}
-                                        setTeamMate={() => handleToggleTeammate(item.id)}
+                                        setTeamMate={() => {
+                                            if (canAddMore || isSelected) {
+                                                handleToggleTeammate(item.id);
+                                            }
+                                        }}
                                         allowAddButton={canAddMore || isSelected}
-                                        teamMateSelected={teamMateId !== null} />
+                                        teamMateSelected={isTeammate} />
                                 );
                             }}
                             ItemSeparatorComponent={() => <View style={{ height: 6 }} />}

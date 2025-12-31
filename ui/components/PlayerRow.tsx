@@ -14,7 +14,6 @@ type PlayerRowProps = {
     allowAddButton: boolean
 };
 
-
 export default function PlayerRow({ player, onToggle, teamMate, setTeamMate, selected, teamMateSelected, allowAddButton }: PlayerRowProps) {
     return (
         <View style={styles.row}>
@@ -25,10 +24,7 @@ export default function PlayerRow({ player, onToggle, teamMate, setTeamMate, sel
             >
                 <View style={styles.tagRow}>
                     {(!teamMate || teamMate === player.id) && (
-                        <Pressable onPress={() => {
-                            if (!selected) { onToggle() }
-                            setTeamMate()
-                        }}
+                        <Pressable onPress={setTeamMate}
                             style={[styles.teammateTag, teamMateSelected && styles.teamMateCheckboxSelected]}
                             accessibilityRole="checkbox"
                             accessibilityState={{ checked: teamMateSelected }}>
@@ -37,12 +33,7 @@ export default function PlayerRow({ player, onToggle, teamMate, setTeamMate, sel
                     )}
                 </View>
             </PlayerAvatar>
-            <Pressable onPress={() => {
-                onToggle()
-                if (teamMateSelected && teamMate === player.id) {
-                    setTeamMate()
-                }
-            }}
+            <Pressable onPress={onToggle}
                 disabled={!selected && !allowAddButton}
                 style={[styles.checkbox, selected && styles.checkboxSelected]} accessibilityRole="checkbox" accessibilityState={{ checked: selected }}>
                 {selected ? <MaterialIcons name="check" size={FONT_SIZE.xl} color={COLORS.surfaceDark} /> : null}
