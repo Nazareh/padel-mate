@@ -10,7 +10,8 @@ import {
     Platform,
     StatusBar,
     KeyboardAvoidingView,
-    Switch
+    Switch,
+    TouchableOpacity
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, globalStyles } from "@/constants/GlobalStyles";
@@ -18,10 +19,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePlayerContext } from "@/auth/playerContext";
 import { DateTimeSelector } from "@/components/DateTimeSelector";
 import RatedMatchToogle from "@/components/RatedMatchToogle";
+import IconButton from "@/components/IconButton";
+import SearchPlayersModal from "@/components/SearchPlayersModal";
 
 export default function LogMatchScreen() {
     const [matchDate, setMatchDate] = useState(new Date());
     const [isRated, setIsRated] = useState(true);
+    const [showSearchPlayersModal, setShowSearchPlayersModal] = useState(false);
     const { player } = usePlayerContext();
 
     return (
@@ -41,8 +45,6 @@ export default function LogMatchScreen() {
                     contentContainerStyle={globalStyles.mdContainer}
                     showsVerticalScrollIndicator={false}
                 >
-
-                    {/* Date & Time Card */}
                     <View style={globalStyles.section} >
                         <DateTimeSelector
                             date={matchDate}
@@ -54,19 +56,13 @@ export default function LogMatchScreen() {
                     </View>
                     {/* Players Section */}
                     <View style={globalStyles.section}>
-                        <View style={styles.row}>
-
+                        <View style={{ ...globalStyles.row, justifyContent: "space-between" }}>
                             <Text style={globalStyles.sectionTitle}>Players</Text>
-                            <View style={styles.row}>
-                                <View style={styles.iconCirclePrimarySmall}>
-                                    <MaterialIcons name="add" size={16} color={COLORS.primary} />
-                                </View>
-                                <TextInput
-                                    placeholder="Add other players"
-                                    placeholderTextColor={COLORS.textLightGreen}
-                                    style={styles.playerInput}
-                                />
-                            </View>
+                            <IconButton
+                                onPress={() => setShowSearchPlayersModal(true)}
+                                icon={"add"}>
+                                <Text style={globalStyles.label}>Add other players</Text>
+                            </IconButton>
                         </View>
 
                         {/* My Team */}
@@ -76,7 +72,7 @@ export default function LogMatchScreen() {
                                 <Text style={styles.cardHeaderTitle}>MY TEAM</Text>
                             </View>
 
-                            <View style={styles.row}>
+                            <View style={globalStyles.row}>
                                 <View style={styles.avatarSmall}>
                                     <Image
                                         source={{ uri: player?.avatarUrl! }}
@@ -88,7 +84,7 @@ export default function LogMatchScreen() {
 
                             <View style={styles.divider} />
 
-                            <View style={styles.row}>
+                            <View style={globalStyles.row}>
                                 <View style={styles.iconCirclePrimarySmall}>
                                     <MaterialIcons name="person" size={16} color={COLORS.textLightGreen} />
                                 </View>
@@ -107,7 +103,7 @@ export default function LogMatchScreen() {
                                 <Text style={styles.cardHeaderTitle}>OPPONENTS</Text>
                             </View>
 
-                            <View style={styles.row}>
+                            <View style={globalStyles.row}>
                                 <View style={styles.iconCircleGray}>
                                     <MaterialIcons name="person" size={16} color={COLORS.textLightGreen} />
                                 </View>
@@ -120,7 +116,7 @@ export default function LogMatchScreen() {
 
                             <View style={styles.divider} />
 
-                            <View style={styles.row}>
+                            <View style={globalStyles.row}>
                                 <View style={styles.iconCircleGray}>
                                     <MaterialIcons name="person" size={16} color={COLORS.textLightGreen} />
                                 </View>
@@ -203,6 +199,16 @@ export default function LogMatchScreen() {
                             </View>
                         </View>
                     </View>
+                    {showSearchPlayersModal && (
+                        <SearchPlayersModal
+                            visible={showSearchPlayersModal}
+                            onClose={() => setShowSearchPlayersModal(false)}
+                            onAdd={(selected) => {
+                                console.log('selected players', selected);
+                                setShowSearchPlayersModal(false);
+                            }}
+                        />)
+                    }
                 </ScrollView>
             </KeyboardAvoidingView>
 
@@ -296,12 +302,6 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         color: COLORS.textLightGreen,
         letterSpacing: 1,
-    },
-    row: {
-        flexDirection: "row",
-        alignItems: "center",
-        width: '100%',
-        gap: SPACING.sm,
     },
     divider: {
         width: '100%',

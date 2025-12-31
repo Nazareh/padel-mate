@@ -1,6 +1,6 @@
-import { COLORS, globalStyles } from "@/constants/GlobalStyles";
+import { COLORS, FONT_SIZE, globalStyles } from "@/constants/GlobalStyles";
 import { MaterialIcons } from "@expo/vector-icons";
-import { View, Image, Text, TouchableOpacity } from "react-native";
+import { View, Image, Text, Pressable } from "react-native";
 
 type ProfileData = {
     givenName: string;
@@ -18,8 +18,10 @@ export default function HeaderProfile({ givenName, avatarImageUrl }: ProfileData
             </View>
         </View>
 
-        <TouchableOpacity style={globalStyles.iconButton}>
-            <MaterialIcons name="settings" size={18} color={COLORS.primary} />
-        </TouchableOpacity>
+        <Pressable style={globalStyles.iconButton}
+            onPress={() => alert('hahah')}
+        >
+            <MaterialIcons name="settings" size={FONT_SIZE.lg} color={COLORS.primary} />
+        </Pressable>
     </View>)
 }

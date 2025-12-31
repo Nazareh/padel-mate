@@ -52,29 +52,29 @@ export const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ date, onDate
                 onPress={() => setShow(true)}
                 style={globalStyles.card}
             >
-                <View style={
-                    globalStyles.iconButton
-                }>
+                <View style={globalStyles.iconButton}>
                     <MaterialIcons name="calendar-today" size={20} color={COLORS.primary} />
                 </View>
-                <View >
+                <View style={{ flex: 1 }} >
                     <Text style={globalStyles.label}>Date & Time</Text>
                     <Text style={globalStyles.labelTitle}>{formatDate(date)}</Text>
                 </View>
                 <MaterialIcons name="chevron-right" size={24} color={COLORS.textLightGreen} />
             </Pressable>
 
-            {show && (
-                <DateTimePicker
-                    value={date}
-                    mode={mode}
-                    // minuteInterval={15}
-                    is24Hour={true}
-                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                    onChange={onChange}
-                    textColor={COLORS.textLight}
-                />
-            )}
-        </View>
+            {
+                show && (
+                    <DateTimePicker
+                        value={date}
+                        mode={mode}
+                        // minuteInterval={15}
+                        is24Hour={true}
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        onChange={onChange}
+                        textColor={COLORS.textLight}
+                    />
+                )
+            }
+        </View >
     );
-};
+}; 

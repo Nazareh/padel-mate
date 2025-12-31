@@ -168,4 +168,9 @@ export const globalStyles = StyleSheet.create({
     padding: SPACING.lg,
     backgroundColor: 'transparent',
   },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.sm,
+  }
 });
