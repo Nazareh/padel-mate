@@ -38,7 +38,7 @@ export const FONT_SIZE = {
   lg: 20,
   xl: 24,
   xxl: 30,
-  xxxl: 36,
+  xxxl: 44,
 };
 
 export const BORDER_RADIUS = {
@@ -65,9 +65,9 @@ export const globalStyles = StyleSheet.create({
     paddingBottom: 120,
   },
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: FONT_SIZE.xxxl,
+    height: FONT_SIZE.xxxl,
+    borderRadius: BORDER_RADIUS.full,
     borderWidth: 2,
     borderColor: COLORS.primaryShade
   },
@@ -75,7 +75,7 @@ export const globalStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingBottom: 12,
+    paddingBottom: SPACING.md,
   },
 
   card: {

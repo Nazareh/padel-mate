@@ -59,16 +59,6 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         marginHorizontal: SPACING.sm,
     },
-    avatarWrap: {
-        width: 56,
-        height: 56,
-        marginRight: SPACING.sm,
-    },
-    avatar: {
-        width: 56,
-        height: 56,
-        borderRadius: BORDER_RADIUS.full
-    },
     initials: {
         width: 56,
         height: 56,

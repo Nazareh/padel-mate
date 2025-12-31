@@ -22,6 +22,7 @@ import RatedMatchToogle from "@/components/RatedMatchToogle";
 import IconButton from "@/components/IconButton";
 import SearchPlayersModal from "@/components/SearchPlayersModal";
 import { Player } from "@/model/Player";
+import PlayerAvatar from "@/components/PlayerAvatar";
 
 export default function LogMatchScreen() {
     const [matchDate, setMatchDate] = useState(new Date());
@@ -85,40 +86,15 @@ export default function LogMatchScreen() {
                                 <MaterialIcons name="group" size={20} color={COLORS.primary} />
                                 <Text style={styles.cardHeaderTitle}>MY TEAM</Text>
                             </View>
-
-                            <View style={globalStyles.row}>
-                                <View style={styles.avatarSmall}>
-                                    <Image
-                                        source={{ uri: player?.avatarUrl! }}
-                                        style={styles.avatarImage}
-                                    />
-                                </View>
-                                <Text style={styles.playerText}>You</Text>
-                            </View>
-
+                            <PlayerAvatar
+                                playerName={player?.givenName!}
+                                avatarUrl={player?.avatarUrl!}
+                                latestRating={player?.latestRating!.toString()} />
                             <View style={styles.divider} />
-                            {partner ? (
-                                <View style={globalStyles.row}>
-                                    <View style={styles.avatarSmall}>
-                                        <Image
-                                            source={{ uri: partner?.avatar! }}
-                                            style={styles.avatarImage}
-                                        />
-                                    </View>
-                                    <Text style={styles.playerText}>{partner.name}</Text>
-                                </View>
-                            )
-                                : (<View style={globalStyles.row}>
-                                    <View style={styles.iconCirclePrimarySmall}>
-                                        <MaterialIcons name="person" size={16} color={COLORS.textLightGreen} />
-                                    </View>
-                                    <TextInput
-                                        placeholder="Partner"
-                                        placeholderTextColor={COLORS.textLightGreen}
-                                        style={styles.playerInput}
-                                    />
-                                </View>)
-                            }
+                            <PlayerAvatar
+                                playerName={partner?.name}
+                                avatarUrl={partner?.avatar}
+                                latestRating={partner?.latestRating.toString()} />
                         </View>
 
                         {/* Opponents */}
@@ -127,30 +103,17 @@ export default function LogMatchScreen() {
                                 <MaterialIcons name="sports-mma" size={20} color={COLORS.red400} />
                                 <Text style={styles.cardHeaderTitle}>OPPONENTS</Text>
                             </View>
-
-                            <View style={globalStyles.row}>
-                                <View style={styles.iconCircleGray}>
-                                    <MaterialIcons name="person" size={16} color={COLORS.textLightGreen} />
-                                </View>
-                                <TextInput
-                                    placeholder="Player 3"
-                                    placeholderTextColor={COLORS.textLightGreen}
-                                    style={styles.playerInput}
-                                />
-                            </View>
-
+                            <PlayerAvatar
+                                playerName={otherPlayers?.at(0)?.name}
+                                avatarUrl={otherPlayers?.at(0)?.avatar}
+                                latestRating={otherPlayers?.at(0)?.latestRating.toString()}
+                            />
                             <View style={styles.divider} />
-
-                            <View style={globalStyles.row}>
-                                <View style={styles.iconCircleGray}>
-                                    <MaterialIcons name="person" size={16} color={COLORS.textLightGreen} />
-                                </View>
-                                <TextInput
-                                    placeholder="Player 4"
-                                    placeholderTextColor={COLORS.textLightGreen}
-                                    style={styles.playerInput}
-                                />
-                            </View>
+                            <PlayerAvatar
+                                playerName={otherPlayers?.at(1)?.name}
+                                avatarUrl={otherPlayers?.at(1)?.avatar}
+                                latestRating={otherPlayers?.at(1)?.latestRating.toString()}
+                            />
                         </View>
                     </View>
 
