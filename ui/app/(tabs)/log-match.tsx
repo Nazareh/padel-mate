@@ -21,13 +21,27 @@ import { DateTimeSelector } from "@/components/DateTimeSelector";
 import RatedMatchToogle from "@/components/RatedMatchToogle";
 import IconButton from "@/components/IconButton";
 import SearchPlayersModal from "@/components/SearchPlayersModal";
+import { Player } from "@/model/Player";
 
 export default function LogMatchScreen() {
     const [matchDate, setMatchDate] = useState(new Date());
     const [isRated, setIsRated] = useState(true);
     const [showSearchPlayersModal, setShowSearchPlayersModal] = useState(false);
+    const [partner, setPartner] = useState<Player | null>(null)
+    const [otherPlayers, setOtherPlayers] = useState<Player[]>()
     const { player } = usePlayerContext();
 
+    const setPlayers = (players: Player[]) => {
+        players
+            .filter((p) => p.isTeammate)
+            .forEach((p) => setPartner(p))
+
+        setOtherPlayers(
+            players
+                .filter((p) => !p.isTeammate))
+    }
+
+    console.log("Partner", partner)
     return (
         <SafeAreaView style={globalStyles.safeArea}>
             <StatusBar barStyle="light-content" backgroundColor={COLORS.backgroundDark} />
@@ -83,17 +97,28 @@ export default function LogMatchScreen() {
                             </View>
 
                             <View style={styles.divider} />
-
-                            <View style={globalStyles.row}>
-                                <View style={styles.iconCirclePrimarySmall}>
-                                    <MaterialIcons name="person" size={16} color={COLORS.textLightGreen} />
+                            {partner ? (
+                                <View style={globalStyles.row}>
+                                    <View style={styles.avatarSmall}>
+                                        <Image
+                                            source={{ uri: partner?.avatar! }}
+                                            style={styles.avatarImage}
+                                        />
+                                    </View>
+                                    <Text style={styles.playerText}>{partner.name}</Text>
                                 </View>
-                                <TextInput
-                                    placeholder="Partner"
-                                    placeholderTextColor={COLORS.textLightGreen}
-                                    style={styles.playerInput}
-                                />
-                            </View>
+                            )
+                                : (<View style={globalStyles.row}>
+                                    <View style={styles.iconCirclePrimarySmall}>
+                                        <MaterialIcons name="person" size={16} color={COLORS.textLightGreen} />
+                                    </View>
+                                    <TextInput
+                                        placeholder="Partner"
+                                        placeholderTextColor={COLORS.textLightGreen}
+                                        style={styles.playerInput}
+                                    />
+                                </View>)
+                            }
                         </View>
 
                         {/* Opponents */}
@@ -204,8 +229,8 @@ export default function LogMatchScreen() {
                             visible={showSearchPlayersModal}
                             onClose={() => setShowSearchPlayersModal(false)}
                             onAdd={(selected) => {
-                                console.log('players', selected);
                                 setShowSearchPlayersModal(false);
+                                setPlayers(selected)
                             }}
                         />)
                     }

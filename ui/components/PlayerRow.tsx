@@ -2,6 +2,7 @@ import { BORDER_RADIUS, COLORS, FONT_SIZE, SPACING } from "@/constants/GlobalSty
 import { Player } from "@/model/Player";
 import { MaterialIcons } from "@expo/vector-icons";
 import { View, Image, Text, StyleSheet, Pressable } from "react-native";
+import PlayerAvatar from "./PlayerAvatar";
 
 type PlayerRowProps = {
     player: Player;
@@ -17,34 +18,25 @@ type PlayerRowProps = {
 export default function PlayerRow({ player, onToggle, teamMate, setTeamMate, selected, teamMateSelected, allowAddButton }: PlayerRowProps) {
     return (
         <View style={styles.row}>
-            <View style={styles.rowLeft}>
-                <View style={styles.avatarWrap}>
-                    {player.avatar ? (
-                        <Image source={{ uri: player.avatar }} style={styles.avatar} />
-                    ) : (
-                        <View style={styles.initials}></View>
+            <PlayerAvatar
+                playerName={player.name}
+                avatarUrl={player.avatar}
+                latestRating={player.latestRating.toString()}
+            >
+                <View style={styles.tagRow}>
+                    {(!teamMate || teamMate === player.id) && (
+                        <Pressable onPress={() => {
+                            if (!selected) { onToggle() }
+                            setTeamMate()
+                        }}
+                            style={[styles.teammateTag, teamMateSelected && styles.teamMateCheckboxSelected]}
+                            accessibilityRole="checkbox"
+                            accessibilityState={{ checked: teamMateSelected }}>
+                            <Text style={[styles.teammateText, teamMateSelected && styles.teamMateCheckboxSelected]}>Teammate</Text>
+                        </Pressable>
                     )}
-                    <View style={styles.countBadge}>
-                        <Text style={styles.countText}>{player.latestRating}</Text>
-                    </View>
                 </View>
-                <View style={styles.nameWrap}>
-                    <Text style={styles.playerName}>{player.name}</Text>
-                    <View style={styles.tagRow}>
-                        {(!teamMate || teamMate === player.id) && (
-                            <Pressable onPress={() => {
-                                if (!selected) { onToggle() }
-                                setTeamMate()
-                            }}
-                                style={[styles.teammateTag, teamMateSelected && styles.teamMateCheckboxSelected]}
-                                accessibilityRole="checkbox"
-                                accessibilityState={{ checked: teamMateSelected }}>
-                                <Text style={[styles.teammateText, teamMateSelected && styles.teamMateCheckboxSelected]}>Teammate</Text>
-                            </Pressable>
-                        )}
-                    </View>
-                </View>
-            </View>
+            </PlayerAvatar>
             <Pressable onPress={() => {
                 onToggle()
                 if (teamMateSelected && teamMate === player.id) {
@@ -66,10 +58,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 12,
         marginHorizontal: SPACING.sm,
-    },
-    rowLeft: {
-        flexDirection: 'row',
-        alignItems: 'center'
     },
     avatarWrap: {
         width: 56,

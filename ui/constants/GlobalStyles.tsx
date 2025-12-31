@@ -64,7 +64,13 @@ export const globalStyles = StyleSheet.create({
     padding: SPACING.md,
     paddingBottom: 120,
   },
-  avatar: { width: 56, height: 56, borderRadius: 28, borderWidth: 2, borderColor: "rgba(25,230,107,0.2)" },
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 2,
+    borderColor: COLORS.primaryShade
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
