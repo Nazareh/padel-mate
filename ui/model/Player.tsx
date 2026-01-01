@@ -1,7 +1,7 @@
 export type Player = {
     id: string;
     name: string;
-    avatar?: string;
-    latestRating: number | string;
+    avatar?: string | null;
+    latestRating: number;
     isTeammate?: boolean;
 };

@@ -37,6 +37,19 @@ export default function LogMatchScreen() {
         { us: '', them: '' }, // Set 3
     ]);
 
+    const opponents: Player[] = usePlayerContext().opponents.map(playerData => {
+        const firstName = playerData.givenName ?? "";
+        const lastName = playerData.familyName ?? "";
+        const fullName = `${firstName} ${lastName}`.trim() || "Unknown Player";
+
+        return {
+            id: playerData.id,
+            name: fullName,
+            avatar: playerData.avatarUrl,
+            latestRating: playerData.latestRating,
+        };
+    });;
+
     const setPlayers = (players: Player[]) => {
         players
             .filter((p) => p.isTeammate)
@@ -212,6 +225,7 @@ export default function LogMatchScreen() {
                                 setShowSearchPlayersModal(false);
                                 setPlayers(selected)
                             }}
+                            players={opponents}
                         />)
                     }
                 </ScrollView>

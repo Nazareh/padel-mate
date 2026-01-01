@@ -2,10 +2,10 @@ import { createContext, PropsWithChildren, useState, useMemo, useContext, useEff
 import { AuthContext, useAuthContext } from "./authContext";
 
 type PlayerData = {
-    id: string | null;
-    givenName: string | null;
-    familyName: string | null;
-    latestRating: number | null;
+    id: string;
+    givenName: string;
+    familyName: string;
+    latestRating: number;
     trendValue: number | null;
     avatarUrl: string | null;
 }
