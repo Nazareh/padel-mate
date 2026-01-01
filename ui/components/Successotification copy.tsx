@@ -20,9 +20,10 @@ export default function ErrorNotification({
     message
 }: NotificationProps) {
     return (
-        /* Change the outer View to use the overlay style */
-        <View style={styles.overlay}>
-            <View style={styles.notificationCard}>
+        <View style={globalStyles.footer}>
+            <View style={[
+                styles.notificationCard,
+            ]}>
                 <MaterialIcons
                     name="error"
                     size={20}
@@ -31,11 +32,15 @@ export default function ErrorNotification({
                 />
 
                 <View style={styles.textContainer}>
-                    <Text style={styles.title}>{title}</Text>
-                    <Text style={styles.message}>{message}</Text>
+                    <Text style={styles.title}>
+                        {title}
+                    </Text>
+                    <Text style={styles.message}>
+                        {message}
+                    </Text>
                 </View>
 
-                <Pressable onPress={onClose} hitSlop={10}>
+                <Pressable onPress={onClose}>
                     <MaterialIcons
                         name="close"
                         size={FONT_SIZE.xl}
@@ -48,23 +53,27 @@ export default function ErrorNotification({
 };
 
 const styles = StyleSheet.create({
+    absoluteContainer: {
+        position: 'absolute',
+    },
     overlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0,0,0,0.4)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: SPACING.xl,
-        zIndex: 1000,
+        ...StyleSheet.absoluteFillObject, // Pushes to all edges
+        backgroundColor: 'rgba(0,0,0,0.4)', // Optional: dims background
+        justifyContent: 'center',        // Vertical center
+        alignItems: 'center',            // Horizontal center
+        padding: SPACING.xl,             // Keeps it from touching screen edges
+        zIndex: 1000,                    // Ensures it stays on top
     },
     notificationCard: {
-        width: '100%',
+       width: '100%',                   // Takes full width of the padded overlay
         flexDirection: 'row',
         alignItems: 'flex-start',
         padding: SPACING.lg,
         borderRadius: BORDER_RADIUS.md,
         backgroundColor: COLORS.red900,
-        borderWidth: 1,
+        borderWidth: 1,                  // Added to make the red border visible
         borderColor: COLORS.red200,
+        /* ... existing shadows ... */
         elevation: 8,
     },
     icon: {

@@ -31,6 +31,7 @@ export default function SignUpScreen() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [confirmationMessage, setConfirmationMessage] = useState<string | null>(null);
 
     const handleSignUp = async () => {
         if (!givenName || !familyName || !email || !password || !confirmPassword) {
@@ -54,9 +55,8 @@ export default function SignUpScreen() {
                 },
             },
         }).then((data) => {
-            console.log("✅ Sign-up success:", data);
             setIsLoading(false);
-            Alert.alert("Success", "Account created successfully! Please check your email to verify your account.");
+            setConfirmationMessage("Account created successfully! Please check your email to verify your account");
             router.replace("/login");
         }).catch((error) => {
             setError(error);
