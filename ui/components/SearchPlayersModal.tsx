@@ -15,6 +15,7 @@ import ModalHeader from './ModalHeader';
 import MyTextInput from './TextInput';
 import { Player } from '@/model/Player';
 import PlayerRow from './PlayerRow';
+import ErrorNotification from './ErrorNotification';
 
 const defaultPlayers: Player[] = [
     { id: 'u1', name: 'Alex Padel', avatar: 'https://i.pravatar.cc/150?u=alex', latestRating: 1660 },
@@ -44,6 +45,7 @@ export default function SearchPlayersModal({
     const [query, setQuery] = useState('');
     const [teamMateId, setTeamMateId] = useState<string | null>(null);
     const [selectedIds, setSelectedIds] = useState<Record<string, boolean>>({});
+    const [error, setError] = useState<string | null>(null);
 
     // 1. Filter the list based on search query
     const filteredPlayers = useMemo(() => {
@@ -85,6 +87,15 @@ export default function SearchPlayersModal({
     };
 
     const handleAdd = () => {
+        if (!teamMateId) {
+            setError("A team mate must be selected")
+            return
+        }
+        if (selectedList.length !== 3) {
+            setError("All 3 other players must be selected ")
+            return;
+        }
+
         onAdd(selectedList); // This now contains the isTeammate attribute!
         setSelectedIds({});
         setTeamMateId(null);
@@ -139,6 +150,11 @@ export default function SearchPlayersModal({
                         </View>
                     </View>
                 </View>
+                {error && (
+                    <ErrorNotification
+                        title={'Error'}
+                        message={error}
+                        onClose={() => setError(null)} />)}
             </KeyboardAvoidingView>
         </Modal>
     );

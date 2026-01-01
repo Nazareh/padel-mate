@@ -20,6 +20,8 @@ import SearchPlayersModal from "@/components/SearchPlayersModal";
 import { Player } from "@/model/Player";
 import PlayerAvatar from "@/components/PlayerAvatar";
 import Button from "@/components/Button";
+import { SetScore } from "@/model/Set";
+import ErrorNotification from "@/components/ErrorNotification";
 
 export default function LogMatchScreen() {
     const [matchDate, setMatchDate] = useState(new Date());
@@ -28,6 +30,12 @@ export default function LogMatchScreen() {
     const [partner, setPartner] = useState<Player | null>(null)
     const [otherPlayers, setOtherPlayers] = useState<Player[]>()
     const { player } = usePlayerContext();
+    const [error, setError] = useState<string | null>(null);
+    const [scores, setScores] = useState<SetScore[]>([
+        { us: '', them: '' }, // Set 1
+        { us: '', them: '' }, // Set 2
+        { us: '', them: '' }, // Set 3
+    ]);
 
     const setPlayers = (players: Player[]) => {
         players
@@ -39,7 +47,26 @@ export default function LogMatchScreen() {
                 .filter((p) => !p.isTeammate))
     }
 
-    console.log("Partner", partner)
+    const isSetComplete = (set: SetScore) => {
+        return (set.us === '' && set.them === '') || (set.us !== '' && set.them !== '');
+    };
+
+    const handleScoreChange = (index: number, team: 'us' | 'them', value: string) => {
+        if (!/^\d*$/.test(value)) return;
+
+        const newScores = [...scores];
+        newScores[index][team] = value;
+        setScores(newScores);
+    };
+
+    const submit = () => {
+        if (scores.find(
+            (set) => !isSetComplete(set)
+        )) {
+            setError("Not all sets are complete")
+        }
+    }
+
     return (
         <SafeAreaView style={globalStyles.safeArea}>
             <StatusBar barStyle="light-content" backgroundColor={COLORS.backgroundDark} />
@@ -53,6 +80,7 @@ export default function LogMatchScreen() {
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={{ flex: 1 }}
             >
+
                 <ScrollView
                     contentContainerStyle={globalStyles.mdContainer}
                     showsVerticalScrollIndicator={false}
@@ -119,68 +147,60 @@ export default function LogMatchScreen() {
                         <Text style={globalStyles.sectionTitle}>Match Score</Text>
 
                         <View style={globalStyles.card}>
-                            {/* Score Header */}
+                            {/* Header Row */}
                             <View style={styles.scoreGrid}>
                                 <View style={styles.scoreLabelCol} />
-                                <Text style={styles.scoreColHeader}>SET 1</Text>
-                                <Text style={styles.scoreColHeader}>SET 2</Text>
-                                <Text style={styles.scoreColHeader}>SET 3</Text>
+                                {scores.map((_, index) => (
+                                    <Text key={`header-${index}`} style={styles.scoreColHeader}>
+                                        SET {index + 1}
+                                    </Text>
+                                ))}
                             </View>
 
-                            {/* Us Row */}
+                            {/* "Us" Row */}
                             <View style={styles.scoreGrid}>
                                 <View style={styles.scoreLabelCol}>
                                     <Text style={styles.scoreTeamLabelPrimary}>Us</Text>
                                 </View>
-                                <TextInput
-                                    style={[styles.scoreInput, styles.scoreInputActive]}
-                                    keyboardType="numeric"
-                                    maxLength={1}
-                                    defaultValue="6"
-                                />
-                                <TextInput
-                                    style={styles.scoreInput}
-                                    keyboardType="numeric"
-                                    maxLength={1}
-                                    placeholder="-"
-                                    placeholderTextColor={COLORS.textLightGreen}
-                                />
-                                <TextInput
-                                    style={styles.scoreInput}
-                                    keyboardType="numeric"
-                                    maxLength={1}
-                                    placeholder="-"
-                                    placeholderTextColor={COLORS.textLightGreen}
-                                />
+                                {scores.map((set, index) => (
+                                    <TextInput
+                                        key={`us-${index}`}
+                                        style={[
+                                            styles.scoreInput,
+                                            set.us ? styles.scoreInputActive : null // Highlight if filled
+                                        ]}
+                                        keyboardType="numeric"
+                                        maxLength={1}
+                                        placeholder="-"
+                                        placeholderTextColor={COLORS.textLightGreen}
+                                        value={set.us}
+                                        onChangeText={(text) => handleScoreChange(index, 'us', text)}
+                                    />
+                                ))}
                             </View>
 
                             <View style={styles.divider} />
 
-                            {/* Them Row */}
+                            {/* "Them" Row */}
                             <View style={styles.scoreGrid}>
                                 <View style={styles.scoreLabelCol}>
                                     <Text style={styles.scoreTeamLabelGray}>Them</Text>
                                 </View>
-                                <TextInput
-                                    style={[styles.scoreInput, { color: COLORS.textLight }]}
-                                    keyboardType="numeric"
-                                    maxLength={1}
-                                    defaultValue="4"
-                                />
-                                <TextInput
-                                    style={styles.scoreInput}
-                                    keyboardType="numeric"
-                                    maxLength={1}
-                                    placeholder="-"
-                                    placeholderTextColor={COLORS.textLightGreen}
-                                />
-                                <TextInput
-                                    style={styles.scoreInput}
-                                    keyboardType="numeric"
-                                    maxLength={1}
-                                    placeholder="-"
-                                    placeholderTextColor={COLORS.textLightGreen}
-                                />
+                                {scores.map((set, index) => (
+                                    <TextInput
+                                        key={`them-${index}`}
+                                        style={[
+                                            styles.scoreInput,
+                                            set.them ? { color: COLORS.textLight } : null
+                                        ]}
+                                        keyboardType="numeric"
+                                        maxLength={1}
+                                        placeholder="-"
+                                        placeholderTextColor={COLORS.textLightGreen}
+                                        value={set.them}
+                                        onChangeText={(text) => handleScoreChange(index, 'them', text)}
+                                    />
+                                ))}
                             </View>
                         </View>
                     </View>
@@ -201,9 +221,14 @@ export default function LogMatchScreen() {
             <View style={globalStyles.footer}>
                 <Button
                     label={"Save Match"}
-                    onPress={() => { }}
+                    onPress={submit}
                 />
             </View>
+            {error && (
+                <ErrorNotification
+                    title={'Error'}
+                    message={error}
+                    onClose={() => setError(null)} />)}
         </SafeAreaView >
     );
 }

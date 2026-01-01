@@ -6,13 +6,12 @@ import SocialRow from '@/components/SocialRow';
 import MyTextInput from '@/components/TextInput';
 import { globalStyles } from '@/constants/GlobalStyles';
 import { router } from 'expo-router';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 
 const HERO_IMAGE = 'https://lh3.googleusercontent.com/aida-public/AB6AXuB02fs3ChJVGuH8rZq3lcajhzWKZp2fdUvTJ7ndvu_yEbX93K501jkjtTV-vJ0LCCQMxIklO-14g0lpiJu8wmtzX30jwqnfOboswtRIEid7pGA36fJyJ_g8O4GHrs7rA_kqz_UJzeJEYITcHhAp6Vwz1MQahgWQGrRPCSF5D-D1plTuSFidW2YXAZAwVylEsO99dforuMcb657NFT_tZs9TPp8YNI-oZjxWCCxEAAAns2luffTXgKf8uTGvW1Pjf9VnQLmZU4JU_uw';
 
 import LoadingOverlay from '@/components/LoadingOverlay';
 import {
-    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -20,7 +19,7 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AuthContext, useAuthContext } from '@/auth/authContext';
+import { useAuthContext } from '@/auth/authContext';
 import ErrorNotification from '@/components/ErrorNotification';
 
 export default function SignUpScreen() {
