@@ -28,10 +28,15 @@ export default function PlayerAvatar({ avatarUrl, latestRating, playerName, chil
                     </View>
                 )}
             </View>
+
             <View style={styles.nameWrap}>
-                <Text style={styles.playerName}>{playerName}</Text>
+                {playerName && (
+                    <Text style={styles.playerName}>{playerName}</Text>
+                )}
                 {children}
+
             </View>
+
         </View >
     )
 }

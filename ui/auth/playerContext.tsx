@@ -2,7 +2,7 @@ import { createContext, PropsWithChildren, useState, useMemo, useContext, useEff
 import { AuthContext, useAuthContext } from "./authContext";
 
 type PlayerData = {
-    playerId: string | null;
+    id: string | null;
     givenName: string | null;
     familyName: string | null;
     latestRating: number | null;
@@ -12,7 +12,8 @@ type PlayerData = {
 
 type PlayerContextType = {
     player: PlayerData | undefined;
-    loading: boolean;
+    opponents: PlayerData[];
+    isLoading: boolean;
     error: string | null;
     fetchData: (id: string) => Promise<void>;
 }
@@ -27,30 +28,41 @@ export function PlayerProvider({ children }: PropsWithChildren) {
     const baseUrl = "https://kwn86hlgb0.execute-api.ap-southeast-2.amazonaws.com/prod/v1/players";
 
     const [player, setPlayer] = useState<PlayerData>();
-    const [loading, setLoading] = useState(false);
+    const [opponents, setOpponents] = useState<PlayerData[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const fetchData = async (id: string) => {
-        setLoading(true);
+        setIsLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${baseUrl}/${id}`, {
+            console.log("Fetching player info...")
+            const response = await fetch(`${baseUrl}`, {
                 method: 'GET',
                 headers: {
                     //     'Authorization': `Bearer ${token}`, // Pass the Amplify JWT
                     'Content-Type': 'application/json'
                 }
             });
-            if (!response.ok) throw new Error('Failed to fetch player data');
+            if (!response.ok) throw new Error('Failed to fetch players data');
+            const result: PlayerData[] = await response.json();
 
-            const result: PlayerData = await response.json();
-            result.avatarUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAYoKwAo7DWpPFkockZCdu3uocG0MVC5hyTQnzuY3hGZIW9cZAH0PUwXh8R3Td2atRJhwqlfmTlXpO9CPZCCvgS5wAB2Aq1ONsZgJZ6IbHyiXR0pFkaPsU5Tmfl6XciDTfvmXRWLa7CjrkGTw2YWVImSwTIiG1QxPdMDA8w2MzeHyVVjgL1fPzgwUZGYI7tDdeiOcgRpI7bLiVosEk67nDnu8720FkWcqGV9GoS5PiVmlKaLbA7OkTta6LZf7XmkBR0DN7qfZgf4IA"
+            console.log(result);
 
-            setPlayer({ ...result });
+            const loggedInPlayer = result.find(p => p.id === id)!
+            // loggedInPlayer.avatarUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAYoKwAo7DWpPFkockZCdu3uocG0MVC5hyTQnzuY3hGZIW9cZAH0PUwXh8R3Td2atRJhwqlfmTlXpO9CPZCCvgS5wAB2Aq1ONsZgJZ6IbHyiXR0pFkaPsU5Tmfl6XciDTfvmXRWLa7CjrkGTw2YWVImSwTIiG1QxPdMDA8w2MzeHyVVjgL1fPzgwUZGYI7tDdeiOcgRpI7bLiVosEk67nDnu8720FkWcqGV9GoS5PiVmlKaLbA7OkTta6LZf7XmkBR0DN7qfZgf4IA"
+
+            console.log(loggedInPlayer);
+            setPlayer({ ...loggedInPlayer });
+
+            const opponents = result.filter(p => p.id !== id)
+            setOpponents(opponents ?? [])
+
+
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
@@ -58,16 +70,18 @@ export function PlayerProvider({ children }: PropsWithChildren) {
         if (isAuthenticated && userId) {
             fetchData(userId);
         } else if (!isAuthenticated) {
+            setOpponents([])
             setPlayer(undefined);
         }
     }, [userId, isAuthenticated]);
 
     const value = useMemo(() => ({
         player,
-        loading,
+        isLoading,
         error,
+        opponents,
         fetchData
-    }), [player, loading, error]);
+    }), [player, isLoading, error, opponents]);
 
     return (
         <PlayerContext.Provider value={value}>

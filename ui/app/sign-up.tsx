@@ -71,7 +71,7 @@ export default function SignUpScreen() {
                 style={globalStyles.safeArea}
             >
                 <ScrollView contentContainerStyle={globalStyles.largeContainer}>
-                    <LoadingOverlay visible={false} />
+                    <LoadingOverlay visible={isLoading} />
                     <View style={globalStyles.header}>
                         <TouchableOpacity
                             accessibilityLabel="Back"
