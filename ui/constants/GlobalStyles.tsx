@@ -1,14 +1,14 @@
-import { Platform, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
 export const COLORS = {
   primary: "#19e66b",
   secondary: "#244732",
-  red200: "#fecaca",
-  red300: "#f87171",
+  red200: "#FFDAD6",
+  red300: "#FFB4AB",
   red400: "#ef4444",
-  red600: "#b91c1c",
+  red600: "#93000A",
   red700: "#7f1d1d",
-  red900: "#520707ff",
+  red900: "#410002",
   lightBlue: "#60a5fa",
   primaryShade: "#19e66b33",
   backgroundLight100: "#f6f8f7",

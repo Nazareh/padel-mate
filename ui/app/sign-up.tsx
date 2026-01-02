@@ -10,7 +10,6 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { signUp } from "aws-amplify/auth";
 import {
-    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -20,8 +19,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LoadingOverlay from '@/components/LoadingOverlay';
-import ErrorNotification from '@/components/ErrorNotification';
-
+import Notification from "@/components/Notification";
 
 export default function SignUpScreen() {
     const [givenName, setGivenName] = useState("");
@@ -54,14 +52,10 @@ export default function SignUpScreen() {
                     family_name: familyName,
                 },
             },
-        }).then((data) => {
-            setIsLoading(false);
-            setConfirmationMessage("Account created successfully! Please check your email to verify your account");
-            router.replace("/login");
-        }).catch((error) => {
-            setError(error);
-        });
-
+        })
+            .then((data) => setConfirmationMessage("Account created! Please check your email to verify your account"))
+            .catch((error) => setError(error))
+            .finally(() => setIsLoading(false));
     }
 
     return (
@@ -100,10 +94,22 @@ export default function SignUpScreen() {
                     <FooterNote text="Already have an account? " linkText="Log In" onPress={() => { router.back() }} />
                 </ScrollView>
                 {error && (
-                    <ErrorNotification
+                    <Notification
                         title={'Error'}
                         message={error}
-                        onClose={() => setError(null)} />)}
+                        onClose={() => setError(null)}
+                        type='error' />)}
+                {confirmationMessage &&
+                    (
+                        <Notification
+                            title={'Success'}
+                            message={confirmationMessage}
+                            onClose={() => {
+                                setError(null)
+                                setConfirmationMessage(null)
+                                router.replace("/login");
+                            }}
+                            type='success' />)}
             </KeyboardAvoidingView>
         </SafeAreaView>
     )

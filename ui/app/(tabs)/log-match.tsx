@@ -21,7 +21,7 @@ import { Player } from "@/model/Player";
 import PlayerAvatar from "@/components/PlayerAvatar";
 import Button from "@/components/Button";
 import { SetScore } from "@/model/Set";
-import ErrorNotification from "@/components/ErrorNotification";
+import Notification from "@/components/Notification";
 
 export default function LogMatchScreen() {
     const [matchDate, setMatchDate] = useState(new Date());
@@ -239,10 +239,11 @@ export default function LogMatchScreen() {
                 />
             </View>
             {error && (
-                <ErrorNotification
+                <Notification
                     title={'Error'}
                     message={error}
-                    onClose={() => setError(null)} />)}
+                    onClose={() => setError(null)}
+                    type="error" />)}
         </SafeAreaView >
     );
 }

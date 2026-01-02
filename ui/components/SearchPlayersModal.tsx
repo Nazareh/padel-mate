@@ -15,7 +15,7 @@ import ModalHeader from './ModalHeader';
 import MyTextInput from './TextInput';
 import { Player } from '@/model/Player';
 import PlayerRow from './PlayerRow';
-import ErrorNotification from './ErrorNotification';
+import ErrorNotification from './Notification';
 
 type Props = {
     visible: boolean;

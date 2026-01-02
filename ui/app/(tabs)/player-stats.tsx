@@ -1,11 +1,10 @@
 import { useAuthContext } from "@/auth/authContext";
 import { usePlayerContext } from "@/auth/playerContext";
-import ErrorNotification from "@/components/ErrorNotification";
 import HeaderProfile from "@/components/HeaderProfile";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import Notification from "@/components/Notification";
 import RatingCircle from "@/components/RatingCircle";
 import { globalStyles } from "@/constants/GlobalStyles";
-import { useState } from "react";
 import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -28,10 +27,12 @@ export default function PlayerStats() {
                 />
             </ScrollView>
             {error && (
-                <ErrorNotification
+                <Notification
                     title={'Error'}
                     message={error}
-                    onClose={logOut} />)}
+                    onClose={logOut}
+                    type="error" />
+            )}
         </SafeAreaView>
     )
 }
