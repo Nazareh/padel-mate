@@ -36,7 +36,7 @@ export function PlayerProvider({ children }: PropsWithChildren) {
         setIsLoading(true);
         setError(null);
         try {
-            console.log("Fetching player info...")
+            ("Fetching player info...")
             const response = await fetch(`${baseUrl}`, {
                 method: 'GET',
                 headers: {
@@ -46,13 +46,8 @@ export function PlayerProvider({ children }: PropsWithChildren) {
             });
             if (!response.ok) throw new Error('Failed to fetch players data');
             const result: PlayerData[] = await response.json();
-
-            console.log(result);
-
             const loggedInPlayer = result.find(p => p.id === id)!
             // loggedInPlayer.avatarUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAYoKwAo7DWpPFkockZCdu3uocG0MVC5hyTQnzuY3hGZIW9cZAH0PUwXh8R3Td2atRJhwqlfmTlXpO9CPZCCvgS5wAB2Aq1ONsZgJZ6IbHyiXR0pFkaPsU5Tmfl6XciDTfvmXRWLa7CjrkGTw2YWVImSwTIiG1QxPdMDA8w2MzeHyVVjgL1fPzgwUZGYI7tDdeiOcgRpI7bLiVosEk67nDnu8720FkWcqGV9GoS5PiVmlKaLbA7OkTta6LZf7XmkBR0DN7qfZgf4IA"
-
-            console.log(loggedInPlayer);
             setPlayer({ ...loggedInPlayer });
 
             const opponents = result.filter(p => p.id !== id)

@@ -25,7 +25,6 @@ export default function Notification({
         textSub: isError ? COLORS.red300 : COLORS.textLightGreen,       // Muted Coral vs Muted Sage
         icon: isError ? 'error-outline' : 'check-circle-outline'
     };
-    console.log(`message: ${message}`)
 
     return (
         <View style={styles.overlay}>

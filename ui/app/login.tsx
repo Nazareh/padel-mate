@@ -40,7 +40,6 @@ export default function SignUpScreen() {
             }
             await logInWithEmail(email, password);
         } catch (error: any) {
-            console.log("Login error:", error);
             setError(error.message || "Something went wrong. Please try again.");
         } finally {
             setIsLoading(false);
