@@ -28,7 +28,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
             setToken(session.tokens?.idToken?.toString() ?? null);
             setIsAuthenticated(true);
         } catch (error) {
-            // No user is signed in
             setIsAuthenticated(false);
             setUserId(null);
             setToken(null);

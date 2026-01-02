@@ -126,14 +126,14 @@ export class MainStack extends cdk.Stack {
 
   private createApiGateway() {
 
-    // const auth = new apigateway.CognitoUserPoolsAuthorizer(this, "authorizer", {
-    //   cognitoUserPools: [this.userPool],
-    // });
+    const auth = new apigateway.CognitoUserPoolsAuthorizer(this, "authorizer", {
+      cognitoUserPools: [this.userPool],
+    });
 
-    // const cognitoAuthConfig = {
-    //   authorizer: auth,
-    //   authorizationType: apigateway.AuthorizationType.COGNITO,
-    // };
+    const cognitoAuthConfig = {
+      authorizer: auth,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    };
 
     const api = new apigateway.RestApi(this, `${this.stackName}-my-padel-mate-api`, {
       restApiName: `${this.stackName}-My Padel Mate API`,
@@ -171,16 +171,14 @@ export class MainStack extends cdk.Stack {
     playerResource.addMethod(
       HttpMethod.GET,
       new apigateway.LambdaIntegration(this.getPlayersFn, {}),
-      { apiKeyRequired: false }
-      // cognitoAuthConfig
+      cognitoAuthConfig
     )
 
     const playerIdResource = playerResource.addResource("{playerId}");
     playerIdResource.addMethod(
       HttpMethod.GET,
       new apigateway.LambdaIntegration(this.getPlayersFn, {}),
-      { apiKeyRequired: false }
-      // cognitoAuthConfig
+      cognitoAuthConfig
     );
   }
 }

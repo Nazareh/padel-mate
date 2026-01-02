@@ -23,7 +23,7 @@ export const PlayerContext = createContext<PlayerContextType | undefined>(undefi
 
 export function PlayerProvider({ children }: PropsWithChildren) {
 
-    const { userId, isAuthenticated } = useAuthContext();
+    const { userId, isAuthenticated, token } = useAuthContext();
 
     const baseUrl = "https://kwn86hlgb0.execute-api.ap-southeast-2.amazonaws.com/prod/v1/players";
 
@@ -36,11 +36,11 @@ export function PlayerProvider({ children }: PropsWithChildren) {
         setIsLoading(true);
         setError(null);
         try {
-            ("Fetching player info...")
+            console.log("Fetching player info...")
             const response = await fetch(`${baseUrl}`, {
                 method: 'GET',
                 headers: {
-                    //     'Authorization': `Bearer ${token}`, // Pass the Amplify JWT
+                    'Authorization': `Bearer ${token}`, // Pass the Amplify JWT
                     'Content-Type': 'application/json'
                 }
             });
