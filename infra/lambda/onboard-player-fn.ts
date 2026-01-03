@@ -1,7 +1,5 @@
 import { PostConfirmationTriggerEvent } from "aws-lambda";
-import { DynamoDB } from "aws-sdk";
-
-const db = new DynamoDB.DocumentClient();
+import { savePlayer } from "./repository/player-repository.js";
 
 exports.handler = async (event: PostConfirmationTriggerEvent): Promise<any> => {
 
@@ -22,13 +20,11 @@ exports.handler = async (event: PostConfirmationTriggerEvent): Promise<any> => {
         id: userName,
         givenName: given_name,
         familyName: family_name,
-        email,
         latestRating: 1500,
     };
 
-
     try {
-        await db.put({ TableName: tableName, Item: item }).promise();
+        await savePlayer(item)
         console.log('Player added to DynamoDB', { id: item.id, table: tableName });
     } catch (err) {
         console.error('Failed to put item to DynamoDB', err);

@@ -1,0 +1,13 @@
+{
+    "name": "lamdba-dependencies",
+    "description": "Lambdas to do CRUD operations on Matches",
+    "version": "1.0.0",
+    "author": "Nazareh Velho Turmina",
+    "type": "module",
+    "dependencies": {
+        "@aws-sdk/client-dynamodb": "^3.669.0",
+        "@aws-sdk/lib-dynamodb": "^3.669.0",
+        "@aws-sdk/util-dynamodb": "^3.670.0",
+        "nanoid": "^5.0.7"
+    }
+}
