@@ -11,6 +11,7 @@ export class MainStack extends cdk.Stack {
 
   private userPool: cognito.UserPool;
   private playerTable: Table;
+  private matchTable: Table;
   private getPlayersFn: NodejsFunction;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -31,8 +32,8 @@ export class MainStack extends cdk.Stack {
 
   }
   createDynamoDBTables() {
-    const playerTableName = `${this.stackName}-player`;
-    this.playerTable = createTable(this, playerTableName, this.stackName);
+    this.playerTable = createTable(this, `${this.stackName}-player`, this.stackName);
+    this.matchTable = createTable(this, `${this.stackName}-match`, this.stackName);
   }
 
   createLambdaFunctions() {
@@ -50,6 +51,16 @@ export class MainStack extends cdk.Stack {
       },
     });
     this.playerTable.grantReadData(this.getPlayersFn);
+
+    const logMatchFn = createLambda(this, "log-match-fn", this.stackName, {
+      environment: {
+        PLAYER_TABLE_NAME: this.playerTable.tableName,
+        MATCH_TABLE_NAME: this.matchTable.tableName
+      },
+    });
+
+    this.matchTable.grantWriteData(logMatchFn)
+    this.playerTable.grantReadData(logMatchFn)
 
   }
 

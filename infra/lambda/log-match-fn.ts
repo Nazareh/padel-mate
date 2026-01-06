@@ -1,7 +1,5 @@
 import { HttpMethod } from "aws-cdk-lib/aws-lambda";
 import { APIGatewayProxyHandler } from "aws-lambda";
-import { DynamoDB } from "aws-sdk";
-
 import { LogMatchRequest, Match, MatchStatus, Player, SetScore, Team } from "./model.js";
 import { findPlayerById } from "./repository/player-repository.js";
 import { nanoid } from "nanoid";
