@@ -26,13 +26,13 @@ export default function PlayerStats() {
                     trendValue={player?.trendValue}
                 />
             </ScrollView>
-            {error && (
+            {/* {error && (
                 <Notification
                     title={'Error'}
                     message={error}
-                    onClose={logOut}
+                    onClose={() => { }}
                     type="error" />
-            )}
+            )} */}
         </SafeAreaView>
     )
 }

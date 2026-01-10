@@ -12,9 +12,8 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, globalStyles } from "@/constants/GlobalStyles";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { usePlayerContext } from "@/auth/playerContext";
+import { MatchRequest, usePlayerContext, ScoreRequest } from "@/auth/playerContext";
 import { DateTimeSelector } from "@/components/DateTimeSelector";
-import RatedMatchToogle from "@/components/RatedMatchToogle";
 import IconButton from "@/components/IconButton";
 import SearchPlayersModal from "@/components/SearchPlayersModal";
 import { Player } from "@/model/Player";
@@ -28,7 +27,7 @@ export default function LogMatchScreen() {
     const [showSearchPlayersModal, setShowSearchPlayersModal] = useState(false);
     const [partner, setPartner] = useState<Player | null>(null)
     const [otherPlayers, setOtherPlayers] = useState<Player[]>()
-    const { player } = usePlayerContext();
+    const { player, logMatch } = usePlayerContext();
     const [error, setError] = useState<string | null>(null);
     const [scores, setScores] = useState<SetScore[]>([
         { us: '', them: '' }, // Set 1
@@ -71,12 +70,31 @@ export default function LogMatchScreen() {
         setScores(newScores);
     };
 
-    const submit = () => {
+    const submit = async () => {
+
+        if (!player) return;
+
         if (scores.find(
             (set) => !isSetComplete(set)
         )) {
             setError("Not all sets are complete")
         }
+        const scoreRequest: ScoreRequest[] = scores.map(item => ({
+            team1: Number(item.them),
+            team2: Number(item.us)
+        }));
+
+        const matchRequest: MatchRequest = {
+            startTime: new Date(matchDate),
+            isRated: true,
+            team1Player1: player!.id,
+            team1Player2: partner!.id,
+            team2Player1: otherPlayers![0]!.id,
+            team2Player2: otherPlayers![1]!.id,
+            scores: scoreRequest
+        };
+        console.log(`Sending: ${JSON.stringify(matchRequest)}`)
+        await logMatch(matchRequest)
     }
 
     return (

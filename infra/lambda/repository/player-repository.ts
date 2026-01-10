@@ -1,11 +1,11 @@
 import {
     DynamoDBClient,
-    ScanCommand,
 } from "@aws-sdk/client-dynamodb";
 import {
     DynamoDBDocumentClient,
     PutCommand,
     GetCommand,
+    ScanCommand,
     ScanCommandOutput
 } from "@aws-sdk/lib-dynamodb";
 import { Player } from "../model.js";

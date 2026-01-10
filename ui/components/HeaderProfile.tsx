@@ -2,6 +2,8 @@ import { COLORS, FONT_SIZE, globalStyles } from "@/constants/GlobalStyles";
 import { MaterialIcons } from "@expo/vector-icons";
 import { View, Image, Text, Pressable } from "react-native";
 import PlayerAvatar from "./PlayerAvatar";
+import { useAuthContext } from "@/auth/authContext";
+import { usePlayerContext } from "@/auth/playerContext";
 
 type ProfileData = {
     givenName: string;
@@ -9,6 +11,8 @@ type ProfileData = {
 }
 
 export default function HeaderProfile({ givenName, avatarImageUrl }: ProfileData) {
+    const { userId } = useAuthContext();
+    const { fetchData } = usePlayerContext();
     return (<View style={globalStyles.header}>
         <View style={globalStyles.header}>
             <PlayerAvatar
@@ -20,10 +24,20 @@ export default function HeaderProfile({ givenName, avatarImageUrl }: ProfileData
             </PlayerAvatar>
         </View>
 
-        <Pressable style={globalStyles.iconButton}
-            onPress={() => alert('hahah')}
-        >
-            <MaterialIcons name="settings" size={FONT_SIZE.lg} color={COLORS.primary} />
-        </Pressable>
+        <View>
+            <Pressable style={globalStyles.iconButton}
+                onPress={() => alert('hahah')}
+            >
+                <MaterialIcons name="settings" size={FONT_SIZE.lg} color={COLORS.primary} />
+            </Pressable>
+
+            {userId && (
+                <Pressable style={globalStyles.iconButton}
+                    onPress={() => fetchData(userId!)}
+                >
+                    <MaterialIcons name="refresh" size={FONT_SIZE.lg} color={COLORS.primary} />
+                </Pressable>
+            )}
+        </View>
     </View>)
 }

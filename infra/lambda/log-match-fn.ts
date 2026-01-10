@@ -40,7 +40,7 @@ export const handler: APIGatewayProxyHandler = async (event, _context) => {
         }
 
         return {
-            statusCode: 204,
+            statusCode: 200,
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*", // Required for CORS support to work
@@ -48,7 +48,7 @@ export const handler: APIGatewayProxyHandler = async (event, _context) => {
                 "Access-Control-Allow-Credentials": "true", // Required for cookies, authorization headers with HTTPS
                 "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE",
             },
-            body: "",
+            body: JSON.stringify({ message: "Match logged successfully" }),
         };
     } catch (error) {
         console.error("Error processing the request:", error);

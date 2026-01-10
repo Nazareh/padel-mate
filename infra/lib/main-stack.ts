@@ -13,6 +13,7 @@ export class MainStack extends cdk.Stack {
   private playerTable: Table;
   private matchTable: Table;
   private getPlayersFn: NodejsFunction;
+  private logMatchFn: NodejsFunction;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -52,15 +53,15 @@ export class MainStack extends cdk.Stack {
     });
     this.playerTable.grantReadData(this.getPlayersFn);
 
-    const logMatchFn = createLambda(this, "log-match-fn", this.stackName, {
+    this.logMatchFn = createLambda(this, "log-match-fn", this.stackName, {
       environment: {
         PLAYER_TABLE_NAME: this.playerTable.tableName,
         MATCH_TABLE_NAME: this.matchTable.tableName
       },
     });
 
-    this.matchTable.grantWriteData(logMatchFn)
-    this.playerTable.grantReadData(logMatchFn)
+    this.matchTable.grantWriteData(this.logMatchFn)
+    this.playerTable.grantReadData(this.logMatchFn)
 
   }
 
@@ -191,5 +192,12 @@ export class MainStack extends cdk.Stack {
       new apigateway.LambdaIntegration(this.getPlayersFn, {}),
       cognitoAuthConfig
     );
+
+    const matchResource = apiRoot.addResource("match")
+    matchResource.addMethod(
+      HttpMethod.POST,
+      new apigateway.LambdaIntegration(this.logMatchFn, {}),
+      cognitoAuthConfig
+    )
   }
 }
