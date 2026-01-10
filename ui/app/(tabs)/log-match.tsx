@@ -25,7 +25,6 @@ import Notification from "@/components/Notification";
 
 export default function LogMatchScreen() {
     const [matchDate, setMatchDate] = useState(new Date());
-    const [isRated, setIsRated] = useState(true);
     const [showSearchPlayersModal, setShowSearchPlayersModal] = useState(false);
     const [partner, setPartner] = useState<Player | null>(null)
     const [otherPlayers, setOtherPlayers] = useState<Player[]>()
@@ -103,9 +102,6 @@ export default function LogMatchScreen() {
                             date={matchDate}
                             onDateChange={setMatchDate}
                         />
-                        <RatedMatchToogle
-                            value={isRated}
-                            onValueChange={() => setIsRated(!isRated)} />
                     </View>
                     {/* Players Section */}
                     <View style={globalStyles.section}>
