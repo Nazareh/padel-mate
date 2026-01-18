@@ -2,6 +2,7 @@ import { StyleSheet } from "react-native";
 
 export const COLORS = {
   primary: "#19e66b",
+  primaryContent: "#112117",
   secondary: "#244732",
   red200: "#FFDAD6",
   red300: "#FFB4AB",
@@ -14,13 +15,16 @@ export const COLORS = {
   backgroundLight100: "#f6f8f7",
   backgroundLight200: "#cfcfcf",
   backgroundDark: "#112117",
-  surfaceDark: "#1a3224",
+  surfaceDark: "#1a3224", // OR "#1c2e24",
   surfaceBorder: "#346548",
   textLight: "#f6f8f7",
   textLightGreen: "#93c8a8",
-  textDark: '#112218'
-
-
+  textDark: '#112218',
+  surfaceLight: "#FFFFFF",
+  borderDark: "#2f4538",
+  textGray: "#9ca3af",
+  textWhite: "#FFFFFF",
+  danger: "#ef4444",
 
 };
 export const SPACING = {
@@ -56,6 +60,22 @@ export const globalStyles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: COLORS.backgroundDark,
+  },
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    backgroundColor: COLORS.backgroundDark,
+    zIndex: 20,
+  },
+  headerTitle: {
+    color: COLORS.textLight,
+    fontSize: FONT_SIZE.lg,
+    fontWeight: "700",
+    textAlign: "center",
+    flex: 1,
   },
   largeContainer: {
     padding: SPACING.lg,

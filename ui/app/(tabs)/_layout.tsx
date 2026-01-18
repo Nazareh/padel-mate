@@ -54,7 +54,7 @@ export default function TabLayout() {
           title: "Matches",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? "tennisball-sharp" : "tennisball-outline"}
+              name={focused ? "bar-chart-sharp" : "bar-chart-outline"}
               color={color}
               size={24}
             />
