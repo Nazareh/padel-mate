@@ -18,7 +18,7 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuthContext } from '@/auth/authContext';
+import { useGlobalContext } from '@/auth/globalContext';
 
 export default function SignUpScreen() {
     const [email, setEmail] = useState("");
@@ -26,7 +26,7 @@ export default function SignUpScreen() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const { logInWithEmail } = useAuthContext();
+    const { logInWithEmail } = useGlobalContext();
 
     const handleLogin = async () => {
 

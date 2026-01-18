@@ -1,23 +1,20 @@
 import { Amplify } from "aws-amplify";
 import { Stack } from "expo-router";
 import awsConfig from "@/src/aws-exports";
-import { AuthProvider, useAuthContext } from "@/auth/authContext";
-import { PlayerProvider } from "@/auth/playerContext";
+import { GlobalStateProvider, useGlobalContext } from "@/auth/globalContext";
 
 Amplify.configure(awsConfig);
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <PlayerProvider>
-        <RootContent />
-      </PlayerProvider>
-    </AuthProvider>
+    <GlobalStateProvider>
+      <RootContent />
+    </GlobalStateProvider>
   );
 }
 
 function RootContent() {
-  const authContext = useAuthContext();
+  const authContext = useGlobalContext();
 
   return (
     <Stack>

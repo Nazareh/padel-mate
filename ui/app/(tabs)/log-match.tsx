@@ -12,7 +12,6 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, globalStyles } from "@/constants/GlobalStyles";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MatchRequest, usePlayerContext, ScoreRequest } from "@/auth/playerContext";
 import { DateTimeSelector } from "@/components/DateTimeSelector";
 import IconButton from "@/components/IconButton";
 import SearchPlayersModal from "@/components/SearchPlayersModal";
@@ -21,13 +20,14 @@ import PlayerAvatar from "@/components/PlayerAvatar";
 import Button from "@/components/Button";
 import { SetScore } from "@/model/Set";
 import Notification from "@/components/Notification";
+import { MatchRequest, ScoreRequest, useGlobalContext } from "@/auth/globalContext";
 
 export default function LogMatchScreen() {
     const [matchDate, setMatchDate] = useState(new Date());
     const [showSearchPlayersModal, setShowSearchPlayersModal] = useState(false);
     const [partner, setPartner] = useState<Player | null>(null)
     const [otherPlayers, setOtherPlayers] = useState<Player[]>()
-    const { player, logMatch } = usePlayerContext();
+    const { player, opponents, logMatch } = useGlobalContext();
     const [error, setError] = useState<string | null>(null);
     const [scores, setScores] = useState<SetScore[]>([
         { us: '', them: '' }, // Set 1
@@ -35,7 +35,7 @@ export default function LogMatchScreen() {
         { us: '', them: '' }, // Set 3
     ]);
 
-    const opponents: Player[] = usePlayerContext().opponents.map(playerData => {
+    const mappedOpponents: Player[] = opponents.map(playerData => {
         const firstName = playerData.givenName ?? "";
         const lastName = playerData.familyName ?? "";
         const fullName = `${firstName} ${lastName}`.trim() || "Unknown Player";
@@ -239,7 +239,7 @@ export default function LogMatchScreen() {
                                 setShowSearchPlayersModal(false);
                                 setPlayers(selected)
                             }}
-                            players={opponents}
+                            players={mappedOpponents}
                         />)
                     }
                 </ScrollView>

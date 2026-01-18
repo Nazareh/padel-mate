@@ -1,5 +1,4 @@
-import { useAuthContext } from "@/auth/authContext";
-import { usePlayerContext } from "@/auth/playerContext";
+import { useGlobalContext } from "@/auth/globalContext";
 import HeaderProfile from "@/components/HeaderProfile";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import Notification from "@/components/Notification";
@@ -9,9 +8,7 @@ import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PlayerStats() {
-
-    const { player, error, isLoading } = usePlayerContext();
-    const { logOut } = useAuthContext();
+    const { player, error, isLoading, logOut, fetchPlayers, userId } = useGlobalContext();
 
     return (
         <SafeAreaView style={globalStyles.safeArea}  >
@@ -20,19 +17,20 @@ export default function PlayerStats() {
                 <HeaderProfile
                     givenName={player?.givenName!}
                     avatarImageUrl={player?.avatarUrl!}
+                    fetchData={() => { userId && fetchPlayers(userId) }}
                 />
                 <RatingCircle
                     latestRating={player?.latestRating!}
                     trendValue={player?.trendValue}
                 />
             </ScrollView>
-            {/* {error && (
+            {error && (
                 <Notification
                     title={'Error'}
                     message={error}
                     onClose={() => { }}
                     type="error" />
-            )} */}
+            )}
         </SafeAreaView>
     )
 }
