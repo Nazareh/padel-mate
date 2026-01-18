@@ -27,8 +27,7 @@ export default function LogMatchScreen() {
     const [showSearchPlayersModal, setShowSearchPlayersModal] = useState(false);
     const [partner, setPartner] = useState<Player | null>(null)
     const [otherPlayers, setOtherPlayers] = useState<Player[]>()
-    const { player, opponents, logMatch } = useGlobalContext();
-    const [error, setError] = useState<string | null>(null);
+    const { player, opponents, logMatch, setErrorMsg, error } = useGlobalContext();
     const [scores, setScores] = useState<SetScore[]>([
         { us: '', them: '' }, // Set 1
         { us: '', them: '' }, // Set 2
@@ -74,10 +73,8 @@ export default function LogMatchScreen() {
 
         if (!player) return;
 
-        if (scores.find(
-            (set) => !isSetComplete(set)
-        )) {
-            setError("Not all sets are complete")
+        if (scores.find((set) => !isSetComplete(set))) {
+            setErrorMsg("Not all sets are complete")
         }
         const scoreRequest: ScoreRequest[] = scores.map(item => ({
             team1: Number(item.them),
@@ -256,8 +253,9 @@ export default function LogMatchScreen() {
                 <Notification
                     title={'Error'}
                     message={error}
-                    onClose={() => setError(null)}
-                    type="error" />)}
+                    onClose={() => setErrorMsg(null)}
+                    type="error" />
+            )}
         </SafeAreaView >
     );
 }

@@ -4,6 +4,7 @@ import { LogMatchRequest, Match, MatchStatus, Player, SetScore, Team } from "./m
 import { findPlayerById } from "./repository/player-repository.js";
 import { nanoid } from "nanoid";
 import { saveMatch } from "./repository/match-repository.js";
+import { match } from "assert";
 
 
 export const handler: APIGatewayProxyHandler = async (event, _context) => {
@@ -23,9 +24,9 @@ export const handler: APIGatewayProxyHandler = async (event, _context) => {
     console.log("Received event:", JSON.stringify(event));
     console.log("Event resource:", event.resource);
     const { httpMethod, body, requestContext } = event;
+    let processedMatch: Match | undefined;
 
     try {
-
         if (httpMethod == HttpMethod.POST) {
             const parsedBody = JSON.parse(body!);
             const logMatchRequest: LogMatchRequest = {
@@ -33,14 +34,18 @@ export const handler: APIGatewayProxyHandler = async (event, _context) => {
                 startTime: new Date(parsedBody.startTime),
             };
 
-            await processMatch(
+            processedMatch = await processMatch(
                 logMatchRequest,
                 requestContext.authorizer!.claims.sub
             );
         }
 
+        const isMatchValid = processedMatch?.status != MatchStatus.INVALID
+        console.log("isMatchValid", isMatchValid)
+        console.log("processedMatch", processedMatch)
+
         return {
-            statusCode: 200,
+            statusCode: isMatchValid ? 200 : 400,
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*", // Required for CORS support to work
@@ -48,13 +53,17 @@ export const handler: APIGatewayProxyHandler = async (event, _context) => {
                 "Access-Control-Allow-Credentials": "true", // Required for cookies, authorization headers with HTTPS
                 "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE",
             },
-            body: JSON.stringify({ message: "Match logged successfully" }),
+            body: JSON.stringify({
+                message: isMatchValid
+                    ? "Match logged successfully"
+                    : processedMatch?.reason
+            }),
         };
     } catch (error) {
         console.error("Error processing the request:", error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ message: "Error processing the request" }),
+            body: JSON.stringify({ message: "Error processing the request." }),
         };
     }
 };
@@ -127,9 +136,8 @@ async function processMatch(request: LogMatchRequest, requestedBy: String): Prom
         }
     }
 
-    console.log(`Saving match ${JSON.stringify(match)}`);
-
     if (match.status != MatchStatus.INVALID) {
+        console.log(`Saving match ${JSON.stringify(match)}`);
         saveMatch(match)
     }
 

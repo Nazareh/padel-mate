@@ -8,7 +8,7 @@ import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PlayerStats() {
-    const { player, error, isLoading, logOut, fetchPlayers, userId } = useGlobalContext();
+    const { player, error, isLoading, fetchPlayers, userId, setErrorMsg } = useGlobalContext();
 
     return (
         <SafeAreaView style={globalStyles.safeArea}  >
@@ -28,7 +28,7 @@ export default function PlayerStats() {
                 <Notification
                     title={'Error'}
                     message={error}
-                    onClose={() => { }}
+                    onClose={() => setErrorMsg(null)}
                     type="error" />
             )}
         </SafeAreaView>

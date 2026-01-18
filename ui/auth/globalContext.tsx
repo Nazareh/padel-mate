@@ -29,6 +29,7 @@ type GlobalState = {
     fetchPlayers: (id: string) => Promise<void>;
     logMatch: (matchRequest: MatchRequest) => Promise<void>;
     logOut: () => void;
+    setErrorMsg: (errorMsg: string | null) => void;
 };
 
 type PlayerData = {
@@ -171,12 +172,13 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
                 body: JSON.stringify(request)
 
             });
-            if (!response.ok) throw new Error(`Failed to upload the match. Status Code:${response.status} Reason:${response.body}`);
+            console.log(response.body, response.ok) 
+            if (!response.ok) throw new Error(`Failed to upload the match. Reason:${response.body}`);
             const result = await response.json();
             console.log("result", result)
 
         } catch (err) {
-            console.log("err", err)
+            // console.log("err", err)
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setIsLoading(false);
@@ -184,11 +186,15 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
 
     }
 
+    const setErrorMsg = (errorMsg: string | null) => {
+        setError(errorMsg)
+    }
 
     return (
         <GlobalContext.Provider value={{
             isAuthenticated, userId, token, logInWithEmail, logOut,
-            error, fetchPlayers, isLoading, logMatch, opponents, player
+            error, fetchPlayers, isLoading, logMatch, opponents, player,
+            setErrorMsg
         }}>
             {children}
         </GlobalContext.Provider>
@@ -202,3 +208,4 @@ export const useGlobalContext = () => {
     }
     return context;
 };
+
