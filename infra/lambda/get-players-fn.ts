@@ -13,7 +13,6 @@ export const handler: APIGatewayProxyHandler = async (event, _context) => {
     console.log("Event resource:", event.resource);
 
     try {
-        findPlayerById(event.path.split("/")[3])
         const data =
             event.resource === "/v1/players/{playerId}"
                 ? await findPlayerById(event.path.split("/")[3])
