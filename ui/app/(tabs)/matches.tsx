@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { globalStyles } from '@/constants/GlobalStyles';
 
 // --- Constants & Theme ---
 const COLORS = {
@@ -28,7 +29,7 @@ const COLORS = {
 };
 
 // Toggle this to see Light Mode (though the design shines in Dark Mode)
-const IS_DARK = true; 
+const IS_DARK = true;
 
 const THEME = {
   bg: IS_DARK ? COLORS.backgroundDark : COLORS.backgroundLight,
@@ -131,8 +132,8 @@ const MatchCard = ({ match }: { match: MatchData }) => {
           <MaterialIcons name="calendar-today" size={14} color={THEME.textSec} />
           <Text style={[styles.dateText, { color: THEME.textSec }]}>{match.date}, {match.time}</Text>
         </View>
-        <View style={[styles.statusBadge, { backgroundColor: badgeBg }]}>
-          <Text style={[styles.statusText, { color: badgeText }]}>{match.status}</Text>
+        <View style={styles.dangerBadge}>
+          <Text style={styles.dangerBadgeText}>Action Required</Text>
         </View>
       </View>
 
@@ -145,33 +146,35 @@ const MatchCard = ({ match }: { match: MatchData }) => {
 
         {/* Scores */}
         <View style={styles.scoreColumn}>
-          <Text style={[styles.scoreText, { color: match.status === 'Defeat' ? THEME.textSec : THEME.text }]}>
-            {match.score}
+          <Text style={[styles.scoreText, { color: COLORS.textWhite }]}>
+            {"6 - 0"}
           </Text>
+          <Text style={[styles.scoreText, { color: COLORS.textWhite }]}>
+            {"6 - 0"}
+          </Text>
+          <Text style={[styles.scoreText, { color: COLORS.textWhite }]}>
+            {"6 - 0"}
+          </Text>
+
         </View>
 
         {/* Right Team (Opponents) */}
         <View style={[styles.teamColumn, { alignItems: 'flex-end' }]}>
           {match.opponents.map((p, i) => (
-             <View key={i} style={[styles.playerRow, { flexDirection: 'row-reverse' }]}>
-             {p.avatar ? (
-               <Image source={{ uri: p.avatar }} style={styles.avatar} />
-             ) : (
-               <View style={[styles.avatar, styles.initialsAvatar, styles.otherAvatar]}>
-                 <Text style={[styles.initialsText, { color: '#FFF' }]}>{p.initials}</Text>
-               </View>
-             )}
-             <Text style={[styles.playerName, { color: THEME.textSec, textAlign: 'right' }]} numberOfLines={1}>
-               {p.name}
-             </Text>
-           </View>
+            <View key={i} style={[styles.playerRow, { flexDirection: 'row-reverse' }]}>
+              {p.avatar ? (
+                <Image source={{ uri: p.avatar }} style={styles.avatar} />
+              ) : (
+                <View style={[styles.avatar, styles.initialsAvatar, styles.otherAvatar]}>
+                  <Text style={[styles.initialsText, { color: '#FFF' }]}>{p.initials}</Text>
+                </View>
+              )}
+              <Text style={[styles.playerName, { color: THEME.textSec, textAlign: 'right' }]} numberOfLines={1}>
+                {p.name}
+              </Text>
+            </View>
           ))}
         </View>
-      </View>
-
-      {/* Venue */}
-      <View style={[styles.venueContainer, { borderTopColor: IS_DARK ? 'rgba(255,255,255,0.05)' : '#f3f4f6' }]}>
-        <Text style={styles.venueText}>{match.venue}</Text>
       </View>
 
       {/* Approval Buttons */}
@@ -194,43 +197,19 @@ export default function PadelMatchesScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: THEME.bg }]}>
-      <StatusBar barStyle={IS_DARK ? "light-content" : "dark-content"} />
-      
-      {/* Header */}
-      <SafeAreaView edges={['top']} style={[styles.header, { backgroundColor: IS_DARK ? 'rgba(17,33,23,0.95)' : 'rgba(246,248,247,0.95)' }]}>
-        <Text style={[styles.headerTitle, { color: THEME.text }]}>Your Matches</Text>
-        <TouchableOpacity style={styles.iconBtn}>
-          <MaterialIcons name="tune" size={24} color={THEME.text} />
-        </TouchableOpacity>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.backgroundDark} />
+      <SafeAreaView style={globalStyles.safeArea}>
+        <View style={globalStyles.headerContainer}>
+          <Text style={globalStyles.headerTitle}>Matches</Text>
+        </View>
       </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Toggle */}
-        <View style={styles.toggleContainer}>
-          <View style={[styles.toggleTrack, { backgroundColor: IS_DARK ? COLORS.surfaceDark : '#e5e7eb' }]}>
-            {['All Games', 'Approvals (1)'].map((tab) => {
-              const isActive = activeTab === tab;
-              return (
-                <TouchableOpacity 
-                  key={tab} 
-                  onPress={() => setActiveTab(tab)}
-                  style={[styles.toggleItem, isActive && { backgroundColor: IS_DARK ? '#2f4538' : '#FFF', shadowOpacity: 0.1 }]}
-                >
-                  <Text style={[styles.toggleText, { color: isActive ? THEME.text : THEME.textSec, fontWeight: isActive ? '700' : '500' }]}>
-                    {tab}
-                  </Text>
-                </TouchableOpacity>
-              )
-            })}
-          </View>
-        </View>
 
         {/* Pending Approvals Section */}
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: THEME.text }]}>Pending Approvals</Text>
-          <View style={styles.dangerBadge}>
-            <Text style={styles.dangerBadgeText}>Action Required</Text>
-          </View>
+
         </View>
 
         <View style={styles.cardContainer}>
@@ -253,28 +232,6 @@ export default function PadelMatchesScreen() {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* FAB */}
-      <View style={styles.fabContainer}>
-        <TouchableOpacity style={styles.fab}>
-          <MaterialIcons name="add" size={32} color={COLORS.primaryContent} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Bottom Navigation */}
-      <View style={[styles.bottomNav, { backgroundColor: IS_DARK ? 'rgba(17,33,23,0.9)' : 'rgba(255,255,255,0.9)', borderTopColor: IS_DARK ? 'rgba(255,255,255,0.05)' : '#e5e7eb' }]}>
-        <TouchableOpacity style={styles.navItem}>
-            <MaterialIcons name="home" size={28} color={THEME.textSec} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-            <MaterialIcons name="sports-tennis" size={28} color={COLORS.primary} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-            <MaterialIcons name="bar-chart" size={28} color={THEME.textSec} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-            <MaterialIcons name="person" size={28} color={THEME.textSec} />
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
@@ -358,7 +315,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 24,
   },
-  
+
   // --- Card Styles ---
   card: {
     borderRadius: 32,
@@ -432,7 +389,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
-  
+
   // --- Player Row ---
   playerRow: {
     flexDirection: 'row',

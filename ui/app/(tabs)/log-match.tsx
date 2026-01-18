@@ -99,8 +99,8 @@ export default function LogMatchScreen() {
             <StatusBar barStyle="light-content" backgroundColor={COLORS.backgroundDark} />
 
             {/* Header */}
-            <View style={styles.headerContainer}>
-                <Text style={styles.headerTitle}>Log Match</Text>
+            <View style={globalStyles.headerContainer}>
+                <Text style={globalStyles.headerTitle}>Log Match</Text>
             </View>
 
             <KeyboardAvoidingView
@@ -261,24 +261,6 @@ export default function LogMatchScreen() {
 }
 
 const styles = StyleSheet.create({
-    // --- Header ---
-    headerContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        paddingHorizontal: SPACING.md,
-        paddingVertical: SPACING.sm,
-        backgroundColor: COLORS.backgroundDark,
-        zIndex: 20,
-    },
-    headerTitle: {
-        color: COLORS.textLight,
-        fontSize: FONT_SIZE.lg,
-        fontWeight: "700",
-        textAlign: "center",
-        flex: 1,
-    },
-
     // --- Players Section ---
     cardHeader: {
         width: '100%',
