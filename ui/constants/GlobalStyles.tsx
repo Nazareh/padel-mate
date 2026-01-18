@@ -70,13 +70,6 @@ export const globalStyles = StyleSheet.create({
     backgroundColor: COLORS.backgroundDark,
     zIndex: 20,
   },
-  headerTitle: {
-    color: COLORS.textLight,
-    fontSize: FONT_SIZE.lg,
-    fontWeight: "700",
-    textAlign: "center",
-    flex: 1,
-  },
   largeContainer: {
     padding: SPACING.lg,
     minHeight: 800,
