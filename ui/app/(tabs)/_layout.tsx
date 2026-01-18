@@ -48,6 +48,20 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="matches"
+        options={{
+          headerShown: false,
+          title: "Matches",
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "tennisball-sharp" : "tennisball-outline"}
+              color={color}
+              size={24}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="index"
         options={{
           title: "Logout",
