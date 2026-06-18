@@ -3,7 +3,6 @@ import { signOut, signIn, getCurrentUser, fetchAuthSession } from "aws-amplify/a
 
 export type MatchRequest = {
     startTime: Date,
-    isRated: boolean,
     team1Player1: string,
     team1Player2: string,
     team2Player1: string,

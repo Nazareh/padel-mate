@@ -83,7 +83,6 @@ export default function LogMatchScreen() {
 
         const matchRequest: MatchRequest = {
             startTime: new Date(matchDate),
-            isRated: true,
             team1Player1: player!.id,
             team1Player2: partner!.id,
             team2Player1: otherPlayers![0]!.id,
