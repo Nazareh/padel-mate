@@ -17,7 +17,16 @@ const dynamo = DynamoDBDocumentClient.from(client, {
     },
 });
 
+const checkPlayerTableEnvVars = () => {
+    const playerTableName = process.env.PLAYER_TABLE_NAME;
+    if (!playerTableName) {
+        console.error('PLAYER_TABLE_NAME env var is not set');
+        throw new Error('PLAYER_TABLE_NAME environment variable is required');
+    }
+}
+
 export async function savePlayer(player: Player) {
+    checkPlayerTableEnvVars()
     await dynamo.send(
         new PutCommand({
             TableName: process.env.PLAYER_TABLE_NAME,
@@ -27,6 +36,7 @@ export async function savePlayer(player: Player) {
 }
 
 export async function findPlayerById(id: string): Promise<Player> {
+    checkPlayerTableEnvVars()
     console.log(`Finding player by id: ${id}...`)
     const player = (
         await dynamo.send(
@@ -47,6 +57,7 @@ export async function findPlayerById(id: string): Promise<Player> {
 }
 
 export async function findAllPlayers(): Promise<Player[]> {
+    checkPlayerTableEnvVars()
     console.log("Finding all players...")
     let allPlayers: Player[] = [];
     let lastEvaluatedKey: Record<string, any> | undefined = undefined;

@@ -7,7 +7,6 @@ export enum Team { TEAM_1 = "TEAM_1", TEAM_2 = "TEAM_2" }
 
 export type LogMatchRequest = {
     startTime: Date
-    isRated: boolean
     team1Player1: string
     team1Player2: string
     team2Player1: string
@@ -25,7 +24,6 @@ export enum MatchStatus {
 
 export type Match = {
     id: string
-    isRated: boolean
     startTime: string
     players: MatchPlayer[]
     scores: SetScore[]

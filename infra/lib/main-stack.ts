@@ -3,7 +3,7 @@ import { Construct } from 'constructs';
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as apigateway from "aws-cdk-lib/aws-apigateway"
 import { createLambda, createTable } from './utils';
-import { Table } from 'aws-cdk-lib/aws-dynamodb';
+import { Table, AttributeType, ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import { HttpMethod } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 
@@ -35,6 +35,24 @@ export class MainStack extends cdk.Stack {
   createDynamoDBTables() {
     this.playerTable = createTable(this, `${this.stackName}-player`, this.stackName);
     this.matchTable = createTable(this, `${this.stackName}-match`, this.stackName);
+
+
+    this.matchTable.addGlobalSecondaryIndex({
+      indexName: 'PlayerMatchesIndex',
+      partitionKey: { 
+        name: 'playerId', 
+        type: AttributeType.STRING 
+      },
+      sortKey: { 
+        name: 'startTime', 
+        type: AttributeType.STRING 
+      },
+      
+      // ALL projects the entire Match object into the index, 
+      // meaning your read query returns the full match details instantly.
+      projectionType: ProjectionType.ALL, 
+    });
+  
   }
 
   createLambdaFunctions() {
