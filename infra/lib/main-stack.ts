@@ -39,20 +39,20 @@ export class MainStack extends cdk.Stack {
 
     this.matchTable.addGlobalSecondaryIndex({
       indexName: 'PlayerMatchesIndex',
-      partitionKey: { 
-        name: 'playerId', 
-        type: AttributeType.STRING 
+      partitionKey: {
+        name: 'playerId',
+        type: AttributeType.STRING
       },
-      sortKey: { 
-        name: 'startTime', 
-        type: AttributeType.STRING 
+      sortKey: {
+        name: 'startTime',
+        type: AttributeType.STRING
       },
-      
+
       // ALL projects the entire Match object into the index, 
       // meaning your read query returns the full match details instantly.
-      projectionType: ProjectionType.ALL, 
+      projectionType: ProjectionType.ALL,
     });
-  
+
   }
 
   createLambdaFunctions() {
@@ -78,7 +78,7 @@ export class MainStack extends cdk.Stack {
       },
     });
 
-    this.matchTable.grantWriteData(this.logMatchFn)
+    this.matchTable.grantReadWriteData(this.logMatchFn)
     this.playerTable.grantReadData(this.logMatchFn)
 
   }
@@ -214,6 +214,12 @@ export class MainStack extends cdk.Stack {
     const matchResource = apiRoot.addResource("match")
     matchResource.addMethod(
       HttpMethod.POST,
+      new apigateway.LambdaIntegration(this.logMatchFn, {}),
+      cognitoAuthConfig
+    )
+
+    matchResource.addMethod(
+      HttpMethod.GET,
       new apigateway.LambdaIntegration(this.logMatchFn, {}),
       cognitoAuthConfig
     )

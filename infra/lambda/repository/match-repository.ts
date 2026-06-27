@@ -51,6 +51,8 @@ export async function findAllMatchesForPlayer(playerId: string): Promise<Match[]
     let allMatches: Match[] = [];
     let lastEvaluatedKey: Record<string, any> | undefined = undefined;
 
+    console.log(`Searching matches for player ${playerId}...`)
+
     do {
         const response: QueryCommandOutput = await dynamo.send(
             new QueryCommand({
@@ -65,6 +67,8 @@ export async function findAllMatchesForPlayer(playerId: string): Promise<Match[]
                 // ScanIndexForward: false 
             })
         );
+
+        console.log(`Found ${response.Count} matches for player ${playerId} in this batch.`);
 
         if (response.Items) {
             allMatches.push(...(response.Items as Match[]));
