@@ -2,10 +2,13 @@ import * as cdk from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as apigateway from "aws-cdk-lib/aws-apigateway"
+import * as ssm from "aws-cdk-lib/aws-ssm";
 import { createLambda, createTable } from './utils';
-import { Table, AttributeType, ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
+import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { HttpMethod } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+
+const MONGO_DB_NAME = 'my-rating-app';
 
 export class MainStack extends cdk.Stack {
 
@@ -14,6 +17,9 @@ export class MainStack extends cdk.Stack {
   private matchTable: Table;
   private getPlayersFn: NodejsFunction;
   private logMatchFn: NodejsFunction;
+  private onboardPlayerFn: NodejsFunction;
+  private mongoUriParameter: ssm.StringParameter;
+
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -23,6 +29,7 @@ export class MainStack extends cdk.Stack {
     this.createUserPool();
     this.createUserPoolClient();
     this.createDynamoDBTables();
+    this.createSSMParameters();
     this.createLambdaFunctions();
     this.createApiGateway();
 
@@ -32,6 +39,16 @@ export class MainStack extends cdk.Stack {
     });
 
   }
+
+  createSSMParameters() {
+    const mongoUriParam = new ssm.StringParameter(this, `${this.stackName}-mongo-uri`, {
+      parameterName: `/${this.stackName}/mongo-uri`,
+      stringValue: 'mongoURI',
+    });
+    this.mongoUriParameter = mongoUriParam;
+
+  }
+
   createDynamoDBTables() {
     this.playerTable = createTable(this, `${this.stackName}-player`, this.stackName);
     this.matchTable = createTable(this, `${this.stackName}-match`, this.stackName);
@@ -42,16 +59,27 @@ export class MainStack extends cdk.Stack {
     const onboardPlayerFn = createLambda(this, "onboard-player-fn", this.stackName, {
       environment: {
         PLAYER_TABLE_NAME: this.playerTable.tableName,
+        MONGO_DB_NAME: MONGO_DB_NAME,
+        MONGO_URI_PARAM_NAME: this.mongoUriParameter.parameterName,
       },
     });
+
+    this.onboardPlayerFn = onboardPlayerFn;
+
+    this.mongoUriParameter.grantRead(this.onboardPlayerFn);
+
     this.playerTable.grantReadWriteData(onboardPlayerFn);
     this.userPool.addTrigger(cognito.UserPoolOperation.POST_CONFIRMATION, onboardPlayerFn);
 
     this.getPlayersFn = createLambda(this, "get-players-fn", this.stackName, {
       environment: {
         PLAYER_TABLE_NAME: this.playerTable.tableName,
+        MONGO_DB_NAME: MONGO_DB_NAME,
+        MONGO_URI_PARAM_NAME: this.mongoUriParameter.parameterName,
       },
     });
+
+    this.mongoUriParameter.grantRead(this.getPlayersFn);
     this.playerTable.grantReadData(this.getPlayersFn);
 
     this.logMatchFn = createLambda(this, "log-match-fn", this.stackName, {
