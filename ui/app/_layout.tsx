@@ -1,7 +1,7 @@
+import { GlobalStateProvider, useGlobalContext } from "@/auth/globalContext";
+import awsConfig from "@/src/aws-exports";
 import { Amplify } from "aws-amplify";
 import { Stack } from "expo-router";
-import awsConfig from "@/src/aws-exports";
-import { GlobalStateProvider, useGlobalContext } from "@/auth/globalContext";
 
 Amplify.configure(awsConfig);
 
@@ -15,6 +15,8 @@ export default function RootLayout() {
 
 function RootContent() {
   const authContext = useGlobalContext();
+
+  if (authContext.isLoading) return null;
 
   return (
     <Stack>

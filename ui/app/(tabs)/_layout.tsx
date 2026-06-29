@@ -1,79 +1,50 @@
-import { Tabs } from "expo-router";
-
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { useGlobalContext } from "@/auth/globalContext";
 import { COLORS } from "@/constants/GlobalStyles";
+import { NativeTabs } from 'expo-router/unstable-native-tabs';
 
 export default function TabLayout() {
-  return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: COLORS.primary,
-        headerStyle: {
-          backgroundColor: COLORS.backgroundDark,
-        },
-        headerShadowVisible: false,
-        headerTintColor: COLORS.textLight,
-        tabBarStyle: {
-          backgroundColor: COLORS.backgroundDark,
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="log-match"
-        options={{
-          headerShown: false,
-          title: "Log Match",
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "tennisball-sharp" : "tennisball-outline"}
-              color={color}
-              size={24}
-            />
-          ),
-        }}
-      />
+  const { logOut } = useGlobalContext();
 
-      <Tabs.Screen
-        name="player-stats"
-        options={{
-          headerShown: false,
-          title: "My Stats",
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "trending-up-sharp" : "trending-up-outline"}
-              color={color}
-              size={24}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="matches"
-        options={{
-          headerShown: false,
-          title: "Matches",
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "bar-chart-sharp" : "bar-chart-outline"}
-              color={color}
-              size={24}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Logout",
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "log-out-sharp" : "log-out-outline"}
-              color={color}
-              size={24}
-            />
-          ),
-        }}
-      />
-    </Tabs>
+  return (
+    <NativeTabs
+      labelStyle={{
+        color: COLORS.textLight,
+      }}
+      tintColor={COLORS.primary}
+    // barTintColor={COLORS.backgroundDark}
+    >
+      <NativeTabs.Trigger name="logmatch">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'tennisball', selected: 'tennisball.fill' }}
+          md="sports_tennis"
+        />
+        <NativeTabs.Trigger.Label>Log Match</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="player-stats">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'chart.line.uptrend.xyaxis', selected: 'chart.line.uptrend.xyaxis.circle.fill' }}
+          md="trending_up"
+        />
+        <NativeTabs.Trigger.Label>My Stats</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="matches">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'chart.bar', selected: 'chart.bar.fill' }}
+          md="bar_chart"
+        />
+        <NativeTabs.Trigger.Label>Matches</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="index">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'rectangle.portrait.and.arrow.right', selected: 'rectangle.portrait.and.arrow.right.fill' }}
+          md="logout"
+        />
+        <NativeTabs.Trigger.Label>Logout</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
+    </NativeTabs>
   );
 }

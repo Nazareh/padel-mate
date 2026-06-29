@@ -1,26 +1,26 @@
-import React, { useState } from "react";
-import {
-    View,
-    Text,
-    TextInput,
-    ScrollView,
-    StyleSheet,
-    Platform,
-    StatusBar,
-    KeyboardAvoidingView,
-} from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, globalStyles } from "@/constants/GlobalStyles";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { MatchRequest, ScoreRequest, useGlobalContext } from "@/auth/globalContext";
+import Button from "@/components/Button";
 import { DateTimeSelector } from "@/components/DateTimeSelector";
 import IconButton from "@/components/IconButton";
-import SearchPlayersModal from "@/components/SearchPlayersModal";
-import { Player } from "@/model/Player";
-import PlayerAvatar from "@/components/PlayerAvatar";
-import Button from "@/components/Button";
-import { SetScore } from "@/model/Set";
 import Notification from "@/components/Notification";
-import { MatchRequest, ScoreRequest, useGlobalContext } from "@/auth/globalContext";
+import PlayerAvatar from "@/components/PlayerAvatar";
+import SearchPlayersModal from "@/components/SearchPlayersModal";
+import { BORDER_RADIUS, COLORS, FONT_SIZE, globalStyles, SPACING } from "@/constants/GlobalStyles";
+import { Player } from "@/model/Player";
+import { SetScore } from "@/model/Set";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useState } from "react";
+import {
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LogMatchScreen() {
     const [matchDate, setMatchDate] = useState(new Date());

@@ -1,5 +1,5 @@
-import { createContext, PropsWithChildren, useState, useEffect, useContext, useMemo } from "react";
-import { signOut, signIn, getCurrentUser, fetchAuthSession } from "aws-amplify/auth";
+import { fetchAuthSession, getCurrentUser, signIn, signOut } from "aws-amplify/auth";
+import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from "react";
 
 export type MatchRequest = {
     startTime: Date,
@@ -25,7 +25,7 @@ type GlobalState = {
     isLoading: boolean;
     error: string | null;
     logInWithEmail: (email: string, password: string) => Promise<void>;
-    fetchPlayers: (id: string) => Promise<void>;
+    fetchPlayers: (id: string, authToken: string) => Promise<void>;
     logMatch: (matchRequest: MatchRequest) => Promise<void>;
     logOut: () => void;
     setErrorMsg: (errorMsg: string | null) => void;
@@ -52,7 +52,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
     const [token, setToken] = useState<string | null>(null);
     const [player, setPlayer] = useState<PlayerData>();
     const [opponents, setOpponents] = useState<PlayerData[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     // Helper to get session data and update state
@@ -61,12 +61,18 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             const user = await getCurrentUser();
             const session = await fetchAuthSession();
 
+            const newToken = session.tokens?.idToken?.toString() ?? null;
+
             setUserId(user.userId);
             // Get the JWT token from the ID Token (common for user info)
             setToken(session.tokens?.idToken?.toString() ?? null);
-            if (token) fetchPlayers(user.userId);
+
+            if (token) fetchPlayers(user.userId, newToken!);
             setIsAuthenticated(true);
             setError(null)
+
+            if (newToken) fetchPlayers(user.userId, newToken);
+
         } catch (error) {
             setIsAuthenticated(false);
             setUserId(null);
@@ -74,12 +80,15 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             console.log(error)
             setError("Failed to refresh application data.")
         }
+        finally {
+            setIsLoading(false);
+        }
     };
 
     // 2. IMPORTANT: Check session on app mount
     useEffect(() => {
         refreshUserSession();
-    }, [userId, token]);
+    }, []);
 
 
     const value = useMemo(() => ({
@@ -120,30 +129,25 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
         }
     };
 
-    const fetchPlayers = async (id: string) => {
+    const fetchPlayers = async (id: string, authToken: string) => {
         setIsLoading(true);
         setError(null);
         try {
-            console.log(`Fetching player info...with token ${token}`)
             const response = await fetch(`${baseUrl}/players`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`, // Pass the Amplify JWT
+                    'Authorization': `Bearer ${authToken}`,
                     'Content-Type': 'application/json'
                 }
             });
             if (!response.ok) throw new Error(`Failed to fetch players data. Status Code: ${response.status} Error: ${response.body}`);
             const result: PlayerData[] = await response.json();
 
-            console.log("result", result)
-
             const loggedInPlayer = result.find(p => p.id === id)!
             // loggedInPlayer.avatarUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAYoKwAo7DWpPFkockZCdu3uocG0MVC5hyTQnzuY3hGZIW9cZAH0PUwXh8R3Td2atRJhwqlfmTlXpO9CPZCCvgS5wAB2Aq1ONsZgJZ6IbHyiXR0pFkaPsU5Tmfl6XciDTfvmXRWLa7CjrkGTw2YWVImSwTIiG1QxPdMDA8w2MzeHyVVjgL1fPzgwUZGYI7tDdeiOcgRpI7bLiVosEk67nDnu8720FkWcqGV9GoS5PiVmlKaLbA7OkTta6LZf7XmkBR0DN7qfZgf4IA"
             setPlayer({ ...loggedInPlayer });
 
             const opponents = result.filter(p => p.id !== id)
-            console.log("loggedInPlayer", loggedInPlayer)
-            console.log("opponents", opponents)
             setOpponents(opponents ?? [])
 
 
@@ -171,7 +175,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
                 body: JSON.stringify(request)
 
             });
-            console.log(response.body, response.ok) 
+            console.log(response.body, response.ok)
             if (!response.ok) throw new Error(`Failed to upload the match. Reason:${response.body}`);
             const result = await response.json();
             console.log("result", result)
