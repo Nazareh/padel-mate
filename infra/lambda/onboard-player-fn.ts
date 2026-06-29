@@ -3,12 +3,6 @@ import { savePlayer } from "./repository/player-repository.js";
 
 exports.handler = async (event: PostConfirmationTriggerEvent): Promise<any> => {
 
-    const tableName = process.env.PLAYER_TABLE_NAME;
-    if (!tableName) {
-        console.error('PLAYER_TABLE_NAME env var is not set');
-        throw new Error('PLAYER_TABLE_NAME environment variable is required');
-    }
-
     const {
         userName,
         request: {
@@ -25,9 +19,10 @@ exports.handler = async (event: PostConfirmationTriggerEvent): Promise<any> => {
 
     try {
         await savePlayer(item)
-        console.log('Player added to DynamoDB', { id: item.id, table: tableName });
+        console.log('Player saved', { id: item.id });
     } catch (err) {
-        console.error('Failed to put item to DynamoDB', err);
+        console.error('Failed to save player ${userName}', err);
+
         throw err; // let Cognito know the trigger failed
     }
 

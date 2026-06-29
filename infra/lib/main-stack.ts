@@ -36,23 +36,6 @@ export class MainStack extends cdk.Stack {
     this.playerTable = createTable(this, `${this.stackName}-player`, this.stackName);
     this.matchTable = createTable(this, `${this.stackName}-match`, this.stackName);
 
-
-    this.matchTable.addGlobalSecondaryIndex({
-      indexName: 'PlayerMatchesIndex',
-      partitionKey: {
-        name: 'playerId',
-        type: AttributeType.STRING
-      },
-      sortKey: {
-        name: 'startTime',
-        type: AttributeType.STRING
-      },
-
-      // ALL projects the entire Match object into the index, 
-      // meaning your read query returns the full match details instantly.
-      projectionType: ProjectionType.ALL,
-    });
-
   }
 
   createLambdaFunctions() {
@@ -78,7 +61,7 @@ export class MainStack extends cdk.Stack {
       },
     });
 
-    this.matchTable.grantReadWriteData(this.logMatchFn)
+    this.matchTable.grantWriteData(this.logMatchFn)
     this.playerTable.grantReadData(this.logMatchFn)
 
   }
