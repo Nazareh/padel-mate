@@ -2,7 +2,6 @@ import { PostConfirmationTriggerEvent } from "aws-lambda";
 import { savePlayer } from "./repository/player-repository.js";
 
 exports.handler = async (event: PostConfirmationTriggerEvent): Promise<any> => {
-
     const {
         userName,
         request: {

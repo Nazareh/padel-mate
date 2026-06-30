@@ -96,23 +96,24 @@ function isSetScoreValid(score: SetScore): boolean {
     );
 }
 
-
 function getWinnerTeam(match: Match): Team | undefined {
     if (match.scores == undefined || match.scores.length == 0) {
         console.log("SetResult array is empty or undefined:", match.scores);
         return undefined;
     }
 
-    let winnerTeam: Team | undefined = undefined;
+    let team1Sets = 0;
+    let team2Sets = 0;
 
     match.scores.forEach((score) => {
         const setWinner = getSetWinner(score);
-
-        if (!winnerTeam) winnerTeam = getSetWinner(score);
-        else if (winnerTeam && winnerTeam != setWinner) winnerTeam = undefined;
+        if (setWinner === Team.TEAM_1) team1Sets++;
+        else if (setWinner === Team.TEAM_2) team2Sets++;
     });
 
-    return winnerTeam;
+    if (team1Sets > team2Sets) return Team.TEAM_1;
+    if (team2Sets > team1Sets) return Team.TEAM_2;
+    return undefined; // tie in sets won, can't determine a winner
 }
 
 const getSetWinner = (score: SetScore) =>

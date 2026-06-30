@@ -45,7 +45,7 @@ export const handler: APIGatewayProxyHandler = async (event, _context) => {
             };
         }
         
-        throw new Error("invali path")
+        throw new Error("invalid path")
 
     } catch (error) {
         console.error("Error processing the request:", error);
