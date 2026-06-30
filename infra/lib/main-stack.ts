@@ -56,7 +56,7 @@ export class MainStack extends cdk.Stack {
   }
 
   createLambdaFunctions() {
-    const onboardPlayerFn = createLambda(this, "onboard-player-fn", this.stackName, {
+    this.onboardPlayerFn = createLambda(this, "onboard-player-fn", this.stackName, {
       environment: {
         PLAYER_TABLE_NAME: this.playerTable.tableName,
         MONGO_DB_NAME: MONGO_DB_NAME,
@@ -64,12 +64,11 @@ export class MainStack extends cdk.Stack {
       },
     });
 
-    this.onboardPlayerFn = onboardPlayerFn;
 
     this.mongoUriParameter.grantRead(this.onboardPlayerFn);
 
-    this.playerTable.grantReadWriteData(onboardPlayerFn);
-    this.userPool.addTrigger(cognito.UserPoolOperation.POST_CONFIRMATION, onboardPlayerFn);
+    this.playerTable.grantReadWriteData(this.onboardPlayerFn);
+    this.userPool.addTrigger(cognito.UserPoolOperation.POST_CONFIRMATION, this.onboardPlayerFn);
 
     this.getPlayersFn = createLambda(this, "get-players-fn", this.stackName, {
       environment: {
@@ -85,10 +84,12 @@ export class MainStack extends cdk.Stack {
     this.logMatchFn = createLambda(this, "log-match-fn", this.stackName, {
       environment: {
         PLAYER_TABLE_NAME: this.playerTable.tableName,
-        MATCH_TABLE_NAME: this.matchTable.tableName
+        MATCH_TABLE_NAME: this.matchTable.tableName,
+        MONGO_DB_NAME: MONGO_DB_NAME,
+        MONGO_URI_PARAM_NAME: this.mongoUriParameter.parameterName,
       },
     });
-
+    this.mongoUriParameter.grantRead(this.logMatchFn);
     this.matchTable.grantWriteData(this.logMatchFn)
     this.playerTable.grantReadData(this.logMatchFn)
 

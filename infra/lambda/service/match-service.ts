@@ -70,9 +70,16 @@ export async function processMatch(request: LogMatchRequest, requestedBy: String
         }
     }
 
+    console.log("before saving match", match)
     if (match.status != MatchStatus.INVALID) {
         console.log(`Saving match ${JSON.stringify(match)}`);
-        saveMatch(match)
+        try {
+            await saveMatch(match)
+            console.log('Match saved', { id: match.id });
+        } catch (err) {
+            console.error('Failed to save match ${match}', err);
+            throw err; // let Cognito know the trigger failed
+        }
     }
 
     return match;

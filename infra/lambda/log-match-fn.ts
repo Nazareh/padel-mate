@@ -18,11 +18,12 @@ export const handler: APIGatewayProxyHandler = async (event, _context) => {
                 ...parsedBody,
                 startTime: new Date(parsedBody.startTime),
             };
-
+            console.log("Before processing match");
             processedMatch = await processMatch(
                 logMatchRequest,
                 requestingPlayerId
             );
+            console.log("After processing match");
 
             const isMatchValid = processedMatch?.status != MatchStatus.INVALID
             console.log("isMatchValid", isMatchValid)

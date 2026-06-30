@@ -21,6 +21,7 @@ export const createLambda = (construct: Construct, functionName: string, stackNa
     runtime: Runtime.NODEJS_24_X,
     handler: 'handler',
     functionName: `${stackName}-${functionName}`,
+    timeout: cdk.Duration.seconds(30),
     logGroup: logGroup,
     bundling: {
       forceDockerBundling: false,
