@@ -1,108 +1,49 @@
-import {
-    DynamoDBClient,
-} from "@aws-sdk/client-dynamodb";
-import {
-    DynamoDBDocumentClient,
-    GetCommand,
-    ScanCommand,
-    ScanCommandOutput
-} from "@aws-sdk/lib-dynamodb";
 import { Player } from "../model.js";
-import { MongoClient, Db } from 'mongodb';
+import { MongoClient, Collection } from 'mongodb';
 import { getParameterValue } from "../service/ssm-service.js";
 
-const client = new DynamoDBClient({});
-const dynamo = DynamoDBDocumentClient.from(client, {
-    marshallOptions: {
-        convertClassInstanceToMap: true,
-    },
-});
-
-const checkPlayerTableEnvVars = () => {
-    const playerTableName = process.env.PLAYER_TABLE_NAME;
-    if (!playerTableName) {
-        console.error('PLAYER_TABLE_NAME env var is not set');
-        throw new Error('PLAYER_TABLE_NAME environment variable is required');
-    }
-}
+let mongoClient: MongoClient;
 
 type PlayerDocument = Omit<Player, 'id'> & { _id: string };
 
-export async function savePlayer(player: Player) {
-    let mongoDb: Db;
-    const mongoClient = new MongoClient(await getParameterValue(process.env.MONGO_URI_PARAM_NAME!));
-    await mongoClient.connect();
-    mongoDb = mongoClient.db(process.env.MONGO_DB_NAME!);
 
-    if (!mongoDb) throw new Error("MongoDB not initialized. Call initMongo() first.");
-
-    checkPlayerTableEnvVars();
-
-    const collection = mongoDb.collection<PlayerDocument>(process.env.PLAYER_TABLE_NAME!);
-
-    const { id, ...rest } = player;
-    await collection.replaceOne(
-        { _id: id },
-        { ...rest },
-        { upsert: true }
-    );
+async function getPlayerCollection(): Promise<Collection<PlayerDocument>> {
+    if (!mongoClient) {
+        mongoClient = new MongoClient(await getParameterValue(process.env.MONGO_URI_PARAM_NAME!));
+        await mongoClient.connect();
+    }
+    let db = mongoClient.db(process.env.MONGO_DB_NAME!);
+    return db.collection<PlayerDocument>(process.env.PLAYER_TABLE_NAME!);;
 }
 
-
-// export async function savePlayer(player: Player) {
-//     checkPlayerTableEnvVars()
-//     await dynamo.send(
-//         new PutCommand({
-//             TableName: process.env.PLAYER_TABLE_NAME,
-//             Item: player,
-//         })
-//     );
-// }
-
 export async function findPlayerById(id: string): Promise<Player> {
-    checkPlayerTableEnvVars()
-    console.log(`Finding player by id: ${id}...`)
-    const player = (
-        await dynamo.send(
-            new GetCommand({
-                TableName: process.env.PLAYER_TABLE_NAME,
-                Key: {
-                    id,
-                },
-            })
-        )
-    ).Item as Player;
-    if (!player) {
-        throw new Error("Item not found after retries");
-    }
+    const collection = await getPlayerCollection();
 
-    return player
+    const doc = await collection.findOne({ _id: id });
 
+    if (!doc) throw new Error(`Player not found with id: ${id}`);
+
+    const { _id, ...rest } = doc;
+
+    return { id: _id, ...rest } as Player;
+}
+
+export async function savePlayer(player: Player) {
+    const collection = await getPlayerCollection();
+    const { id, ...rest } = player;
+    await collection.replaceOne({ _id: id }, { ...rest }, { upsert: true });
 }
 
 export async function findAllPlayers(): Promise<Player[]> {
-    checkPlayerTableEnvVars()
-    console.log("Finding all players...")
-    let allPlayers: Player[] = [];
-    let lastEvaluatedKey: Record<string, any> | undefined = undefined;
+    console.log("Finding all players...");
 
-    do {
-        const response: ScanCommandOutput = await dynamo.send(
-            new ScanCommand({
-                TableName: process.env.PLAYER_TABLE_NAME,
-                ExclusiveStartKey: lastEvaluatedKey,
-            })
-        );
+    const collection = await getPlayerCollection();
 
-        if (response.Items) {
-            allPlayers.push(...(response.Items as Player[]));
-        }
-        console.log(`Last evaluated key: ${response.LastEvaluatedKey}, Items found: ${response.Items?.length}`)
+    const docs = await collection.find({}).toArray();
 
-        lastEvaluatedKey = response.LastEvaluatedKey;
-    } while (lastEvaluatedKey);
+    console.log(`Items found: ${docs.length}`);
 
-    return allPlayers;
+    return docs.map(({ _id, ...rest }) => ({ id: _id, ...rest } as Player));
 }
 
 
