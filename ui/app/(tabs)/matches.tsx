@@ -5,34 +5,13 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  Image,
   StatusBar,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { globalStyles } from '@/constants/GlobalStyles';
+import { globalStyles, COLORS } from '@/constants/GlobalStyles';
 import { useGlobalContext, MatchData } from '@/auth/globalContext';
-
-const COLORS = {
-  primary: "#19e66b",
-  primaryContent: "#112117",
-  backgroundDark: "#112117",
-  surfaceDark: "#1c2e24",
-  borderDark: "#2f4538",
-  textGray: "#9ca3af",
-  textWhite: "#FFFFFF",
-  danger: "#ef4444",
-};
-
-const THEME = {
-  bg: COLORS.backgroundDark,
-  surface: COLORS.surfaceDark,
-  text: COLORS.textWhite,
-  textSec: "#9ca3af",
-  border: COLORS.borderDark,
-};
 
 type PlayerInfo = { name: string; initials: string };
 type DisplayMatch = {
@@ -41,7 +20,7 @@ type DisplayMatch = {
   time: string;
   type: 'approval' | 'past';
   myActionRequired: boolean;
-  status: 'Proposed' | 'Victory' | 'Defeat';
+  status: 'Pending' | 'Victory' | 'Defeat';
   scores: { myTeam: number; opponents: number }[];
   myTeam: [PlayerInfo, PlayerInfo];
   opponents: [PlayerInfo, PlayerInfo];
@@ -72,42 +51,44 @@ function getInitials(name: string): string {
 const PlayerAvatar = ({ player, isMe }: { player: PlayerInfo; isMe?: boolean }) => (
   <View style={styles.playerRow}>
     <View style={[styles.avatar, styles.initialsAvatar, isMe ? styles.meAvatar : styles.otherAvatar]}>
-      <Text style={[styles.initialsText, isMe ? { color: COLORS.primaryContent } : { color: '#FFF' }]}>
+      <Text style={[styles.initialsText, isMe ? { color: COLORS.primaryContent } : { color: COLORS.textWhite }]}>
         {player.initials}
       </Text>
     </View>
-    <Text style={[styles.playerName, { color: isMe ? THEME.text : THEME.textSec }]} numberOfLines={1}>
+    <Text style={[styles.playerName, { color: isMe ? COLORS.textWhite : COLORS.textGray }]} numberOfLines={1}>
       {player.name}
     </Text>
   </View>
 );
 
 const MatchCard = ({ match }: { match: DisplayMatch }) => {
-  const isVictory = match.status === 'Victory';
-
-  const badgeBg = match.myActionRequired
-    ? COLORS.danger
-    : isVictory
-      ? 'rgba(25, 230, 107, 0.2)'
-      : 'rgba(255,255,255,0.05)';
-
-  const badgeTextColor = match.myActionRequired
-    ? COLORS.textWhite
-    : isVictory
-      ? COLORS.primary
-      : THEME.textSec;
-
   const badgeLabel = match.myActionRequired ? 'Action Required' : match.status;
 
+  const badgeContainerStyle = match.myActionRequired
+    ? [globalStyles.badge, globalStyles.badgeActionRequired]
+    : match.status === 'Victory'
+      ? [globalStyles.badge, globalStyles.badgeVictory]
+      : match.status === 'Defeat'
+        ? [globalStyles.badge, globalStyles.badgeDefeat]
+        : [globalStyles.badge, globalStyles.badgePending];
+
+  const badgeTextStyle = match.myActionRequired
+    ? [globalStyles.badgeText, globalStyles.badgeActionRequiredText]
+    : match.status === 'Victory'
+      ? [globalStyles.badgeText, globalStyles.badgeVictoryText]
+      : match.status === 'Defeat'
+        ? [globalStyles.badgeText, globalStyles.badgeDefeatText]
+        : [globalStyles.badgeText, globalStyles.badgePendingText];
+
   return (
-    <View style={[styles.card, { backgroundColor: THEME.surface, borderColor: THEME.border }]}>
+    <View style={[styles.card, { backgroundColor: COLORS.surfaceDark, borderColor: COLORS.borderDark }]}>
       <View style={[styles.cardHeader, { borderBottomColor: 'rgba(255,255,255,0.05)' }]}>
         <View style={styles.dateRow}>
-          <MaterialIcons name="calendar-today" size={14} color={THEME.textSec} />
-          <Text style={[styles.dateText, { color: THEME.textSec }]}>{match.date}, {match.time}</Text>
+          <MaterialIcons name="calendar-today" size={14} color={COLORS.textGray} />
+          <Text style={[styles.dateText, { color: COLORS.textGray }]}>{match.date}, {match.time}</Text>
         </View>
-        <View style={[styles.badge, { backgroundColor: badgeBg }]}>
-          <Text style={[styles.badgeText, { color: badgeTextColor }]}>
+        <View style={badgeContainerStyle}>
+          <Text style={badgeTextStyle}>
             {badgeLabel}
           </Text>
         </View>
@@ -131,9 +112,9 @@ const MatchCard = ({ match }: { match: DisplayMatch }) => {
           {match.opponents.map((p, i) => (
             <View key={i} style={[styles.playerRow, { flexDirection: 'row-reverse' }]}>
               <View style={[styles.avatar, styles.initialsAvatar, styles.otherAvatar]}>
-                <Text style={[styles.initialsText, { color: '#FFF' }]}>{p.initials}</Text>
+                <Text style={[styles.initialsText, { color: COLORS.textWhite }]}>{p.initials}</Text>
               </View>
-              <Text style={[styles.playerName, { color: THEME.textSec, textAlign: 'right' }]} numberOfLines={1}>
+              <Text style={[styles.playerName, { color: COLORS.textGray, textAlign: 'right' }]} numberOfLines={1}>
                 {p.name}
               </Text>
             </View>
@@ -144,7 +125,7 @@ const MatchCard = ({ match }: { match: DisplayMatch }) => {
       {match.myActionRequired && (
         <View style={styles.actionRow}>
           <TouchableOpacity style={[styles.actionBtn, { backgroundColor: COLORS.borderDark }]}>
-            <Text style={[styles.actionBtnText, { color: THEME.text }]}>Reject</Text>
+            <Text style={[styles.actionBtnText, { color: COLORS.textWhite }]}>Reject</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.actionBtn, styles.approveBtn]}>
             <Text style={[styles.actionBtnText, { color: COLORS.primaryContent }]}>Approve</Text>
@@ -201,9 +182,9 @@ export default function PadelMatchesScreen() {
     const oppSets = scores.filter(s => s.opponents > s.myTeam).length;
 
     const isPendingMatch = match.status === 'PENDING';
-    const myActionRequired = myPlayer.matchStatus === 'PENDING';
+    const myActionRequired = isPendingMatch && myPlayer.matchStatus === 'PENDING';
     const status = isPendingMatch
-      ? 'Proposed'
+      ? 'Pending'
       : mySets > oppSets
         ? 'Victory'
         : 'Defeat';
@@ -226,7 +207,7 @@ export default function PadelMatchesScreen() {
   const pastMatches = displayMatches.filter(m => m.type === 'past');
 
   return (
-    <View style={[styles.container, { backgroundColor: THEME.bg }]}>
+    <View style={[styles.container, { backgroundColor: COLORS.backgroundDark }]}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.backgroundDark} />
       <SafeAreaView style={globalStyles.safeArea}>
         <View style={globalStyles.headerContainer}>
@@ -243,21 +224,21 @@ export default function PadelMatchesScreen() {
           {pendingMatches.length > 0 && (
             <>
               <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: THEME.text }]}>Pending Approvals</Text>
+                <Text style={globalStyles.sectionTitle}>Pending Approvals</Text>
               </View>
               <View style={styles.cardContainer}>
                 {pendingMatches.map(m => <MatchCard key={m.id} match={m} />)}
               </View>
-              <View style={[styles.divider, { backgroundColor: THEME.border }]} />
+              <View style={[styles.divider, { backgroundColor: COLORS.borderDark }]} />
             </>
           )}
 
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: THEME.text }]}>Past Games</Text>
+            <Text style={globalStyles.sectionTitle}>Past Games</Text>
           </View>
           <View style={styles.cardContainer}>
             {pastMatches.length === 0 ? (
-              <Text style={[styles.emptyText, { color: THEME.textSec }]}>No past games yet.</Text>
+              <Text style={[styles.emptyText, { color: COLORS.textGray }]}>No past games yet.</Text>
             ) : (
               pastMatches.map(m => <MatchCard key={m.id} match={m} />)
             )}
@@ -282,7 +263,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 8,
   },
-  sectionTitle: { fontSize: 18, fontWeight: '700', letterSpacing: -0.5 },
   emptyText: { fontSize: 14, paddingHorizontal: 4 },
   cardContainer: { paddingHorizontal: 16, gap: 16 },
   divider: { height: 1, marginHorizontal: 16, marginVertical: 24 },
@@ -306,8 +286,6 @@ const styles = StyleSheet.create({
   },
   dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   dateText: { fontSize: 12, fontWeight: '600' },
-  badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12 },
-  badgeText: { fontSize: 12, fontWeight: '700' },
   matchGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',

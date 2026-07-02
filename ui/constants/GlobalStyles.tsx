@@ -12,6 +12,9 @@ export const COLORS = {
   red900: "#410002",
   lightBlue: "#60a5fa",
   primaryShade: "#19e66b33",
+  yellow400: "#facc15",
+  yellowShade: "rgba(250, 204, 21, 0.15)",
+  redShade: "rgba(239, 68, 68, 0.15)",
   backgroundLight100: "#f6f8f7",
   backgroundLight200: "#cfcfcf",
   backgroundDark: "#112117",
@@ -192,5 +195,38 @@ export const globalStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: SPACING.sm,
-  }
+  },
+  badge: {
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 2,
+    borderRadius: BORDER_RADIUS.sm,
+  },
+  badgeText: {
+    fontSize: FONT_SIZE.sm,
+    fontWeight: "700",
+  },
+  badgePending: {
+    backgroundColor: "rgba(250, 204, 21, 0.15)",
+  },
+  badgePendingText: {
+    color: "#facc15",
+  },
+  badgeVictory: {
+    backgroundColor: "#19e66b33",
+  },
+  badgeVictoryText: {
+    color: "#19e66b",
+  },
+  badgeDefeat: {
+    backgroundColor: "rgba(239, 68, 68, 0.15)",
+  },
+  badgeDefeatText: {
+    color: "#ef4444",
+  },
+  badgeActionRequired: {
+    backgroundColor: "#ef4444",
+  },
+  badgeActionRequiredText: {
+    color: "#FFFFFF",
+  },
 });
