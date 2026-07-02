@@ -3,8 +3,6 @@ import { COLORS } from "@/constants/GlobalStyles";
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 
 export default function TabLayout() {
-  const { logOut } = useGlobalContext();
-
   return (
     <NativeTabs
       labelStyle={{

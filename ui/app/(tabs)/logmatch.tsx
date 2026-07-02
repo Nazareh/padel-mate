@@ -2,6 +2,7 @@ import { MatchRequest, ScoreRequest, useGlobalContext } from "@/auth/globalConte
 import Button from "@/components/Button";
 import { DateTimeSelector } from "@/components/DateTimeSelector";
 import IconButton from "@/components/IconButton";
+import LoadingOverlay from "@/components/LoadingOverlay";
 import Notification from "@/components/Notification";
 import PlayerAvatar from "@/components/PlayerAvatar";
 import SearchPlayersModal from "@/components/SearchPlayersModal";
@@ -9,7 +10,7 @@ import { BORDER_RADIUS, COLORS, FONT_SIZE, globalStyles, SPACING } from "@/const
 import { Player } from "@/model/Player";
 import { SetScore } from "@/model/Set";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     KeyboardAvoidingView,
     Platform,
@@ -27,7 +28,7 @@ export default function LogMatchScreen() {
     const [showSearchPlayersModal, setShowSearchPlayersModal] = useState(false);
     const [partner, setPartner] = useState<Player | null>(null)
     const [otherPlayers, setOtherPlayers] = useState<Player[]>()
-    const { player, opponents, logMatch, setErrorMsg, error } = useGlobalContext();
+    const { player, opponents, logMatch, isLoading, setIsLoading, error, setError } = useGlobalContext();
     const [scores, setScores] = useState<SetScore[]>([
         { us: '', them: '' }, // Set 1
         { us: '', them: '' }, // Set 2
@@ -45,7 +46,7 @@ export default function LogMatchScreen() {
             avatar: playerData.avatarUrl,
             latestRating: playerData.latestRating,
         };
-    });;
+    });
 
     const setPlayers = (players: Player[]) => {
         players
@@ -70,31 +71,48 @@ export default function LogMatchScreen() {
     };
 
     const submit = async () => {
+        try {
+            if (!player) return;
 
-        if (!player) return;
+            if (!partner) {
+                setError("Please select a partner");
+                return;
+            }
+            if (!otherPlayers || otherPlayers.length < 2) {
+                setError("Please select two opponents");
+                return;
+            }
+            if (scores.find((set) => !isSetComplete(set))) {
+                setError("Not all sets are complete");
+                return;
+            }
 
-        if (scores.find((set) => !isSetComplete(set))) {
-            setErrorMsg("Not all sets are complete")
+            const scoreRequest: ScoreRequest[] = scores.map(item => ({
+                team1: Number(item.them),
+                team2: Number(item.us)
+            }));
+
+            const matchRequest: MatchRequest = {
+                startTime: new Date(matchDate),
+                team1Player1: player.id,
+                team1Player2: partner.id,
+                team2Player1: otherPlayers[0].id,
+                team2Player2: otherPlayers[1].id,
+                scores: scoreRequest
+            };
+            await logMatch(matchRequest);
         }
-        const scoreRequest: ScoreRequest[] = scores.map(item => ({
-            team1: Number(item.them),
-            team2: Number(item.us)
-        }));
-
-        const matchRequest: MatchRequest = {
-            startTime: new Date(matchDate),
-            team1Player1: player!.id,
-            team1Player2: partner!.id,
-            team2Player1: otherPlayers![0]!.id,
-            team2Player2: otherPlayers![1]!.id,
-            scores: scoreRequest
-        };
-        console.log(`Sending: ${JSON.stringify(matchRequest)}`)
-        await logMatch(matchRequest)
+        catch (error: any) {
+            setError(error.message || "Something went wrong. Please try again.");
+        }
+        finally {
+            setIsLoading(false);
+        }
     }
 
     return (
         <SafeAreaView style={globalStyles.safeArea}>
+            <LoadingOverlay visible={isLoading} />
             <StatusBar barStyle="light-content" backgroundColor={COLORS.backgroundDark} />
 
             {/* Header */}
@@ -252,7 +270,7 @@ export default function LogMatchScreen() {
                 <Notification
                     title={'Error'}
                     message={error}
-                    onClose={() => setErrorMsg(null)}
+                    onClose={() => setError(null)}
                     type="error" />
             )}
         </SafeAreaView >

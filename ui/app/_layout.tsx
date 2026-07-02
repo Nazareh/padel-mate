@@ -16,7 +16,7 @@ export default function RootLayout() {
 function RootContent() {
   const authContext = useGlobalContext();
 
-  if (authContext.isLoading) return null;
+  // if (authContext.isLoading) return null;
 
   return (
     <Stack>

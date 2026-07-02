@@ -1,5 +1,5 @@
 import { fetchAuthSession, getCurrentUser, signIn, signOut } from "aws-amplify/auth";
-import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState, Dispatch, SetStateAction } from "react";
 
 export type MatchRequest = {
     startTime: Date,
@@ -25,10 +25,11 @@ type GlobalState = {
     isLoading: boolean;
     error: string | null;
     logInWithEmail: (email: string, password: string) => Promise<void>;
-    fetchPlayers: (id: string, authToken: string) => Promise<void>;
+    fetchPlayers: (id: string) => Promise<void>;
     logMatch: (matchRequest: MatchRequest) => Promise<void>;
     logOut: () => void;
-    setErrorMsg: (errorMsg: string | null) => void;
+    setIsLoading: Dispatch<SetStateAction<boolean>>;
+    setError: Dispatch<SetStateAction<string | null>>;
 };
 
 type PlayerData = {
@@ -64,14 +65,10 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             const newToken = session.tokens?.idToken?.toString() ?? null;
 
             setUserId(user.userId);
-            // Get the JWT token from the ID Token (common for user info)
-            setToken(session.tokens?.idToken?.toString() ?? null);
-
-            if (token) fetchPlayers(user.userId, newToken!);
+            setToken(newToken);
             setIsAuthenticated(true);
             setError(null)
-
-            if (newToken) fetchPlayers(user.userId, newToken);
+            fetchPlayers(user.userId);
 
         } catch (error) {
             setIsAuthenticated(false);
@@ -85,20 +82,21 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
         }
     };
 
-    // 2. IMPORTANT: Check session on app mount
     useEffect(() => {
         refreshUserSession();
     }, []);
 
 
-    const value = useMemo(() => ({
+    useMemo(() => ({
         player,
         isLoading,
         error,
         opponents,
         fetchPlayers,
         logMatch,
+        setIsLoading
     }), [player, isLoading, error, opponents]);
+
 
     const logInWithEmail = async (email: string, password: string) => {
         try {
@@ -129,14 +127,14 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
         }
     };
 
-    const fetchPlayers = async (id: string, authToken: string) => {
+    const fetchPlayers = async (id: string) => {
         setIsLoading(true);
         setError(null);
         try {
             const response = await fetch(`${baseUrl}/players`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${authToken}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -149,8 +147,6 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
 
             const opponents = result.filter(p => p.id !== id)
             setOpponents(opponents ?? [])
-
-
         } catch (err) {
             console.log(err)
             setError(err instanceof Error ? err.message : 'An error occurred');
@@ -189,15 +185,11 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
 
     }
 
-    const setErrorMsg = (errorMsg: string | null) => {
-        setError(errorMsg)
-    }
-
     return (
         <GlobalContext.Provider value={{
             isAuthenticated, userId, token, logInWithEmail, logOut,
-            error, fetchPlayers, isLoading, logMatch, opponents, player,
-            setErrorMsg
+            error, fetchPlayers, isLoading, setIsLoading, logMatch, opponents, player,
+            setError
         }}>
             {children}
         </GlobalContext.Provider>
