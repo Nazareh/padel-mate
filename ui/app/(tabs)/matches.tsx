@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,168 +7,132 @@ import {
   TouchableOpacity,
   Image,
   StatusBar,
-  Dimensions,
-  Platform
+  ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { globalStyles } from '@/constants/GlobalStyles';
+import { useGlobalContext, MatchData } from '@/auth/globalContext';
 
-// --- Constants & Theme ---
 const COLORS = {
   primary: "#19e66b",
   primaryContent: "#112117",
-  backgroundLight: "#f6f8f7",
   backgroundDark: "#112117",
   surfaceDark: "#1c2e24",
-  surfaceLight: "#FFFFFF",
   borderDark: "#2f4538",
   textGray: "#9ca3af",
   textWhite: "#FFFFFF",
   danger: "#ef4444",
 };
 
-// Toggle this to see Light Mode (though the design shines in Dark Mode)
-const IS_DARK = true;
-
 const THEME = {
-  bg: IS_DARK ? COLORS.backgroundDark : COLORS.backgroundLight,
-  surface: IS_DARK ? COLORS.surfaceDark : COLORS.surfaceLight,
-  text: IS_DARK ? COLORS.textWhite : "#111827",
-  textSec: IS_DARK ? "#9ca3af" : "#4b5563",
-  border: IS_DARK ? COLORS.borderDark : "#e5e7eb",
+  bg: COLORS.backgroundDark,
+  surface: COLORS.surfaceDark,
+  text: COLORS.textWhite,
+  textSec: "#9ca3af",
+  border: COLORS.borderDark,
 };
 
-// --- Types ---
-type Player = { name: string; avatar?: string; initials?: string };
-type MatchData = {
+type PlayerInfo = { name: string; initials: string };
+type DisplayMatch = {
   id: string;
   date: string;
   time: string;
   type: 'approval' | 'past';
+  myActionRequired: boolean;
   status: 'Proposed' | 'Victory' | 'Defeat';
-  score: string;
-  venue: string;
-  myTeam: [Player, Player];
-  opponents: [Player, Player];
+  scores: { myTeam: number; opponents: number }[];
+  myTeam: [PlayerInfo, PlayerInfo];
+  opponents: [PlayerInfo, PlayerInfo];
 };
 
-// --- Mock Data ---
-const MATCHES: MatchData[] = [
-  {
-    id: '1',
-    date: 'Yesterday',
-    time: '18:00',
-    type: 'approval',
-    status: 'Proposed',
-    score: '6-4, 2-6, 6-3',
-    venue: 'Central Padel Club',
-    myTeam: [{ name: 'You', initials: 'ME' }, { name: 'Mike', avatar: 'https://i.pravatar.cc/150?u=1' }],
-    opponents: [{ name: 'Sarah', avatar: 'https://i.pravatar.cc/150?u=2' }, { name: 'Juan', initials: 'JL' }],
-  },
-  {
-    id: '2',
-    date: 'Oct 20',
-    time: '18:30',
-    type: 'past',
-    status: 'Victory',
-    score: '6-4\n7-5',
-    venue: 'City Courts',
-    myTeam: [{ name: 'You', initials: 'ME' }, { name: 'Mike', avatar: 'https://i.pravatar.cc/150?u=1' }],
-    opponents: [{ name: 'Sarah', avatar: 'https://i.pravatar.cc/150?u=2' }, { name: 'David', avatar: 'https://i.pravatar.cc/150?u=3' }],
-  },
-  {
-    id: '3',
-    date: 'Oct 18',
-    time: '10:00',
-    type: 'past',
-    status: 'Defeat',
-    score: '2-6\n6-4\n2-6',
-    venue: 'Padel Zenter',
-    myTeam: [{ name: 'You', initials: 'ME' }, { name: 'Sarah', avatar: 'https://i.pravatar.cc/150?u=2' }],
-    opponents: [{ name: 'Coach', avatar: 'https://i.pravatar.cc/150?u=4' }, { name: 'Alex', avatar: 'https://i.pravatar.cc/150?u=5' }],
-  }
-];
+function formatDate(iso: string): string {
+  const date = new Date(iso);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  if (date.toDateString() === today.toDateString()) return 'Today';
+  if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
+  return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+}
 
-// --- Components ---
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString('en-AU', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
 
-const PlayerAvatar = ({ player }: { player: Player }) => {
-  return (
-    <View style={styles.playerRow}>
-      {player.avatar ? (
-        <Image source={{ uri: player.avatar }} style={styles.avatar} />
-      ) : (
-        <View style={[styles.avatar, styles.initialsAvatar, player.initials === 'ME' ? styles.meAvatar : styles.otherAvatar]}>
-          <Text style={[styles.initialsText, player.initials === 'ME' ? { color: COLORS.primaryContent } : { color: '#FFF' }]}>
-            {player.initials}
-          </Text>
-        </View>
-      )}
-      <Text style={[styles.playerName, { color: player.name === 'You' ? THEME.text : THEME.textSec }]} numberOfLines={1}>
-        {player.name}
+function getInitials(name: string): string {
+  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+}
+
+const PlayerAvatar = ({ player, isMe }: { player: PlayerInfo; isMe?: boolean }) => (
+  <View style={styles.playerRow}>
+    <View style={[styles.avatar, styles.initialsAvatar, isMe ? styles.meAvatar : styles.otherAvatar]}>
+      <Text style={[styles.initialsText, isMe ? { color: COLORS.primaryContent } : { color: '#FFF' }]}>
+        {player.initials}
       </Text>
     </View>
-  );
-};
+    <Text style={[styles.playerName, { color: isMe ? THEME.text : THEME.textSec }]} numberOfLines={1}>
+      {player.name}
+    </Text>
+  </View>
+);
 
-const MatchCard = ({ match }: { match: MatchData }) => {
-  const isApproval = match.type === 'approval';
+const MatchCard = ({ match }: { match: DisplayMatch }) => {
   const isVictory = match.status === 'Victory';
-  const isProposed = match.status === 'Proposed';
 
-  // Badge Color Logic
-  let badgeBg = isProposed ? 'rgba(25, 230, 107, 0.2)' : (isVictory ? 'rgba(25, 230, 107, 0.2)' : 'rgba(255,255,255,0.05)');
-  let badgeText = isProposed || isVictory ? COLORS.primary : THEME.textSec;
-  if (!IS_DARK && !isProposed && !isVictory) {
-    badgeBg = '#e5e7eb';
-    badgeText = '#6b7280';
-  }
+  const badgeBg = match.myActionRequired
+    ? COLORS.danger
+    : isVictory
+      ? 'rgba(25, 230, 107, 0.2)'
+      : 'rgba(255,255,255,0.05)';
+
+  const badgeTextColor = match.myActionRequired
+    ? COLORS.textWhite
+    : isVictory
+      ? COLORS.primary
+      : THEME.textSec;
+
+  const badgeLabel = match.myActionRequired ? 'Action Required' : match.status;
 
   return (
     <View style={[styles.card, { backgroundColor: THEME.surface, borderColor: THEME.border }]}>
-      {/* Card Header */}
-      <View style={[styles.cardHeader, { borderBottomColor: IS_DARK ? 'rgba(255,255,255,0.05)' : '#f3f4f6' }]}>
+      <View style={[styles.cardHeader, { borderBottomColor: 'rgba(255,255,255,0.05)' }]}>
         <View style={styles.dateRow}>
           <MaterialIcons name="calendar-today" size={14} color={THEME.textSec} />
           <Text style={[styles.dateText, { color: THEME.textSec }]}>{match.date}, {match.time}</Text>
         </View>
-        <View style={styles.dangerBadge}>
-          <Text style={styles.dangerBadgeText}>Action Required</Text>
+        <View style={[styles.badge, { backgroundColor: badgeBg }]}>
+          <Text style={[styles.badgeText, { color: badgeTextColor }]}>
+            {badgeLabel}
+          </Text>
         </View>
       </View>
 
-      {/* Players Grid */}
       <View style={styles.matchGrid}>
-        {/* Left Team */}
         <View style={styles.teamColumn}>
-          {match.myTeam.map((p, i) => <PlayerAvatar key={i} player={p} />)}
+          <PlayerAvatar player={match.myTeam[0]} isMe />
+          <PlayerAvatar player={match.myTeam[1]} />
         </View>
 
-        {/* Scores */}
         <View style={styles.scoreColumn}>
-          <Text style={[styles.scoreText, { color: COLORS.textWhite }]}>
-            {"6 - 0"}
-          </Text>
-          <Text style={[styles.scoreText, { color: COLORS.textWhite }]}>
-            {"6 - 0"}
-          </Text>
-          <Text style={[styles.scoreText, { color: COLORS.textWhite }]}>
-            {"6 - 0"}
-          </Text>
-
+          {match.scores.map((s, i) => (
+            <Text key={i} style={[styles.scoreText, { color: COLORS.textWhite }]}>
+              {`${s.myTeam} - ${s.opponents}`}
+            </Text>
+          ))}
         </View>
 
-        {/* Right Team (Opponents) */}
         <View style={[styles.teamColumn, { alignItems: 'flex-end' }]}>
           {match.opponents.map((p, i) => (
             <View key={i} style={[styles.playerRow, { flexDirection: 'row-reverse' }]}>
-              {p.avatar ? (
-                <Image source={{ uri: p.avatar }} style={styles.avatar} />
-              ) : (
-                <View style={[styles.avatar, styles.initialsAvatar, styles.otherAvatar]}>
-                  <Text style={[styles.initialsText, { color: '#FFF' }]}>{p.initials}</Text>
-                </View>
-              )}
+              <View style={[styles.avatar, styles.initialsAvatar, styles.otherAvatar]}>
+                <Text style={[styles.initialsText, { color: '#FFF' }]}>{p.initials}</Text>
+              </View>
               <Text style={[styles.playerName, { color: THEME.textSec, textAlign: 'right' }]} numberOfLines={1}>
                 {p.name}
               </Text>
@@ -177,10 +141,9 @@ const MatchCard = ({ match }: { match: MatchData }) => {
         </View>
       </View>
 
-      {/* Approval Buttons */}
-      {isApproval && (
+      {match.myActionRequired && (
         <View style={styles.actionRow}>
-          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: IS_DARK ? COLORS.borderDark : '#f3f4f6' }]}>
+          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: COLORS.borderDark }]}>
             <Text style={[styles.actionBtnText, { color: THEME.text }]}>Reject</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.actionBtn, styles.approveBtn]}>
@@ -193,7 +156,74 @@ const MatchCard = ({ match }: { match: MatchData }) => {
 };
 
 export default function PadelMatchesScreen() {
-  const [activeTab, setActiveTab] = useState('All Games');
+  const { matches, fetchMatches, userId, player, opponents, isLoading } = useGlobalContext();
+
+  useEffect(() => {
+    fetchMatches();
+  }, []);
+
+  const allPlayers = [...(player ? [player] : []), ...opponents];
+
+  function playerInfo(playerId: string): PlayerInfo {
+    const found = allPlayers.find(p => p.id === playerId);
+    if (!found) return { name: 'Unknown', initials: '?' };
+    const fullName = `${found.givenName} ${found.familyName}`;
+    return { name: fullName, initials: getInitials(fullName) };
+  }
+
+  function toDisplayMatch(match: MatchData): DisplayMatch | null {
+    const myPlayer = match.players.find(p => p.playerId === userId);
+    console.log('[match debug]', {
+      matchId: match.id,
+      matchStatus: match.status,
+      userId,
+      myPlayer,
+    });
+    if (!myPlayer) return null;
+
+    const myTeamId = myPlayer.team;
+    const oppTeamId = myTeamId === 'TEAM_1' ? 'TEAM_2' : 'TEAM_1';
+
+    const myTeamPlayers = match.players.filter(p => p.team === myTeamId);
+    const oppPlayers = match.players.filter(p => p.team === oppTeamId);
+
+    const meFirst = [
+      ...myTeamPlayers.filter(p => p.playerId === userId),
+      ...myTeamPlayers.filter(p => p.playerId !== userId),
+    ];
+
+    const scores = match.scores.map(s => ({
+      myTeam: myTeamId === 'TEAM_1' ? s.team1 : s.team2,
+      opponents: myTeamId === 'TEAM_1' ? s.team2 : s.team1,
+    }));
+
+    const mySets = scores.filter(s => s.myTeam > s.opponents).length;
+    const oppSets = scores.filter(s => s.opponents > s.myTeam).length;
+
+    const isPendingMatch = match.status === 'PENDING';
+    const myActionRequired = myPlayer.matchStatus === 'PENDING';
+    const status = isPendingMatch
+      ? 'Proposed'
+      : mySets > oppSets
+        ? 'Victory'
+        : 'Defeat';
+
+    return {
+      id: match.id,
+      date: formatDate(match.startTime),
+      time: formatTime(match.startTime),
+      type: isPendingMatch ? 'approval' : 'past',
+      myActionRequired,
+      status,
+      scores,
+      myTeam: [playerInfo(meFirst[0]?.playerId), playerInfo(meFirst[1]?.playerId)] as [PlayerInfo, PlayerInfo],
+      opponents: [playerInfo(oppPlayers[0]?.playerId), playerInfo(oppPlayers[1]?.playerId)] as [PlayerInfo, PlayerInfo],
+    };
+  }
+
+  const displayMatches = matches.map(toDisplayMatch).filter((m): m is DisplayMatch => m !== null);
+  const pendingMatches = displayMatches.filter(m => m.type === 'approval');
+  const pastMatches = displayMatches.filter(m => m.type === 'past');
 
   return (
     <View style={[styles.container, { backgroundColor: THEME.bg }]}>
@@ -204,84 +234,46 @@ export default function PadelMatchesScreen() {
         </View>
       </SafeAreaView>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-
-        {/* Pending Approvals Section */}
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: THEME.text }]}>Pending Approvals</Text>
-
+      {isLoading ? (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {pendingMatches.length > 0 && (
+            <>
+              <View style={styles.sectionHeader}>
+                <Text style={[styles.sectionTitle, { color: THEME.text }]}>Pending Approvals</Text>
+              </View>
+              <View style={styles.cardContainer}>
+                {pendingMatches.map(m => <MatchCard key={m.id} match={m} />)}
+              </View>
+              <View style={[styles.divider, { backgroundColor: THEME.border }]} />
+            </>
+          )}
 
-        <View style={styles.cardContainer}>
-          <MatchCard match={MATCHES[0]} />
-        </View>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: THEME.text }]}>Past Games</Text>
+          </View>
+          <View style={styles.cardContainer}>
+            {pastMatches.length === 0 ? (
+              <Text style={[styles.emptyText, { color: THEME.textSec }]}>No past games yet.</Text>
+            ) : (
+              pastMatches.map(m => <MatchCard key={m.id} match={m} />)
+            )}
+          </View>
 
-        {/* Divider */}
-        <View style={[styles.divider, { backgroundColor: THEME.border }]} />
-
-        {/* Past Games Section */}
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: THEME.text }]}>Past Games</Text>
-        </View>
-
-        <View style={styles.cardContainer}>
-          {MATCHES.slice(1).map(m => <MatchCard key={m.id} match={m} />)}
-        </View>
-
-        {/* Bottom Spacer for Tab Bar */}
-        <View style={{ height: 100 }} />
-      </ScrollView>
-
+          <View style={{ height: 100 }} />
+        </ScrollView>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    zIndex: 10,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    letterSpacing: -0.5,
-  },
-  iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scrollContent: {
-    paddingBottom: 20,
-  },
-  toggleContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  toggleTrack: {
-    flexDirection: 'row',
-    height: 48,
-    borderRadius: 24,
-    padding: 4,
-  },
-  toggleItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 20,
-  },
-  toggleText: {
-    fontSize: 14,
-  },
+  container: { flex: 1 },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  scrollContent: { paddingBottom: 20 },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -290,33 +282,10 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 8,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: -0.5,
-  },
-  dangerBadge: {
-    backgroundColor: COLORS.danger,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-  },
-  dangerBadgeText: {
-    color: '#FFF',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  cardContainer: {
-    paddingHorizontal: 16,
-    gap: 16,
-  },
-  divider: {
-    height: 1,
-    marginHorizontal: 16,
-    marginVertical: 24,
-  },
-
-  // --- Card Styles ---
+  sectionTitle: { fontSize: 18, fontWeight: '700', letterSpacing: -0.5 },
+  emptyText: { fontSize: 14, paddingHorizontal: 4 },
+  cardContainer: { paddingHorizontal: 16, gap: 16 },
+  divider: { height: 1, marginHorizontal: 16, marginVertical: 24 },
   card: {
     borderRadius: 32,
     padding: 20,
@@ -335,67 +304,25 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     marginBottom: 12,
   },
-  dateRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  dateText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  statusText: {
-    fontSize: 10,
-    fontWeight: '800',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
+  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  dateText: { fontSize: 12, fontWeight: '600' },
+  badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12 },
+  badgeText: { fontSize: 12, fontWeight: '700' },
   matchGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  teamColumn: {
-    width: '35%',
-    gap: 8,
-  },
-  scoreColumn: {
-    width: '30%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  teamColumn: { width: '35%', gap: 8 },
+  scoreColumn: { width: '30%', alignItems: 'center', justifyContent: 'center' },
   scoreText: {
     fontSize: 20,
     fontWeight: '800',
     textAlign: 'center',
-    fontVariant: ['tabular-nums'], // Helps with number alignment
+    fontVariant: ['tabular-nums'],
     lineHeight: 24,
   },
-  venueContainer: {
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    alignItems: 'center',
-  },
-  venueText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: COLORS.textGray,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-
-  // --- Player Row ---
-  playerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
+  playerRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   avatar: {
     width: 32,
     height: 32,
@@ -403,32 +330,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'rgba(255,255,255,0.1)',
   },
-  initialsAvatar: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  meAvatar: {
-    backgroundColor: COLORS.primary,
-  },
-  otherAvatar: {
-    backgroundColor: '#a855f7', // Purple mock
-  },
-  initialsText: {
-    fontSize: 10,
-    fontWeight: '900',
-  },
-  playerName: {
-    fontSize: 12,
-    fontWeight: '600',
-    flex: 1,
-  },
-
-  // --- Buttons ---
-  actionRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 16,
-  },
+  initialsAvatar: { alignItems: 'center', justifyContent: 'center' },
+  meAvatar: { backgroundColor: COLORS.primary },
+  otherAvatar: { backgroundColor: '#a855f7' },
+  initialsText: { fontSize: 10, fontWeight: '900' },
+  playerName: { fontSize: 12, fontWeight: '600', flex: 1 },
+  actionRow: { flexDirection: 'row', gap: 12, marginTop: 16 },
   actionBtn: {
     flex: 1,
     height: 48,
@@ -444,44 +351,5 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
   },
-  actionBtnText: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-
-  fabContainer: {
-    position: 'absolute',
-    bottom: 100,
-    right: 20,
-    zIndex: 50,
-  },
-  fab: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: Platform.OS === 'ios' ? 32 : 16,
-    borderTopWidth: 1,
-  },
-  navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  actionBtnText: { fontSize: 14, fontWeight: '700' },
 });
