@@ -1,5 +1,5 @@
 import { findPlayerById } from "../repository/player-repository.js";
-import { saveMatch } from "../repository/match-repository.js";
+import { findAllMatchesForPlayer, saveMatch } from "../repository/match-repository.js";
 import { nanoid } from "nanoid";
 import { LogMatchRequest, Match, MatchStatus, Player, SetScore, Team } from "../model.js";
 
@@ -127,4 +127,8 @@ const getSetWinner = (score: SetScore) =>
     Number(score.team1) > Number(score.team2)
         ? Team.TEAM_1
         : Team.TEAM_2;
+
+export async function getMatchesForPlayer(playerId: string): Promise<Match[]> {
+    return findAllMatchesForPlayer(playerId);
+}
 

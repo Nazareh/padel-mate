@@ -15,6 +15,21 @@ export type ScoreRequest = {
     team2: number
 }
 
+export type MatchPlayerData = {
+    playerId: string;
+    team: 'TEAM_1' | 'TEAM_2';
+    matchStatus: 'PENDING' | 'APPROVED' | 'REJECTED' | 'INVALID';
+}
+
+export type MatchData = {
+    id: string;
+    startTime: string;
+    players: MatchPlayerData[];
+    scores: ScoreRequest[];
+    status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'INVALID';
+    reason?: string;
+}
+
 
 type GlobalState = {
     isAuthenticated: boolean;
@@ -22,10 +37,12 @@ type GlobalState = {
     token: string | null;
     player: PlayerData | undefined;
     opponents: PlayerData[];
+    matches: MatchData[];
     isLoading: boolean;
     error: string | null;
     logInWithEmail: (email: string, password: string) => Promise<void>;
     fetchPlayers: (id: string) => Promise<void>;
+    fetchMatches: () => Promise<void>;
     logMatch: (matchRequest: MatchRequest) => Promise<void>;
     logOut: () => void;
     setIsLoading: Dispatch<SetStateAction<boolean>>;
@@ -53,6 +70,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
     const [token, setToken] = useState<string | null>(null);
     const [player, setPlayer] = useState<PlayerData>();
     const [opponents, setOpponents] = useState<PlayerData[]>([]);
+    const [matches, setMatches] = useState<MatchData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -68,7 +86,8 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             setToken(newToken);
             setIsAuthenticated(true);
             setError(null)
-            fetchPlayers(user.userId);
+            fetchPlayers(user.userId, newToken ?? undefined);
+            fetchMatches(newToken ?? undefined);
 
         } catch (error) {
             setIsAuthenticated(false);
@@ -127,14 +146,14 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
         }
     };
 
-    const fetchPlayers = async (id: string) => {
+    const fetchPlayers = async (id: string, authToken?: string) => {
         setIsLoading(true);
         setError(null);
         try {
             const response = await fetch(`${baseUrl}/players`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${authToken ?? token}`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -155,6 +174,23 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
         }
     };
 
+
+    const fetchMatches = async (authToken?: string) => {
+        try {
+            const response = await fetch(`${baseUrl}/match`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${authToken ?? token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!response.ok) throw new Error(`Failed to fetch matches. Status: ${response.status}`);
+            const result: MatchData[] = await response.json();
+            setMatches(result);
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
     const logMatch = async (request: MatchRequest) => {
         setIsLoading(true);
@@ -188,8 +224,8 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
     return (
         <GlobalContext.Provider value={{
             isAuthenticated, userId, token, logInWithEmail, logOut,
-            error, fetchPlayers, isLoading, setIsLoading, logMatch, opponents, player,
-            setError
+            error, fetchPlayers, fetchMatches, isLoading, setIsLoading, logMatch,
+            opponents, player, matches, setError
         }}>
             {children}
         </GlobalContext.Provider>

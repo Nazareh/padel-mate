@@ -17,6 +17,7 @@ export class MainStack extends cdk.Stack {
   private matchTable: Table;
   private getPlayersFn: NodejsFunction;
   private logMatchFn: NodejsFunction;
+  private getMatchesFn: NodejsFunction;
   private onboardPlayerFn: NodejsFunction;
   private mongoUriParameter: ssm.StringParameter;
 
@@ -92,6 +93,16 @@ export class MainStack extends cdk.Stack {
     this.mongoUriParameter.grantRead(this.logMatchFn);
     this.matchTable.grantWriteData(this.logMatchFn)
     this.playerTable.grantReadData(this.logMatchFn)
+
+    this.getMatchesFn = createLambda(this, "get-matches-fn", this.stackName, {
+      environment: {
+        MATCH_TABLE_NAME: this.matchTable.tableName,
+        MONGO_DB_NAME: MONGO_DB_NAME,
+        MONGO_URI_PARAM_NAME: this.mongoUriParameter.parameterName,
+      },
+    });
+    this.mongoUriParameter.grantRead(this.getMatchesFn);
+    this.matchTable.grantReadData(this.getMatchesFn);
 
   }
 
@@ -232,7 +243,7 @@ export class MainStack extends cdk.Stack {
 
     matchResource.addMethod(
       HttpMethod.GET,
-      new apigateway.LambdaIntegration(this.logMatchFn, {}),
+      new apigateway.LambdaIntegration(this.getMatchesFn, {}),
       cognitoAuthConfig
     )
   }
