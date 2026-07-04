@@ -1,7 +1,7 @@
 import { findPlayerById } from "../repository/player-repository.js";
-import { findAllMatchesForPlayer, saveMatch } from "../repository/match-repository.js";
+import { findAllMatchesForPlayer, findMatchById, saveMatch } from "../repository/match-repository.js";
 import { nanoid } from "nanoid";
-import { LogMatchRequest, Match, MatchStatus, Player, SetScore, Team } from "../model.js";
+import { LogMatchRequest, Match, MatchPlayer, MatchStatus, Player, SetScore, Team } from "../model.js";
 
 export async function processMatch(request: LogMatchRequest, requestedBy: String): Promise<Match> {
 
@@ -131,4 +131,45 @@ const getSetWinner = (score: SetScore) =>
 export async function getMatchesForPlayer(playerId: string): Promise<Match[]> {
     return findAllMatchesForPlayer(playerId);
 }
+
+export async function updateMatchStatus(matchId: string, playerId: string, action: 'APPROVE' | 'REJECT'): Promise<Match> {
+    const match = await findMatchById(matchId);
+
+    if (match.status !== MatchStatus.PENDING) {
+        throw new MatchAlreadySettledError(`Match is already ${match.status}`);
+    }
+
+    const playerEntry = match.players.find(p => p.playerId === playerId);
+    if (!playerEntry) {
+        throw new PlayerNotInMatchError(`Player is not part of this match`);
+    }
+
+    if (playerEntry.matchStatus !== MatchStatus.PENDING) {
+        throw new MatchAlreadySettledError(`Player has already ${playerEntry.matchStatus.toLowerCase()} this match`);
+    }
+
+    playerEntry.matchStatus = action === 'APPROVE' ? MatchStatus.APPROVED : MatchStatus.REJECTED;
+    match.status = computeAggregateStatus(match.players);
+
+    await saveMatch(match);
+    return match;
+}
+
+function computeAggregateStatus(players: MatchPlayer[]): MatchStatus {
+    if (players.some(p => p.matchStatus === MatchStatus.REJECTED)) {
+        return MatchStatus.REJECTED;
+    }
+
+    const team1Approved = players.some(p => p.team === Team.TEAM_1 && p.matchStatus === MatchStatus.APPROVED);
+    const team2Approved = players.some(p => p.team === Team.TEAM_2 && p.matchStatus === MatchStatus.APPROVED);
+
+    if (team1Approved && team2Approved) {
+        return MatchStatus.APPROVED;
+    }
+
+    return MatchStatus.PENDING;
+}
+
+export class MatchAlreadySettledError extends Error {}
+export class PlayerNotInMatchError extends Error {}
 
