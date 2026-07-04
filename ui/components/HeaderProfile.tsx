@@ -28,11 +28,6 @@ export default function HeaderProfile({ givenName, avatarImageUrl, fetchData }: 
             >
                 <MaterialIcons name="settings" size={FONT_SIZE.lg} color={COLORS.primary} />
             </Pressable>
-            <Pressable style={globalStyles.iconButton}
-                onPress={fetchData}
-            >
-                <MaterialIcons name="refresh" size={FONT_SIZE.lg} color={COLORS.primary} />
-            </Pressable>
         </View>
     </View>)
 }
