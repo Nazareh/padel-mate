@@ -44,6 +44,7 @@ type GlobalState = {
     fetchPlayers: (id: string) => Promise<void>;
     fetchMatches: () => Promise<void>;
     logMatch: (matchRequest: MatchRequest) => Promise<void>;
+    approveOrRejectMatch: (matchId: string, action: 'APPROVE' | 'REJECT') => Promise<void>;
     logOut: () => void;
     setIsLoading: Dispatch<SetStateAction<boolean>>;
     setError: Dispatch<SetStateAction<string | null>>;
@@ -93,7 +94,6 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             setIsAuthenticated(false);
             setUserId(null);
             setToken(null);
-            console.log(error)
             setError("Failed to refresh application data.")
         }
         finally {
@@ -167,7 +167,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             const opponents = result.filter(p => p.id !== id)
             setOpponents(opponents ?? [])
         } catch (err) {
-            console.log(err)
+            (err)
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setIsLoading(false);
@@ -192,12 +192,27 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
         }
     };
 
+    const approveOrRejectMatch = async (matchId: string, action: 'APPROVE' | 'REJECT') => {
+        const response = await fetch(`${baseUrl}/match/${matchId}`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ action })
+        });
+        if (!response.ok) {
+            const body = await response.json().catch(() => ({}));
+            throw new Error(body.message ?? `Failed to ${action.toLowerCase()} match`);
+        }
+        await fetchMatches();
+    };
+
     const logMatch = async (request: MatchRequest) => {
         setIsLoading(true);
         setError(null);
 
         try {
-            console.log("Uploading match...")
             const response = await fetch(`${baseUrl}/match`, {
                 method: 'POST',
                 headers: {
@@ -207,13 +222,10 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
                 body: JSON.stringify(request)
 
             });
-            console.log(response.body, response.ok)
             if (!response.ok) throw new Error(`Failed to upload the match. Reason:${response.body}`);
             const result = await response.json();
-            console.log("result", result)
 
         } catch (err) {
-            // console.log("err", err)
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setIsLoading(false);
@@ -224,7 +236,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
     return (
         <GlobalContext.Provider value={{
             isAuthenticated, userId, token, logInWithEmail, logOut,
-            error, fetchPlayers, fetchMatches, isLoading, setIsLoading, logMatch,
+            error, fetchPlayers, fetchMatches, isLoading, setIsLoading, logMatch, approveOrRejectMatch,
             opponents, player, matches, setError
         }}>
             {children}

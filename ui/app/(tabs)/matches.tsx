@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
+  RefreshControl,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -61,7 +63,14 @@ const PlayerAvatar = ({ player, isMe }: { player: PlayerInfo; isMe?: boolean }) 
   </View>
 );
 
-const MatchCard = ({ match }: { match: DisplayMatch }) => {
+type MatchCardProps = {
+  match: DisplayMatch;
+  onApprove?: () => void;
+  onReject?: () => void;
+  isActioning?: boolean;
+};
+
+const MatchCard = ({ match, onApprove, onReject, isActioning }: MatchCardProps) => {
   const badgeLabel = match.myActionRequired ? 'Action Required' : match.status;
 
   const badgeContainerStyle = match.myActionRequired
@@ -124,11 +133,27 @@ const MatchCard = ({ match }: { match: DisplayMatch }) => {
 
       {match.myActionRequired && (
         <View style={styles.actionRow}>
-          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: COLORS.borderDark }]}>
-            <Text style={[styles.actionBtnText, { color: COLORS.textWhite }]}>Reject</Text>
+          <TouchableOpacity
+            style={[styles.actionBtn, { backgroundColor: COLORS.borderDark }, isActioning && styles.actionBtnDisabled]}
+            onPress={onReject}
+            disabled={isActioning}
+          >
+            {isActioning ? (
+              <ActivityIndicator size="small" color={COLORS.textWhite} />
+            ) : (
+              <Text style={[styles.actionBtnText, { color: COLORS.textWhite }]}>Reject</Text>
+            )}
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionBtn, styles.approveBtn]}>
-            <Text style={[styles.actionBtnText, { color: COLORS.primaryContent }]}>Approve</Text>
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.approveBtn, isActioning && styles.actionBtnDisabled]}
+            onPress={onApprove}
+            disabled={isActioning}
+          >
+            {isActioning ? (
+              <ActivityIndicator size="small" color={COLORS.primaryContent} />
+            ) : (
+              <Text style={[styles.actionBtnText, { color: COLORS.primaryContent }]}>Approve</Text>
+            )}
           </TouchableOpacity>
         </View>
       )}
@@ -137,11 +162,31 @@ const MatchCard = ({ match }: { match: DisplayMatch }) => {
 };
 
 export default function PadelMatchesScreen() {
-  const { matches, fetchMatches, userId, player, opponents, isLoading } = useGlobalContext();
+  const { matches, fetchMatches, approveOrRejectMatch, userId, player, opponents, isLoading } = useGlobalContext();
+  const [refreshing, setRefreshing] = useState(false);
+  const [actioningMatchId, setActioningMatchId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMatches();
   }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchMatches();
+    setRefreshing(false);
+  };
+
+  const handleMatchAction = async (matchId: string, action: 'APPROVE' | 'REJECT') => {
+    setActioningMatchId(matchId);
+    try {
+      await approveOrRejectMatch(matchId, action);
+      await onRefresh();
+    } catch (err) {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setActioningMatchId(null);
+    }
+  };
 
   const allPlayers = [...(player ? [player] : []), ...opponents];
 
@@ -154,12 +199,6 @@ export default function PadelMatchesScreen() {
 
   function toDisplayMatch(match: MatchData): DisplayMatch | null {
     const myPlayer = match.players.find(p => p.playerId === userId);
-    console.log('[match debug]', {
-      matchId: match.id,
-      matchStatus: match.status,
-      userId,
-      myPlayer,
-    });
     if (!myPlayer) return null;
 
     const myTeamId = myPlayer.team;
@@ -220,14 +259,27 @@ export default function PadelMatchesScreen() {
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+          }
+        >
           {pendingMatches.length > 0 && (
             <>
               <View style={styles.sectionHeader}>
                 <Text style={globalStyles.sectionTitle}>Pending Approvals</Text>
               </View>
               <View style={styles.cardContainer}>
-                {pendingMatches.map(m => <MatchCard key={m.id} match={m} />)}
+                {pendingMatches.map(m => (
+                  <MatchCard
+                    key={m.id}
+                    match={m}
+                    onApprove={() => handleMatchAction(m.id, 'APPROVE')}
+                    onReject={() => handleMatchAction(m.id, 'REJECT')}
+                    isActioning={actioningMatchId === m.id}
+                  />
+                ))}
               </View>
               <View style={[styles.divider, { backgroundColor: COLORS.borderDark }]} />
             </>
@@ -330,4 +382,5 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   actionBtnText: { fontSize: 14, fontWeight: '700' },
+  actionBtnDisabled: { opacity: 0.5 },
 });
