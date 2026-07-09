@@ -28,7 +28,7 @@ export default function LogMatchScreen() {
     const [showSearchPlayersModal, setShowSearchPlayersModal] = useState(false);
     const [partner, setPartner] = useState<Player | null>(null)
     const [otherPlayers, setOtherPlayers] = useState<Player[]>()
-    const { player, opponents, logMatch, isLoading, setIsLoading, error, setError } = useGlobalContext();
+    const { player, opponents, logMatch, isLoading, setIsLoading, error, setError, localAvatarUrl } = useGlobalContext();
     const [scores, setScores] = useState<SetScore[]>([
         { us: '', them: '' }, // Set 1
         { us: '', them: '' }, // Set 2
@@ -154,7 +154,7 @@ export default function LogMatchScreen() {
                             </View>
                             <PlayerAvatar
                                 playerName={player?.givenName!}
-                                avatarUrl={player?.avatarUrl!}
+                                avatarUrl={localAvatarUrl ?? player?.avatarUrl ?? undefined}
                                 latestRating={player?.latestRating!.toString()} />
                             <View style={styles.divider} />
                             <PlayerAvatar

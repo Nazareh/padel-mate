@@ -9,13 +9,14 @@ import {
   ActivityIndicator,
   RefreshControl,
   Alert,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { globalStyles, COLORS } from '@/constants/GlobalStyles';
 import { useGlobalContext, MatchData } from '@/auth/globalContext';
 
-type PlayerInfo = { name: string; initials: string };
+type PlayerInfo = { name: string; initials: string; avatarUrl?: string | null; rating?: number | null };
 type DisplayMatch = {
   id: string;
   date: string;
@@ -50,14 +51,26 @@ function getInitials(name: string): string {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 }
 
-const PlayerAvatar = ({ player, isMe }: { player: PlayerInfo; isMe?: boolean }) => (
-  <View style={styles.playerRow}>
-    <View style={[styles.avatar, styles.initialsAvatar, isMe ? styles.meAvatar : styles.otherAvatar]}>
-      <Text style={[styles.initialsText, isMe ? { color: COLORS.primaryContent } : { color: COLORS.textWhite }]}>
-        {player.initials}
-      </Text>
+const PlayerAvatar = ({ player, isMe, reverse }: { player: PlayerInfo; isMe?: boolean; reverse?: boolean }) => (
+  <View style={[styles.playerRow, reverse && { flexDirection: 'row-reverse' }]}>
+    <View style={styles.avatarContainer}>
+      {player.avatarUrl ? (
+        <Image source={{ uri: player.avatarUrl }} style={styles.avatarImage} />
+      ) : (
+        <View style={styles.iconCircle}>
+          <MaterialIcons name="person" size={18} color={COLORS.textLightGreen} />
+        </View>
+      )}
+      {player.rating != null && (
+        <View style={styles.ratingBadge}>
+          <Text style={styles.ratingBadgeText}>{player.rating}</Text>
+        </View>
+      )}
     </View>
-    <Text style={[styles.playerName, { color: isMe ? COLORS.textWhite : COLORS.textGray }]} numberOfLines={1}>
+    <Text
+      style={[styles.playerName, { color: isMe ? COLORS.textWhite : COLORS.textGray }, reverse && { textAlign: 'right' }]}
+      numberOfLines={1}
+    >
       {player.name}
     </Text>
   </View>
@@ -119,14 +132,7 @@ const MatchCard = ({ match, onApprove, onReject, isActioning }: MatchCardProps) 
 
         <View style={[styles.teamColumn, { alignItems: 'flex-end' }]}>
           {match.opponents.map((p, i) => (
-            <View key={i} style={[styles.playerRow, { flexDirection: 'row-reverse' }]}>
-              <View style={[styles.avatar, styles.initialsAvatar, styles.otherAvatar]}>
-                <Text style={[styles.initialsText, { color: COLORS.textWhite }]}>{p.initials}</Text>
-              </View>
-              <Text style={[styles.playerName, { color: COLORS.textGray, textAlign: 'right' }]} numberOfLines={1}>
-                {p.name}
-              </Text>
-            </View>
+            <PlayerAvatar key={i} player={p} reverse />
           ))}
         </View>
       </View>
@@ -162,7 +168,7 @@ const MatchCard = ({ match, onApprove, onReject, isActioning }: MatchCardProps) 
 };
 
 export default function PadelMatchesScreen() {
-  const { matches, fetchMatches, approveOrRejectMatch, userId, player, opponents, isLoading } = useGlobalContext();
+  const { matches, fetchMatches, approveOrRejectMatch, userId, player, opponents, isLoading, localAvatarUrl } = useGlobalContext();
   const [refreshing, setRefreshing] = useState(false);
   const [actioningMatchId, setActioningMatchId] = useState<string | null>(null);
 
@@ -194,7 +200,8 @@ export default function PadelMatchesScreen() {
     const found = allPlayers.find(p => p.id === playerId);
     if (!found) return { name: 'Unknown', initials: '?' };
     const fullName = `${found.givenName} ${found.familyName}`;
-    return { name: fullName, initials: getInitials(fullName) };
+    const avatarUrl = playerId === userId ? (localAvatarUrl ?? found.avatarUrl) : found.avatarUrl;
+    return { name: fullName, initials: getInitials(fullName), avatarUrl, rating: found.latestRating };
   }
 
   function toDisplayMatch(match: MatchData): DisplayMatch | null {
@@ -343,7 +350,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  teamColumn: { width: '35%', gap: 8 },
+  teamColumn: { width: '35%', gap: 12 },
   scoreColumn: { width: '30%', alignItems: 'center', justifyContent: 'center' },
   scoreText: {
     fontSize: 20,
@@ -353,18 +360,40 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   playerRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  avatar: {
+  avatarContainer: { width: 32, height: 32 },
+  iconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.primaryShade,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarImage: {
     width: 32,
     height: 32,
     borderRadius: 16,
     borderWidth: 2,
     borderColor: 'rgba(255,255,255,0.1)',
   },
-  initialsAvatar: { alignItems: 'center', justifyContent: 'center' },
-  meAvatar: { backgroundColor: COLORS.primary },
-  otherAvatar: { backgroundColor: '#a855f7' },
-  initialsText: { fontSize: 10, fontWeight: '900' },
   playerName: { fontSize: 12, fontWeight: '600', flex: 1 },
+  ratingBadge: {
+    position: 'absolute',
+    right: -6,
+    bottom: -6,
+    minWidth: 20,
+    height: 20,
+    paddingHorizontal: 3,
+    borderRadius: 10,
+    backgroundColor: '#1a2c22',
+    borderColor: '#112218',
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ratingBadgeText: { color: COLORS.primary, fontSize: 8, fontWeight: '700' },
   actionRow: { flexDirection: 'row', gap: 12, marginTop: 16 },
   actionBtn: {
     flex: 1,

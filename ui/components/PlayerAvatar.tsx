@@ -7,10 +7,12 @@ type PlayerAvatarProps = {
     playerName?: string | null
     avatarUrl?: string | null,
     latestRating?: string | null,
-    children?: ReactNode
+    children?: ReactNode,
+    iconBgColor?: string,
+    iconFgColor?: string,
 }
 
-export default function PlayerAvatar({ avatarUrl, latestRating, playerName, children }: PlayerAvatarProps) {
+export default function PlayerAvatar({ avatarUrl, latestRating, playerName, children, iconBgColor, iconFgColor }: PlayerAvatarProps) {
     return (
         <View style={globalStyles.row}>
             <View>
@@ -19,8 +21,8 @@ export default function PlayerAvatar({ avatarUrl, latestRating, playerName, chil
                         style={globalStyles.avatar}
                     />
                 ) : (
-                    <View style={styles.iconCircleGray}>
-                        <MaterialIcons name="person" size={FONT_SIZE.xl} color={COLORS.textLightGreen} />
+                    <View style={[styles.iconCircleGray, iconBgColor ? { backgroundColor: iconBgColor } : null]}>
+                        <MaterialIcons name="person" size={FONT_SIZE.xl} color={iconFgColor ?? COLORS.textLightGreen} />
                     </View>)}
                 {latestRating && (
                     <View style={styles.ratingBadge}>

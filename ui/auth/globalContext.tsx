@@ -40,11 +40,13 @@ type GlobalState = {
     matches: MatchData[];
     isLoading: boolean;
     error: string | null;
+    localAvatarUrl: string | null;
     logInWithEmail: (email: string, password: string) => Promise<void>;
     fetchPlayers: (id: string) => Promise<void>;
     fetchMatches: () => Promise<void>;
     logMatch: (matchRequest: MatchRequest) => Promise<void>;
     approveOrRejectMatch: (matchId: string, action: 'APPROVE' | 'REJECT') => Promise<void>;
+    updateLocalAvatar: (url: string | null) => void;
     logOut: () => void;
     setIsLoading: Dispatch<SetStateAction<boolean>>;
     setError: Dispatch<SetStateAction<string | null>>;
@@ -74,6 +76,9 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
     const [matches, setMatches] = useState<MatchData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [localAvatarUrl, setLocalAvatarUrl] = useState<string | null>(null);
+
+    const updateLocalAvatar = (url: string | null) => setLocalAvatarUrl(url);
 
     // Helper to get session data and update state
     const refreshUserSession = async () => {
@@ -237,7 +242,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
         <GlobalContext.Provider value={{
             isAuthenticated, userId, token, logInWithEmail, logOut,
             error, fetchPlayers, fetchMatches, isLoading, setIsLoading, logMatch, approveOrRejectMatch,
-            opponents, player, matches, setError
+            opponents, player, matches, setError, localAvatarUrl, updateLocalAvatar,
         }}>
             {children}
         </GlobalContext.Provider>
