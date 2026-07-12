@@ -1,4 +1,3 @@
-import { useGlobalContext } from "@/auth/globalContext";
 import { COLORS } from "@/constants/GlobalStyles";
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 
@@ -32,14 +31,6 @@ export default function TabLayout() {
           md="bar_chart"
         />
         <NativeTabs.Trigger.Label>Matches</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Icon
-          sf={{ default: 'rectangle.portrait.and.arrow.right', selected: 'rectangle.portrait.and.arrow.right.fill' }}
-          md="logout"
-        />
-        <NativeTabs.Trigger.Label>Logout</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
 
     </NativeTabs>

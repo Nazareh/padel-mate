@@ -163,8 +163,9 @@ export class MainStack extends cdk.Stack {
 
     const appClient = this.userPool.addClient(`${this.stackName}-user-pool-client`, {
       userPoolClientName: `${this.stackName}-user-pool-client`,
-      idTokenValidity: cdk.Duration.days(1),
-      accessTokenValidity: cdk.Duration.days(1),
+      idTokenValidity: cdk.Duration.hours(1),
+      accessTokenValidity: cdk.Duration.hours(1),
+      refreshTokenValidity: cdk.Duration.days(60),
       generateSecret: false,
       authFlows: {
         userSrp: true,

@@ -97,6 +97,13 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
 
     const updateLocalAvatar = (url: string | null) => setLocalAvatarUrl(url);
 
+    const forceSignOut = async () => {
+        try { await signOut({ global: true }); } catch (_) {}
+        setIsAuthenticated(false);
+        setUserId(null);
+        setToken(null);
+    };
+
     // Helper to get session data and update state
     const refreshUserSession = async () => {
         try {
@@ -108,17 +115,14 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             setUserId(user.userId);
             setToken(newToken);
             setIsAuthenticated(true);
-            setError(null)
+            setError(null);
             fetchPlayers(user.userId, newToken ?? undefined);
             fetchMatches(newToken ?? undefined);
 
-        } catch (error) {
-            setIsAuthenticated(false);
-            setUserId(null);
-            setToken(null);
-            setError("Failed to refresh application data.")
-        }
-        finally {
+        } catch (_) {
+            // Session missing or refresh token expired — redirect to login silently
+            await forceSignOut();
+        } finally {
             setIsLoading(false);
         }
     };
@@ -179,17 +183,14 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
                     'Content-Type': 'application/json'
                 }
             });
-            if (!response.ok) throw new Error(`Failed to fetch players data. Status Code: ${response.status} Error: ${response.body}`);
+            if (response.status === 401) { await forceSignOut(); return; }
+            if (!response.ok) throw new Error(`Failed to fetch players data. Status Code: ${response.status}`);
             const result: PlayerData[] = await response.json();
 
-            const loggedInPlayer = result.find(p => p.id === id)!
-            // loggedInPlayer.avatarUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuAYoKwAo7DWpPFkockZCdu3uocG0MVC5hyTQnzuY3hGZIW9cZAH0PUwXh8R3Td2atRJhwqlfmTlXpO9CPZCCvgS5wAB2Aq1ONsZgJZ6IbHyiXR0pFkaPsU5Tmfl6XciDTfvmXRWLa7CjrkGTw2YWVImSwTIiG1QxPdMDA8w2MzeHyVVjgL1fPzgwUZGYI7tDdeiOcgRpI7bLiVosEk67nDnu8720FkWcqGV9GoS5PiVmlKaLbA7OkTta6LZf7XmkBR0DN7qfZgf4IA"
+            const loggedInPlayer = result.find(p => p.id === id)!;
             setPlayer({ ...loggedInPlayer });
-
-            const opponents = result.filter(p => p.id !== id)
-            setOpponents(opponents ?? [])
+            setOpponents(result.filter(p => p.id !== id));
         } catch (err) {
-            (err)
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setIsLoading(false);
@@ -206,6 +207,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
                     'Content-Type': 'application/json'
                 }
             });
+            if (response.status === 401) { await forceSignOut(); return; }
             if (!response.ok) throw new Error(`Failed to fetch matches. Status: ${response.status}`);
             const result: MatchData[] = await response.json();
             setMatches(result);
@@ -223,6 +225,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             },
             body: JSON.stringify({ action })
         });
+        if (response.status === 401) { await forceSignOut(); return; }
         if (!response.ok) {
             const body = await response.json().catch(() => ({}));
             throw new Error(body.message ?? `Failed to ${action.toLowerCase()} match`);
@@ -244,6 +247,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
                 body: JSON.stringify(request)
 
             });
+            if (response.status === 401) { await forceSignOut(); return; }
             if (!response.ok) throw new Error(`Failed to upload the match. Reason:${response.body}`);
             const result = await response.json();
 
