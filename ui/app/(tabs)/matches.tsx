@@ -12,6 +12,7 @@ import {
   Image,
 } from 'react-native';
 import LoadingOverlay from '@/components/LoadingOverlay';
+import SkeletonBlock from '@/components/SkeletonBlock';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { globalStyles, COLORS } from '@/constants/GlobalStyles';
@@ -24,7 +25,7 @@ type DisplayMatch = {
   time: string;
   type: 'approval' | 'past';
   myActionRequired: boolean;
-  status: 'Pending' | 'Victory' | 'Defeat';
+  status: 'Pending' | 'Victory' | 'Defeat' | 'Rejected';
   scores: { myTeam: number; opponents: number }[];
   myTeam: [PlayerInfo, PlayerInfo];
   opponents: [PlayerInfo, PlayerInfo];
@@ -93,7 +94,9 @@ const MatchCard = ({ match, onApprove, onReject, onPlayerPress }: MatchCardProps
       ? [globalStyles.badge, globalStyles.badgeVictory]
       : match.status === 'Defeat'
         ? [globalStyles.badge, globalStyles.badgeDefeat]
-        : [globalStyles.badge, globalStyles.badgePending];
+        : match.status === 'Rejected'
+          ? [globalStyles.badge, styles.badgeRejected]
+          : [globalStyles.badge, globalStyles.badgePending];
 
   const badgeTextStyle = match.myActionRequired
     ? [globalStyles.badgeText, globalStyles.badgeActionRequiredText]
@@ -101,7 +104,9 @@ const MatchCard = ({ match, onApprove, onReject, onPlayerPress }: MatchCardProps
       ? [globalStyles.badgeText, globalStyles.badgeVictoryText]
       : match.status === 'Defeat'
         ? [globalStyles.badgeText, globalStyles.badgeDefeatText]
-        : [globalStyles.badgeText, globalStyles.badgePendingText];
+        : match.status === 'Rejected'
+          ? [globalStyles.badgeText, styles.badgeRejectedText]
+          : [globalStyles.badgeText, globalStyles.badgePendingText];
 
   return (
     <View style={[styles.card, { backgroundColor: COLORS.surfaceDark, borderColor: COLORS.borderDark }]}>
@@ -225,18 +230,21 @@ export default function PadelMatchesScreen() {
     const oppSets = scores.filter(s => s.opponents > s.myTeam).length;
 
     const isPendingMatch = match.status === 'PENDING';
+    const isRejected = match.status === 'REJECTED';
     const myActionRequired = isPendingMatch && myPlayer.matchStatus === 'PENDING';
     const status = isPendingMatch
       ? 'Pending'
-      : mySets > oppSets
-        ? 'Victory'
-        : 'Defeat';
+      : isRejected
+        ? 'Rejected'
+        : mySets > oppSets
+          ? 'Victory'
+          : 'Defeat';
 
     return {
       id: match.id,
       date: formatDate(match.startTime),
       time: formatTime(match.startTime),
-      type: isPendingMatch ? 'approval' : 'past',
+      type: isPendingMatch ? 'approval' : 'past' as 'approval' | 'past',
       myActionRequired,
       status,
       scores,
@@ -245,7 +253,8 @@ export default function PadelMatchesScreen() {
     };
   }
 
-  const displayMatches = matches.map(toDisplayMatch).filter((m): m is DisplayMatch => m !== null);
+  const sortedMatches = [...matches].sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
+  const displayMatches = sortedMatches.map(toDisplayMatch).filter((m): m is DisplayMatch => m !== null);
   const pendingMatches = displayMatches.filter(m => m.type === 'approval');
   const pastMatches = displayMatches.filter(m => m.type === 'past');
 
@@ -260,8 +269,13 @@ export default function PadelMatchesScreen() {
       </SafeAreaView>
 
       {isLoading ? (
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+        <View style={styles.skeletonContainer}>
+          {[1, 2, 3].map(i => (
+            <View key={i} style={styles.skeletonCard}>
+              <SkeletonBlock height={14} width="40%" style={{ marginBottom: 12 }} />
+              <SkeletonBlock height={48} />
+            </View>
+          ))}
         </View>
       ) : (
         <ScrollView
@@ -295,7 +309,11 @@ export default function PadelMatchesScreen() {
           </View>
           <View style={styles.cardContainer}>
             {pastMatches.length === 0 ? (
-              <Text style={[styles.emptyText, { color: COLORS.textGray }]}>No past games yet.</Text>
+              <View style={styles.emptyState}>
+                <MaterialIcons name="sports-tennis" size={48} color={COLORS.borderDark} />
+                <Text style={styles.emptyTitle}>No games yet</Text>
+                <Text style={styles.emptySubtitle}>Log your first match and get your opponents to approve it</Text>
+              </View>
             ) : (
               pastMatches.map(m => <MatchCard key={m.id} match={m} onPlayerPress={handlePlayerPress} />)
             )}
@@ -409,4 +427,21 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   actionBtnText: { fontSize: 14, fontWeight: '700' },
+
+  badgeRejected: { backgroundColor: 'rgba(120,60,60,0.3)', borderColor: COLORS.red400 },
+  badgeRejectedText: { color: COLORS.red400 },
+
+  skeletonContainer: { padding: 16, gap: 16, marginTop: 16 },
+  skeletonCard: {
+    backgroundColor: COLORS.surfaceDark,
+    borderRadius: 32,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: COLORS.borderDark,
+    gap: 8,
+  },
+
+  emptyState: { alignItems: 'center', paddingVertical: 48, gap: 12 },
+  emptyTitle: { fontSize: 16, fontWeight: '700', color: COLORS.textGray },
+  emptySubtitle: { fontSize: 13, color: COLORS.borderDark, textAlign: 'center', paddingHorizontal: 24 },
 });

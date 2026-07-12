@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View, Text, Pressable } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BORDER_RADIUS, COLORS, FONT_SIZE, SPACING } from '@/constants/GlobalStyles';
@@ -8,14 +8,21 @@ interface NotificationProps {
     title: string;
     message: string;
     type: 'error' | 'success';
+    autoDismissMs?: number;
 }
 
 export default function Notification({
     onClose,
     title,
     message,
-    type
+    type,
+    autoDismissMs,
 }: NotificationProps) {
+    useEffect(() => {
+        if (!autoDismissMs) return;
+        const t = setTimeout(onClose, autoDismissMs);
+        return () => clearTimeout(t);
+    }, [autoDismissMs]);
 
     const isError = type === 'error';
     const theme = {

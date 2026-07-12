@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Modal, Pressable, TouchableOpacity, Image, FlatList, RefreshControl } from 'react-native';
+import SkeletonBlock from '@/components/SkeletonBlock';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGlobalContext } from '@/auth/globalContext';
 import HeaderProfile from '@/components/HeaderProfile';
@@ -192,28 +193,41 @@ export default function PlayerStats() {
         />
 
         {/* Rating hero */}
-        <View style={styles.hero}>
-          <RatingCircle
-            latestRating={player?.latestRating ?? 1500}
-            trendValue={player?.trendValue}
-          />
-          <View style={styles.heroMeta}>
-            <View style={styles.metaItem}>
-              <Text style={styles.metaValue}>{totalGames}</Text>
-              <Text style={styles.metaLabel}>Matches</Text>
-            </View>
-            <View style={styles.metaDivider} />
-            <View style={styles.metaItem}>
-              <Text style={[styles.metaValue, { color: COLORS.primary }]}>{wins}</Text>
-              <Text style={styles.metaLabel}>Wins</Text>
-            </View>
-            <View style={styles.metaDivider} />
-            <View style={styles.metaItem}>
-              <Text style={[styles.metaValue, { color: COLORS.red400 }]}>{losses}</Text>
-              <Text style={styles.metaLabel}>Losses</Text>
+        {isLoading && !stats ? (
+          <View style={styles.hero}>
+            <SkeletonBlock width={120} height={120} borderRadius={60} />
+            <SkeletonBlock height={44} borderRadius={22} style={{ marginTop: SPACING.sm }} />
+          </View>
+        ) : totalGames === 0 ? (
+          <View style={styles.emptyHeroContainer}>
+            <Icon name="sports-tennis" size={56} color={COLORS.borderDark} />
+            <Text style={styles.emptyHeroTitle}>No matches yet</Text>
+            <Text style={styles.emptyHeroSubtitle}>Log your first match to start tracking your rating and stats</Text>
+          </View>
+        ) : (
+          <View style={styles.hero}>
+            <RatingCircle
+              latestRating={player?.latestRating ?? 1500}
+              trendValue={player?.trendValue}
+            />
+            <View style={styles.heroMeta}>
+              <View style={styles.metaItem}>
+                <Text style={styles.metaValue}>{totalGames}</Text>
+                <Text style={styles.metaLabel}>Matches</Text>
+              </View>
+              <View style={styles.metaDivider} />
+              <View style={styles.metaItem}>
+                <Text style={[styles.metaValue, { color: COLORS.primary }]}>{wins}</Text>
+                <Text style={styles.metaLabel}>Wins</Text>
+              </View>
+              <View style={styles.metaDivider} />
+              <View style={styles.metaItem}>
+                <Text style={[styles.metaValue, { color: COLORS.red400 }]}>{losses}</Text>
+                <Text style={styles.metaLabel}>Losses</Text>
+              </View>
             </View>
           </View>
-        </View>
+        )}
 
         {/* Rating progression chart */}
         <View style={styles.section}>
@@ -427,6 +441,10 @@ const styles = StyleSheet.create({
   insightStatLabel: { color: COLORS.textGray, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 },
 
   emptyHint: { color: COLORS.textGray, fontSize: 13, textAlign: 'center', paddingVertical: SPACING.sm },
+
+  emptyHeroContainer: { alignItems: 'center', paddingVertical: SPACING.xl, gap: SPACING.md },
+  emptyHeroTitle: { fontSize: FONT_SIZE.lg, fontWeight: '700', color: COLORS.textGray },
+  emptyHeroSubtitle: { fontSize: 13, color: COLORS.borderDark, textAlign: 'center', paddingHorizontal: SPACING.xl },
 });
 
 const modal = StyleSheet.create({

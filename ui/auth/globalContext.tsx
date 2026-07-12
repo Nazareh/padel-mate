@@ -231,6 +231,9 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             throw new Error(body.message ?? `Failed to ${action.toLowerCase()} match`);
         }
         await fetchMatches();
+        if (action === 'APPROVE' && userId) {
+            await fetchPlayers(userId);
+        }
     };
 
     const logMatch = async (request: MatchRequest) => {
@@ -249,10 +252,11 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             });
             if (response.status === 401) { await forceSignOut(); return; }
             if (!response.ok) throw new Error(`Failed to upload the match. Reason:${response.body}`);
-            const result = await response.json();
+            await response.json();
+            await fetchMatches();
 
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
+            throw err instanceof Error ? err : new Error('An error occurred');
         } finally {
             setIsLoading(false);
         }

@@ -26,8 +26,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function LogMatchScreen() {
     const [matchDate, setMatchDate] = useState(new Date());
     const [showSearchPlayersModal, setShowSearchPlayersModal] = useState(false);
-    const [partner, setPartner] = useState<Player | null>(null)
-    const [otherPlayers, setOtherPlayers] = useState<Player[]>()
+    const [partner, setPartner] = useState<Player | null>(null);
+    const [otherPlayers, setOtherPlayers] = useState<Player[]>([]);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const { player, opponents, logMatch, isLoading, setIsLoading, error, setError, localAvatarUrl, setSelectedOpponent } = useGlobalContext();
     const [scores, setScores] = useState<SetScore[]>([
         { us: '', them: '' }, // Set 1
@@ -108,6 +109,10 @@ export default function LogMatchScreen() {
                 scores: scoreRequest
             };
             await logMatch(matchRequest);
+            setPartner(null);
+            setOtherPlayers([]);
+            setScores([{ us: '', them: '' }, { us: '', them: '' }, { us: '', them: '' }]);
+            setSuccessMessage("Match logged! Waiting for other players to approve.");
         }
         catch (error: any) {
             setError(error.message || "Something went wrong. Please try again.");
@@ -279,10 +284,20 @@ export default function LogMatchScreen() {
             </View>
             {error && (
                 <Notification
-                    title={'Error'}
+                    title="Error"
                     message={error}
                     onClose={() => setError(null)}
-                    type="error" />
+                    type="error"
+                />
+            )}
+            {successMessage && (
+                <Notification
+                    title="Match Logged"
+                    message={successMessage}
+                    onClose={() => setSuccessMessage(null)}
+                    type="success"
+                    autoDismissMs={3000}
+                />
             )}
         </SafeAreaView >
     );
