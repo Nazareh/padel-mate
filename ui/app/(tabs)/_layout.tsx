@@ -33,6 +33,14 @@ export default function TabLayout() {
         <NativeTabs.Trigger.Label>Matches</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
 
+      <NativeTabs.Trigger name="ranking">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'trophy', selected: 'trophy.fill' }}
+          md="emoji_events"
+        />
+        <NativeTabs.Trigger.Label>Ranking</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
     </NativeTabs>
   );
 }
