@@ -6,6 +6,7 @@ import SocialRow from '@/components/SocialRow';
 import MyTextInput from '@/components/TextInput';
 import { globalStyles } from '@/constants/GlobalStyles';
 import { FEATURE_FLAGS } from '@/constants/featureFlags';
+import { signInWithRedirect } from 'aws-amplify/auth';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import Notification from "@/components/Notification";
@@ -69,7 +70,9 @@ export default function SignUpScreen() {
                     {(FEATURE_FLAGS.SOCIAL_LOGIN_GOOGLE || FEATURE_FLAGS.SOCIAL_LOGIN_APPLE || FEATURE_FLAGS.SOCIAL_LOGIN_FACEBOOK) && (
                         <Divider text='Or log in with' />
                     )}
-                    <SocialRow />
+                    <SocialRow
+                        onGooglePress={() => signInWithRedirect({ provider: 'Google' })}
+                    />
                     <FooterNote text="Don't have an account? " linkText="Sign Up" onPress={() => { router.push("/sign-up") }} />
                 </ScrollView>
                 {error && (

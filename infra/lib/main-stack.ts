@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as apigateway from "aws-cdk-lib/aws-apigateway"
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as ssm from "aws-cdk-lib/aws-ssm";
 import { createLambda, createTable } from './utils';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
@@ -9,6 +10,9 @@ import { HttpMethod } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 
 const MONGO_DB_NAME = 'my-rating-app';
+
+// Registered redirect URI for the Expo / React Native app
+const APP_CALLBACK_URL = 'padelmate://';
 
 export class MainStack extends cdk.Stack {
 
@@ -20,6 +24,7 @@ export class MainStack extends cdk.Stack {
   private getMatchesFn: NodejsFunction;
   private patchMatchFn: NodejsFunction;
   private onboardPlayerFn: NodejsFunction;
+  private preSignUpFn: NodejsFunction;
   private mongoUriParameter: ssm.StringParameter;
 
 
@@ -29,7 +34,8 @@ export class MainStack extends cdk.Stack {
     cdk.Tags.of(this).add('StackName', this.stackName);
 
     this.createUserPool();
-    this.createUserPoolClient();
+    const googleProvider = this.createGoogleIdentityProvider();
+    this.createUserPoolClient(googleProvider);
     this.createDynamoDBTables();
     this.createSSMParameters();
     this.createLambdaFunctions();
@@ -58,6 +64,18 @@ export class MainStack extends cdk.Stack {
   }
 
   createLambdaFunctions() {
+    // Pre Sign-Up trigger: links a Google sign-in to an existing email/password account
+    this.preSignUpFn = createLambda(this, "pre-sign-up-fn", this.stackName, {});
+    this.preSignUpFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["cognito-idp:ListUsers", "cognito-idp:AdminLinkProviderForUser"],
+        // Avoid userPool.userPoolArn (Ref) here — it creates a circular dependency:
+        // UserPool → Lambda (trigger) → IAM policy → UserPool (ARN ref).
+        resources: [`arn:aws:cognito-idp:${this.region}:${this.account}:userpool/*`],
+      })
+    );
+    this.userPool.addTrigger(cognito.UserPoolOperation.PRE_SIGN_UP, this.preSignUpFn);
+
     this.onboardPlayerFn = createLambda(this, "onboard-player-fn", this.stackName, {
       environment: {
         PLAYER_TABLE_NAME: this.playerTable.tableName,
@@ -66,9 +84,7 @@ export class MainStack extends cdk.Stack {
       },
     });
 
-
     this.mongoUriParameter.grantRead(this.onboardPlayerFn);
-
     this.playerTable.grantReadWriteData(this.onboardPlayerFn);
     this.userPool.addTrigger(cognito.UserPoolOperation.POST_CONFIRMATION, this.onboardPlayerFn);
 
@@ -159,7 +175,30 @@ export class MainStack extends cdk.Stack {
     });
   }
 
-  private createUserPoolClient() {
+  // google-client-id is created here with a placeholder so CDK owns the resource.
+  // Update the value in AWS Console before deploying Google Sign-In.
+  // Prerequisites (create manually before deploying):
+  // - SSM String: /{stackName}/google-client-id
+  // - Secrets Manager: /{stackName}/google-client-secret (SSM SecureString not supported by Cognito)
+  private createGoogleIdentityProvider(): cognito.UserPoolIdentityProviderGoogle {
+    return new cognito.UserPoolIdentityProviderGoogle(
+      this,
+      `${this.stackName}-google-idp`,
+      {
+        userPool: this.userPool,
+        clientId: ssm.StringParameter.valueForStringParameter(this, `/${this.stackName}/google-client-id`),
+        clientSecretValue: cdk.SecretValue.secretsManager(`/${this.stackName}/google-client-secret`),
+        scopes: ["email", "openid", "profile"],
+        attributeMapping: {
+          email: cognito.ProviderAttribute.GOOGLE_EMAIL,
+          givenName: cognito.ProviderAttribute.GOOGLE_GIVEN_NAME,
+          familyName: cognito.ProviderAttribute.GOOGLE_FAMILY_NAME,
+        },
+      }
+    );
+  }
+
+  private createUserPoolClient(googleProvider: cognito.UserPoolIdentityProviderGoogle) {
 
     const appClient = this.userPool.addClient(`${this.stackName}-user-pool-client`, {
       userPoolClientName: `${this.stackName}-user-pool-client`,
@@ -171,14 +210,31 @@ export class MainStack extends cdk.Stack {
         userSrp: true,
         userPassword: true,
       },
+      oAuth: {
+        flows: { authorizationCodeGrant: true },
+        scopes: [
+          cognito.OAuthScope.EMAIL,
+          cognito.OAuthScope.OPENID,
+          cognito.OAuthScope.PROFILE,
+        ],
+        callbackUrls: [APP_CALLBACK_URL],
+        logoutUrls: [APP_CALLBACK_URL],
+      },
+      supportedIdentityProviders: [
+        cognito.UserPoolClientIdentityProvider.COGNITO,
+        cognito.UserPoolClientIdentityProvider.GOOGLE,
+      ],
     });
+
+    // Ensure Cognito creates the IDP before the client references it
+    appClient.node.addDependency(googleProvider);
 
     this.userPool.addDomain(`${this.stackName}-user-pool-domain`, {
       cognitoDomain: {
         domainPrefix: `${this.stackName}-padel-mate`,
       },
-
     });
+
     new cdk.CfnOutput(this, 'CognitoAppClientId', {
       value: appClient.userPoolClientId,
       exportName: `${this.stackName}:CognitoAppClientId`,

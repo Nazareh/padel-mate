@@ -9,6 +9,15 @@ Amplify.configure({
     Cognito: {
       userPoolId: CONFIG.cognitoUserPoolId,
       userPoolClientId: CONFIG.cognitoClientId,
+      loginWith: {
+        oauth: {
+          domain: CONFIG.cognitoDomain.replace("https://", ""),
+          scopes: ["email", "openid", "profile"],
+          redirectSignIn: ["padelmate://"],
+          redirectSignOut: ["padelmate://"],
+          responseType: "code",
+        },
+      },
     },
   },
 });
