@@ -182,7 +182,6 @@ export default function PadelMatchesScreen() {
     setActioningMatchId(matchId);
     try {
       await approveOrRejectMatch(matchId, action);
-      await onRefresh();
     } catch (err) {
       Alert.alert('Error', err instanceof Error ? err.message : 'Something went wrong');
     } finally {
