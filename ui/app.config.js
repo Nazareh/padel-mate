@@ -57,6 +57,9 @@ module.exports = {
       cognitoClientId: process.env.COGNITO_CLIENT_ID,
       cognitoDomain: process.env.COGNITO_DOMAIN,
       apiBaseUrl: process.env.API_BASE_URL,
+      eas: {
+        projectId: "ecbeebd1-e218-4b4a-9bf7-b389d44abeb0",
+      },
     },
   },
 };
