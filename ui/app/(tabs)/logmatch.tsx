@@ -87,10 +87,17 @@ export default function LogMatchScreen() {
                 return;
             }
 
-            const scoreRequest: ScoreRequest[] = scores.map(item => ({
-                team1: Number(item.them),
-                team2: Number(item.us)
-            }));
+            const scoreRequest: ScoreRequest[] = scores
+                .filter(set => set.us !== '' && set.them !== '')
+                .map(item => ({
+                    team1: Number(item.them),
+                    team2: Number(item.us)
+                }));
+
+            if (scoreRequest.length === 0) {
+                setError("Please enter at least one set score");
+                return;
+            }
 
             const matchRequest: MatchRequest = {
                 startTime: new Date(matchDate),
