@@ -48,11 +48,13 @@ type GlobalState = {
     approveOrRejectMatch: (matchId: string, action: 'APPROVE' | 'REJECT') => Promise<void>;
     updateLocalAvatar: (url: string | null) => void;
     logOut: () => void;
+    selectedOpponent: PlayerData | null;
+    setSelectedOpponent: (player: PlayerData | null) => void;
     setIsLoading: Dispatch<SetStateAction<boolean>>;
     setError: Dispatch<SetStateAction<string | null>>;
 };
 
-type PlayerStats = {
+export type PlayerStats = {
     totalGames: number;
     wins: number;
     losses: number;
@@ -65,7 +67,7 @@ type PlayerStats = {
     toughestOpponent: { playerId: string; name: string; gamesAgainst: number; theirWinRate: number } | null;
 };
 
-type PlayerData = {
+export type PlayerData = {
     id: string;
     givenName: string;
     familyName: string;
@@ -91,6 +93,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [localAvatarUrl, setLocalAvatarUrl] = useState<string | null>(null);
+    const [selectedOpponent, setSelectedOpponent] = useState<PlayerData | null>(null);
 
     const updateLocalAvatar = (url: string | null) => setLocalAvatarUrl(url);
 
@@ -257,6 +260,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             isAuthenticated, userId, token, logInWithEmail, logOut,
             error, fetchPlayers, fetchMatches, isLoading, setIsLoading, logMatch, approveOrRejectMatch,
             opponents, player, matches, setError, localAvatarUrl, updateLocalAvatar,
+            selectedOpponent, setSelectedOpponent,
         }}>
             {children}
         </GlobalContext.Provider>

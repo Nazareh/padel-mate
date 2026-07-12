@@ -17,7 +17,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { globalStyles, COLORS } from '@/constants/GlobalStyles';
 import { useGlobalContext, MatchData } from '@/auth/globalContext';
 
-type PlayerInfo = { name: string; initials: string; avatarUrl?: string | null; rating?: number | null };
+type PlayerInfo = { id: string; name: string; initials: string; avatarUrl?: string | null; rating?: number | null };
 type DisplayMatch = {
   id: string;
   date: string;
@@ -52,8 +52,8 @@ function getInitials(name: string): string {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 }
 
-const PlayerAvatar = ({ player, isMe, reverse }: { player: PlayerInfo; isMe?: boolean; reverse?: boolean }) => (
-  <View style={[styles.playerRow, reverse && { flexDirection: 'row-reverse' }]}>
+const PlayerAvatar = ({ player, isMe, reverse, onPress }: { player: PlayerInfo; isMe?: boolean; reverse?: boolean; onPress?: () => void }) => (
+  <TouchableOpacity style={[styles.playerRow, reverse && { flexDirection: 'row-reverse' }]} onPress={onPress} activeOpacity={onPress ? 0.7 : 1} disabled={!onPress}>
     <View style={styles.avatarContainer}>
       {player.avatarUrl ? (
         <Image source={{ uri: player.avatarUrl }} style={styles.avatarImage} />
@@ -74,16 +74,17 @@ const PlayerAvatar = ({ player, isMe, reverse }: { player: PlayerInfo; isMe?: bo
     >
       {player.name}
     </Text>
-  </View>
+  </TouchableOpacity>
 );
 
 type MatchCardProps = {
   match: DisplayMatch;
   onApprove?: () => void;
   onReject?: () => void;
+  onPlayerPress?: (playerId: string) => void;
 };
 
-const MatchCard = ({ match, onApprove, onReject }: MatchCardProps) => {
+const MatchCard = ({ match, onApprove, onReject, onPlayerPress }: MatchCardProps) => {
   const badgeLabel = match.myActionRequired ? 'Action Required' : match.status;
 
   const badgeContainerStyle = match.myActionRequired
@@ -119,7 +120,7 @@ const MatchCard = ({ match, onApprove, onReject }: MatchCardProps) => {
       <View style={styles.matchGrid}>
         <View style={styles.teamColumn}>
           <PlayerAvatar player={match.myTeam[0]} isMe />
-          <PlayerAvatar player={match.myTeam[1]} />
+          <PlayerAvatar player={match.myTeam[1]} onPress={onPlayerPress ? () => onPlayerPress(match.myTeam[1].id) : undefined} />
         </View>
 
         <View style={styles.scoreColumn}>
@@ -132,7 +133,7 @@ const MatchCard = ({ match, onApprove, onReject }: MatchCardProps) => {
 
         <View style={[styles.teamColumn, { alignItems: 'flex-end' }]}>
           {match.opponents.map((p, i) => (
-            <PlayerAvatar key={i} player={p} reverse />
+            <PlayerAvatar key={i} player={p} reverse onPress={onPlayerPress ? () => onPlayerPress(p.id) : undefined} />
           ))}
         </View>
       </View>
@@ -158,7 +159,7 @@ const MatchCard = ({ match, onApprove, onReject }: MatchCardProps) => {
 };
 
 export default function PadelMatchesScreen() {
-  const { matches, fetchMatches, approveOrRejectMatch, userId, player, opponents, isLoading, localAvatarUrl } = useGlobalContext();
+  const { matches, fetchMatches, approveOrRejectMatch, userId, player, opponents, isLoading, localAvatarUrl, setSelectedOpponent } = useGlobalContext();
   const [refreshing, setRefreshing] = useState(false);
   const [actioningMatchId, setActioningMatchId] = useState<string | null>(null);
 
@@ -188,11 +189,17 @@ export default function PadelMatchesScreen() {
 
   function playerInfo(playerId: string): PlayerInfo {
     const found = allPlayers.find(p => p.id === playerId);
-    if (!found) return { name: 'Unknown', initials: '?' };
+    if (!found) return { id: playerId, name: 'Unknown', initials: '?' };
     const fullName = `${found.givenName} ${found.familyName}`;
     const avatarUrl = playerId === userId ? (localAvatarUrl ?? found.avatarUrl) : found.avatarUrl;
-    return { name: fullName, initials: getInitials(fullName), avatarUrl, rating: found.latestRating };
+    return { id: playerId, name: fullName, initials: getInitials(fullName), avatarUrl, rating: found.latestRating };
   }
+
+  const handlePlayerPress = (playerId: string) => {
+    if (playerId === userId) return;
+    const found = opponents.find(o => o.id === playerId);
+    if (found) setSelectedOpponent(found);
+  };
 
   function toDisplayMatch(match: MatchData): DisplayMatch | null {
     const myPlayer = match.players.find(p => p.playerId === userId);
@@ -275,6 +282,7 @@ export default function PadelMatchesScreen() {
                     match={m}
                     onApprove={() => handleMatchAction(m.id, 'APPROVE')}
                     onReject={() => handleMatchAction(m.id, 'REJECT')}
+                    onPlayerPress={handlePlayerPress}
                   />
                 ))}
               </View>
@@ -289,7 +297,7 @@ export default function PadelMatchesScreen() {
             {pastMatches.length === 0 ? (
               <Text style={[styles.emptyText, { color: COLORS.textGray }]}>No past games yet.</Text>
             ) : (
-              pastMatches.map(m => <MatchCard key={m.id} match={m} />)
+              pastMatches.map(m => <MatchCard key={m.id} match={m} onPlayerPress={handlePlayerPress} />)
             )}
           </View>
 

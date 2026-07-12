@@ -28,7 +28,7 @@ export default function LogMatchScreen() {
     const [showSearchPlayersModal, setShowSearchPlayersModal] = useState(false);
     const [partner, setPartner] = useState<Player | null>(null)
     const [otherPlayers, setOtherPlayers] = useState<Player[]>()
-    const { player, opponents, logMatch, isLoading, setIsLoading, error, setError, localAvatarUrl } = useGlobalContext();
+    const { player, opponents, logMatch, isLoading, setIsLoading, error, setError, localAvatarUrl, setSelectedOpponent } = useGlobalContext();
     const [scores, setScores] = useState<SetScore[]>([
         { us: '', them: '' }, // Set 1
         { us: '', them: '' }, // Set 2
@@ -160,7 +160,9 @@ export default function LogMatchScreen() {
                             <PlayerAvatar
                                 playerName={partner?.name}
                                 avatarUrl={partner?.avatar}
-                                latestRating={partner?.latestRating.toString()} />
+                                latestRating={partner?.latestRating.toString()}
+                                onPress={partner ? () => setSelectedOpponent(opponents.find(o => o.id === partner.id) ?? null) : undefined}
+                            />
                         </View>
 
                         {/* Opponents */}
@@ -173,12 +175,14 @@ export default function LogMatchScreen() {
                                 playerName={otherPlayers?.at(0)?.name}
                                 avatarUrl={otherPlayers?.at(0)?.avatar}
                                 latestRating={otherPlayers?.at(0)?.latestRating.toString()}
+                                onPress={otherPlayers?.at(0) ? () => setSelectedOpponent(opponents.find(o => o.id === otherPlayers[0].id) ?? null) : undefined}
                             />
                             <View style={styles.divider} />
                             <PlayerAvatar
                                 playerName={otherPlayers?.at(1)?.name}
                                 avatarUrl={otherPlayers?.at(1)?.avatar}
                                 latestRating={otherPlayers?.at(1)?.latestRating.toString()}
+                                onPress={otherPlayers?.at(1) ? () => setSelectedOpponent(opponents.find(o => o.id === otherPlayers[1].id) ?? null) : undefined}
                             />
                         </View>
                     </View>

@@ -66,7 +66,7 @@ function formatChartDate(iso: string): string {
 }
 
 export default function PlayerStats() {
-  const { player, error, isLoading, fetchPlayers, userId, setError, localAvatarUrl, updateLocalAvatar } = useGlobalContext();
+  const { player, error, isLoading, fetchPlayers, userId, setError, localAvatarUrl, updateLocalAvatar, opponents, setSelectedOpponent } = useGlobalContext();
   const stats = player?.stats;
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [pendingUrl, setPendingUrl] = useState<string | null>(null);
@@ -288,7 +288,11 @@ export default function PlayerStats() {
           <Text style={globalStyles.sectionTitle}>Best Partnership</Text>
           <View style={styles.card}>
             {stats?.bestPartner ? (
-              <View style={styles.insightRow}>
+              <TouchableOpacity
+                style={styles.insightRow}
+                activeOpacity={0.7}
+                onPress={() => setSelectedOpponent(opponents.find(o => o.id === stats.bestPartner!.playerId) ?? null)}
+              >
                 <View style={[styles.insightIcon, { backgroundColor: COLORS.primaryShade }]}>
                   <Icon name="people" size={22} color={COLORS.primary} />
                 </View>
@@ -302,7 +306,7 @@ export default function PlayerStats() {
                   </Text>
                   <Text style={styles.insightStatLabel}>win rate</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             ) : (
               <Text style={styles.emptyHint}>No partnership data yet</Text>
             )}
@@ -314,7 +318,11 @@ export default function PlayerStats() {
           <Text style={globalStyles.sectionTitle}>Toughest Opponent</Text>
           <View style={styles.card}>
             {stats?.toughestOpponent ? (
-              <View style={styles.insightRow}>
+              <TouchableOpacity
+                style={styles.insightRow}
+                activeOpacity={0.7}
+                onPress={() => setSelectedOpponent(opponents.find(o => o.id === stats.toughestOpponent!.playerId) ?? null)}
+              >
                 <View style={[styles.insightIcon, { backgroundColor: COLORS.redShade }]}>
                   <Icon name="whatshot" size={22} color={COLORS.red400} />
                 </View>
@@ -328,7 +336,7 @@ export default function PlayerStats() {
                   </Text>
                   <Text style={styles.insightStatLabel}>their win rate</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             ) : (
               <Text style={styles.emptyHint}>No opponent data yet</Text>
             )}

@@ -1,7 +1,7 @@
 import { BORDER_RADIUS, COLORS, FONT_SIZE, globalStyles, SPACING } from "@/constants/GlobalStyles";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ReactNode } from "react";
-import { View, Image, StyleSheet, Text } from "react-native";
+import { View, Image, StyleSheet, Text, TouchableOpacity } from "react-native";
 
 type PlayerAvatarProps = {
     playerName?: string | null
@@ -10,11 +10,13 @@ type PlayerAvatarProps = {
     children?: ReactNode,
     iconBgColor?: string,
     iconFgColor?: string,
+    onPress?: () => void,
 }
 
-export default function PlayerAvatar({ avatarUrl, latestRating, playerName, children, iconBgColor, iconFgColor }: PlayerAvatarProps) {
+export default function PlayerAvatar({ avatarUrl, latestRating, playerName, children, iconBgColor, iconFgColor, onPress }: PlayerAvatarProps) {
+    const Container = onPress ? TouchableOpacity : View;
     return (
-        <View style={globalStyles.row}>
+        <Container style={globalStyles.row} onPress={onPress} activeOpacity={0.7}>
             <View>
                 {avatarUrl ? (
                     <Image source={{ uri: avatarUrl }}
@@ -39,7 +41,7 @@ export default function PlayerAvatar({ avatarUrl, latestRating, playerName, chil
 
             </View>
 
-        </View >
+        </Container>
     )
 }
 
