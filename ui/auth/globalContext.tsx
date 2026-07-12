@@ -1,4 +1,5 @@
 import { fetchAuthSession, getCurrentUser, signIn, signOut } from "aws-amplify/auth";
+import { CONFIG } from "@/constants/config";
 import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState, Dispatch, SetStateAction } from "react";
 
 export type MatchRequest = {
@@ -81,7 +82,7 @@ export const GlobalContext = createContext<GlobalState | undefined>(undefined);
 
 export function GlobalStateProvider({ children }: PropsWithChildren) {
 
-    const baseUrl = "https://kwn86hlgb0.execute-api.ap-southeast-2.amazonaws.com/prod/v1";
+    const baseUrl = CONFIG.apiBaseUrl;
 
     // Start with false so the app doesn't flash the wrong screens
     const [isAuthenticated, setIsAuthenticated] = useState(false);

@@ -4,3 +4,8 @@
 
 expo-env.d.ts
 # @end expo-cli
+
+# Environment files — never commit real values
+.env
+.env.prod
+# .env.example is intentionally tracked
