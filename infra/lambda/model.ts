@@ -37,9 +37,60 @@ export type MatchPlayer = {
     matchStatus: MatchStatus
 }
 
+export type RatingPoint = {
+    matchId: string
+    rating: number
+    date: string // ISO string
+}
+
+export type PartnerRecord = {
+    playerId: string
+    name: string
+    gamesPlayed: number
+    wins: number
+}
+
+export type OpponentRecord = {
+    playerId: string
+    name: string
+    gamesAgainst: number
+    theirWins: number
+}
+
+export type BestPartner = {
+    playerId: string
+    name: string
+    gamesPlayed: number
+    winRate: number
+}
+
+export type ToughestOpponent = {
+    playerId: string
+    name: string
+    gamesAgainst: number
+    theirWinRate: number
+}
+
+export type PlayerStats = {
+    totalGames: number
+    wins: number
+    losses: number
+    setsWon: number
+    setsLost: number
+    currentStreak: number // positive = win streak, negative = loss streak
+    recentForm: ('W' | 'L')[] // last 5, oldest → newest
+    ratingHistory: RatingPoint[] // last 10 matches
+    partnerRecords: PartnerRecord[]
+    opponentRecords: OpponentRecord[]
+    bestPartner: BestPartner | null
+    toughestOpponent: ToughestOpponent | null
+}
+
 export type Player = {
     id: string
     givenName: string
     familyName: string
     latestRating: number
+    trendValue?: number
+    stats?: PlayerStats
 }
