@@ -1,4 +1,5 @@
 import { fetchAuthSession, getCurrentUser, signIn, signOut } from "aws-amplify/auth";
+import { Hub } from "aws-amplify/utils";
 import { CONFIG } from "@/constants/config";
 import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState, Dispatch, SetStateAction } from "react";
 
@@ -113,11 +114,13 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
 
             const newToken = session.tokens?.idToken?.toString() ?? null;
 
-            setUserId(user.userId);
+            // username matches event.userName used by the onboard Lambda as the player _id.
+            // For Google users userId is the Cognito sub (UUID), which differs from the stored id.
+            setUserId(user.username);
             setToken(newToken);
             setIsAuthenticated(true);
             setError(null);
-            fetchPlayers(user.userId, newToken ?? undefined);
+            fetchPlayers(user.username, newToken ?? undefined);
             fetchMatches(newToken ?? undefined);
 
         } catch (_) {
@@ -130,6 +133,12 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
 
     useEffect(() => {
         refreshUserSession();
+
+        const unsubscribe = Hub.listen('auth', ({ payload }) => {
+            if (payload.event === 'signedIn') refreshUserSession();
+        });
+
+        return unsubscribe;
     }, []);
 
 
