@@ -1,5 +1,6 @@
 import { findPlayerById } from "../repository/player-repository.js";
 import { findAllMatchesForPlayer, findMatchById, saveMatch } from "../repository/match-repository.js";
+import { updatePlayerStats } from "./stats-service.js";
 import { nanoid } from "nanoid";
 import { LogMatchRequest, Match, MatchPlayer, MatchStatus, Player, SetScore, Team } from "../model.js";
 
@@ -152,6 +153,11 @@ export async function updateMatchStatus(matchId: string, playerId: string, actio
     match.status = computeAggregateStatus(match.players);
 
     await saveMatch(match);
+
+    if (match.status === MatchStatus.APPROVED) {
+        await updatePlayerStats(match);
+    }
+
     return match;
 }
 
