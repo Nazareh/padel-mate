@@ -32,7 +32,7 @@ exports.handler = async (event: PreSignUpTriggerEvent): Promise<PreSignUpTrigger
 
       const hasGoogleAccount = Users?.some((u) => u.UserStatus === "EXTERNAL_PROVIDER");
       if (hasGoogleAccount) {
-        throw new Error("An account with this email already exists. Please sign in with Google.");
+        throw new Error("An account with this email already exists. Please try signing in with Social Login.");
       }
     } catch (err) {
       console.error("Error in pre-sign-up trigger (SignUp):", err);
