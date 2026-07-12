@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   Image,
+  StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -72,6 +73,7 @@ export default function RankingScreen() {
 
   return (
     <SafeAreaView style={globalStyles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.backgroundDark} />
       <View style={globalStyles.headerContainer}>
         <Text style={globalStyles.headerTitle}>Padel Mates Ranking</Text>
       </View>

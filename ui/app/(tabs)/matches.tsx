@@ -258,14 +258,12 @@ export default function PadelMatchesScreen() {
   const pastMatches = displayMatches.filter(m => m.type === 'past');
 
   return (
-    <View style={[styles.container, { backgroundColor: COLORS.backgroundDark }]}>
+    <SafeAreaView style={globalStyles.safeArea}>
       <LoadingOverlay visible={actioningMatchId !== null} />
       <StatusBar barStyle="light-content" backgroundColor={COLORS.backgroundDark} />
-      <SafeAreaView style={globalStyles.safeArea}>
-        <View style={globalStyles.headerContainer}>
-          <Text style={globalStyles.headerTitle}>Matches</Text>
-        </View>
-      </SafeAreaView>
+      <View style={globalStyles.headerContainer}>
+        <Text style={globalStyles.headerTitle}>Matches</Text>
+      </View>
 
       {isLoading ? (
         <View style={styles.skeletonContainer}>
@@ -321,12 +319,11 @@ export default function PadelMatchesScreen() {
           <View style={{ height: 100 }} />
         </ScrollView>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   scrollContent: { paddingBottom: 20 },
   sectionHeader: {
