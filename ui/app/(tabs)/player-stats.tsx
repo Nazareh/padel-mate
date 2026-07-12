@@ -8,6 +8,7 @@ import Notification from '@/components/Notification';
 import RatingCircle from '@/components/RatingCircle';
 import RatingChart from '@/components/RatingChart';
 import { globalStyles, COLORS, SPACING, FONT_SIZE, BORDER_RADIUS } from '@/constants/GlobalStyles';
+import { FEATURE_FLAGS } from '@/constants/featureFlags';
 import { MaterialIcons as Icon } from '@expo/vector-icons';
 
 const AVATAR_OPTIONS = [
@@ -187,7 +188,7 @@ export default function PlayerStats() {
           givenName={player?.givenName ?? ''}
           avatarImageUrl={player?.avatarUrl ?? ''}
           fetchData={() => { userId && fetchPlayers(userId); }}
-          onAvatarPress={openModal}
+          onAvatarPress={FEATURE_FLAGS.AVATAR_PICKER ? openModal : undefined}
         />
 
         {/* Rating hero */}
