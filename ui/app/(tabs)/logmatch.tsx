@@ -167,12 +167,12 @@ export default function LogMatchScreen() {
                             <PlayerAvatar
                                 playerName={player?.givenName!}
                                 avatarUrl={localAvatarUrl ?? player?.avatarUrl ?? undefined}
-                                latestRating={player?.latestRating!.toString()} />
+                                latestRating={player?.latestRating?.toString()} />
                             <View style={styles.divider} />
                             <PlayerAvatar
                                 playerName={partner?.name}
                                 avatarUrl={partner?.avatar}
-                                latestRating={partner?.latestRating.toString()}
+                                latestRating={partner?.latestRating?.toString()}
                                 onPress={partner ? () => setSelectedOpponent(opponents.find(o => o.id === partner.id) ?? null) : undefined}
                             />
                         </View>
