@@ -21,10 +21,6 @@ export default function HeaderProfile({ givenName, avatarImageUrl, fetchData, on
                     <Text style={{ ...globalStyles.headerTitle, textTransform: "none" }}>Hello, {givenName}</Text>
                 </PlayerAvatar>
             </Pressable>
-
-            <Pressable style={globalStyles.iconButton} onPress={() => alert('hahah')}>
-                <MaterialIcons name="settings" size={FONT_SIZE.lg} color={COLORS.primary} />
-            </Pressable>
         </View>
     );
 }
