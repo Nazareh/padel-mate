@@ -1,10 +1,17 @@
 import { GlobalStateProvider, useGlobalContext } from "@/auth/globalContext";
 import PlayerStatsModal from "@/components/PlayerStatsModal";
-import awsConfig from "@/src/aws-exports";
+import { CONFIG } from "@/constants/config";
 import { Amplify } from "aws-amplify";
 import { Stack } from "expo-router";
 
-Amplify.configure(awsConfig);
+Amplify.configure({
+  Auth: {
+    Cognito: {
+      userPoolId: CONFIG.cognitoUserPoolId,
+      userPoolClientId: CONFIG.cognitoClientId,
+    },
+  },
+});
 
 export default function RootLayout() {
   return (
