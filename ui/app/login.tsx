@@ -5,6 +5,7 @@ import Logo from '@/components/Logo';
 import SocialRow from '@/components/SocialRow';
 import MyTextInput from '@/components/TextInput';
 import { globalStyles } from '@/constants/GlobalStyles';
+import { FEATURE_FLAGS } from '@/constants/featureFlags';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import Notification from "@/components/Notification";
@@ -65,8 +66,9 @@ export default function SignUpScreen() {
                         <MyTextInput isPassword={true} icon="lock" value={password} placeholder="Password" onValueChange={setPassword} />
                         <Button label="Log In" onPress={handleLogin} />
                     </View>
-                    <Divider text='Or log in with' />
-
+                    {(FEATURE_FLAGS.SOCIAL_LOGIN_GOOGLE || FEATURE_FLAGS.SOCIAL_LOGIN_APPLE || FEATURE_FLAGS.SOCIAL_LOGIN_FACEBOOK) && (
+                        <Divider text='Or log in with' />
+                    )}
                     <SocialRow />
                     <FooterNote text="Don't have an account? " linkText="Sign Up" onPress={() => { router.push("/sign-up") }} />
                 </ScrollView>
