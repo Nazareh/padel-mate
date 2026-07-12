@@ -52,6 +52,19 @@ type GlobalState = {
     setError: Dispatch<SetStateAction<string | null>>;
 };
 
+type PlayerStats = {
+    totalGames: number;
+    wins: number;
+    losses: number;
+    setsWon: number;
+    setsLost: number;
+    currentStreak: number;
+    recentForm: ('W' | 'L')[];
+    ratingHistory: { matchId: string; rating: number; date: string }[];
+    bestPartner: { playerId: string; name: string; gamesPlayed: number; winRate: number } | null;
+    toughestOpponent: { playerId: string; name: string; gamesAgainst: number; theirWinRate: number } | null;
+};
+
 type PlayerData = {
     id: string;
     givenName: string;
@@ -59,6 +72,7 @@ type PlayerData = {
     latestRating: number;
     trendValue: number | null;
     avatarUrl: string | null;
+    stats: PlayerStats | null;
 }
 
 export const GlobalContext = createContext<GlobalState | undefined>(undefined);

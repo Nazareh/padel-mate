@@ -11,6 +11,7 @@ import {
   Alert,
   Image,
 } from 'react-native';
+import LoadingOverlay from '@/components/LoadingOverlay';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { globalStyles, COLORS } from '@/constants/GlobalStyles';
@@ -80,10 +81,9 @@ type MatchCardProps = {
   match: DisplayMatch;
   onApprove?: () => void;
   onReject?: () => void;
-  isActioning?: boolean;
 };
 
-const MatchCard = ({ match, onApprove, onReject, isActioning }: MatchCardProps) => {
+const MatchCard = ({ match, onApprove, onReject }: MatchCardProps) => {
   const badgeLabel = match.myActionRequired ? 'Action Required' : match.status;
 
   const badgeContainerStyle = match.myActionRequired
@@ -140,26 +140,16 @@ const MatchCard = ({ match, onApprove, onReject, isActioning }: MatchCardProps) 
       {match.myActionRequired && (
         <View style={styles.actionRow}>
           <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: COLORS.borderDark }, isActioning && styles.actionBtnDisabled]}
+            style={[styles.actionBtn, { backgroundColor: COLORS.borderDark }]}
             onPress={onReject}
-            disabled={isActioning}
           >
-            {isActioning ? (
-              <ActivityIndicator size="small" color={COLORS.textWhite} />
-            ) : (
-              <Text style={[styles.actionBtnText, { color: COLORS.textWhite }]}>Reject</Text>
-            )}
+            <Text style={[styles.actionBtnText, { color: COLORS.textWhite }]}>Reject</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.actionBtn, styles.approveBtn, isActioning && styles.actionBtnDisabled]}
+            style={[styles.actionBtn, styles.approveBtn]}
             onPress={onApprove}
-            disabled={isActioning}
           >
-            {isActioning ? (
-              <ActivityIndicator size="small" color={COLORS.primaryContent} />
-            ) : (
-              <Text style={[styles.actionBtnText, { color: COLORS.primaryContent }]}>Approve</Text>
-            )}
+            <Text style={[styles.actionBtnText, { color: COLORS.primaryContent }]}>Approve</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -254,6 +244,7 @@ export default function PadelMatchesScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: COLORS.backgroundDark }]}>
+      <LoadingOverlay visible={actioningMatchId !== null} />
       <StatusBar barStyle="light-content" backgroundColor={COLORS.backgroundDark} />
       <SafeAreaView style={globalStyles.safeArea}>
         <View style={globalStyles.headerContainer}>
@@ -284,7 +275,6 @@ export default function PadelMatchesScreen() {
                     match={m}
                     onApprove={() => handleMatchAction(m.id, 'APPROVE')}
                     onReject={() => handleMatchAction(m.id, 'REJECT')}
-                    isActioning={actioningMatchId === m.id}
                   />
                 ))}
               </View>
@@ -411,5 +401,4 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   actionBtnText: { fontSize: 14, fontWeight: '700' },
-  actionBtnDisabled: { opacity: 0.5 },
 });

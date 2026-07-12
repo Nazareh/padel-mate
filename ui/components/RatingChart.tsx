@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import Svg, { Path, Circle, Line, Defs, LinearGradient, Stop, Text as SvgText } from 'react-native-svg';
 import { COLORS } from '@/constants/GlobalStyles';
-import { RatingPoint } from '@/data/playerStatsMockData';
+type RatingPoint = { date: string; rating: number };
 
 type Props = { data: RatingPoint[] };
 

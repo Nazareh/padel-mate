@@ -108,12 +108,14 @@ export class MainStack extends cdk.Stack {
     this.patchMatchFn = createLambda(this, "patch-match-fn", this.stackName, {
       environment: {
         MATCH_TABLE_NAME: this.matchTable.tableName,
+        PLAYER_TABLE_NAME: this.playerTable.tableName,
         MONGO_DB_NAME: MONGO_DB_NAME,
         MONGO_URI_PARAM_NAME: this.mongoUriParameter.parameterName,
       },
     });
     this.mongoUriParameter.grantRead(this.patchMatchFn);
     this.matchTable.grantReadWriteData(this.patchMatchFn);
+    this.playerTable.grantReadWriteData(this.patchMatchFn);
 
   }
 

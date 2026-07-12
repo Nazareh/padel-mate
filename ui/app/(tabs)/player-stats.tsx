@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Modal, Pressable, TouchableOpacity, Image, FlatList } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Modal, Pressable, TouchableOpacity, Image, FlatList, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGlobalContext } from '@/auth/globalContext';
 import HeaderProfile from '@/components/HeaderProfile';
@@ -8,7 +8,6 @@ import Notification from '@/components/Notification';
 import RatingCircle from '@/components/RatingCircle';
 import RatingChart from '@/components/RatingChart';
 import { globalStyles, COLORS, SPACING, FONT_SIZE, BORDER_RADIUS } from '@/constants/GlobalStyles';
-import { mockRatingHistory, mockPlayerStats } from '@/data/playerStatsMockData';
 import { MaterialIcons as Icon } from '@expo/vector-icons';
 
 const AVATAR_OPTIONS = [
@@ -61,17 +60,37 @@ function getInitials(givenName?: string, familyName?: string) {
   return `${givenName?.[0] ?? ''}${familyName?.[0] ?? ''}`.toUpperCase();
 }
 
+function formatChartDate(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
 export default function PlayerStats() {
   const { player, error, isLoading, fetchPlayers, userId, setError, localAvatarUrl, updateLocalAvatar } = useGlobalContext();
-  const stats = mockPlayerStats;
+  const stats = player?.stats;
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [pendingUrl, setPendingUrl] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const streakLabel = stats.currentStreak > 0
-    ? `${stats.currentStreak}W`
-    : `${Math.abs(stats.currentStreak)}L`;
-  const streakColor = stats.currentStreak > 0 ? COLORS.primary : COLORS.red400;
-  const streakSub = stats.currentStreak > 0 ? 'win streak' : 'loss streak';
+  const onRefresh = async () => {
+    setRefreshing(true);
+    if (userId) await fetchPlayers(userId);
+    setRefreshing(false);
+  };
+
+  const totalGames = stats?.totalGames ?? 0;
+  const wins = stats?.wins ?? 0;
+  const losses = stats?.losses ?? 0;
+  const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
+  const setsWon = stats?.setsWon ?? 0;
+  const setsLost = stats?.setsLost ?? 0;
+  const currentStreak = stats?.currentStreak ?? 0;
+  const recentForm = stats?.recentForm ?? [];
+  const ratingHistory = (stats?.ratingHistory ?? []).map(p => ({ date: formatChartDate(p.date), rating: p.rating }));
+
+  const streakLabel = currentStreak > 0 ? `${currentStreak}W` : `${Math.abs(currentStreak)}L`;
+  const streakColor = currentStreak > 0 ? COLORS.primary : COLORS.red400;
+  const streakSub = currentStreak > 0 ? 'win streak' : 'loss streak';
 
   const openModal = () => {
     setPendingUrl(localAvatarUrl);
@@ -158,7 +177,11 @@ export default function PlayerStats() {
         </Pressable>
       </Modal>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />}
+      >
 
         <HeaderProfile
           givenName={player?.givenName ?? ''}
@@ -175,17 +198,17 @@ export default function PlayerStats() {
           />
           <View style={styles.heroMeta}>
             <View style={styles.metaItem}>
-              <Text style={styles.metaValue}>{stats.totalGames}</Text>
+              <Text style={styles.metaValue}>{totalGames}</Text>
               <Text style={styles.metaLabel}>Matches</Text>
             </View>
             <View style={styles.metaDivider} />
             <View style={styles.metaItem}>
-              <Text style={[styles.metaValue, { color: COLORS.primary }]}>{stats.wins}</Text>
+              <Text style={[styles.metaValue, { color: COLORS.primary }]}>{wins}</Text>
               <Text style={styles.metaLabel}>Wins</Text>
             </View>
             <View style={styles.metaDivider} />
             <View style={styles.metaItem}>
-              <Text style={[styles.metaValue, { color: COLORS.red400 }]}>{stats.losses}</Text>
+              <Text style={[styles.metaValue, { color: COLORS.red400 }]}>{losses}</Text>
               <Text style={styles.metaLabel}>Losses</Text>
             </View>
           </View>
@@ -195,7 +218,10 @@ export default function PlayerStats() {
         <View style={styles.section}>
           <Text style={globalStyles.sectionTitle}>Rating Progression</Text>
           <View style={styles.card}>
-            <RatingChart data={mockRatingHistory} />
+            {ratingHistory.length >= 2
+              ? <RatingChart data={ratingHistory} />
+              : <Text style={styles.emptyHint}>Play more matches to see your rating progression</Text>
+            }
           </View>
         </View>
 
@@ -205,28 +231,28 @@ export default function PlayerStats() {
           <View style={styles.tileRow}>
             <StatTile
               label="Win Rate"
-              value={`${stats.winRate}%`}
-              sub={`${stats.wins}W · ${stats.losses}L`}
-              valueColor={stats.winRate >= 50 ? COLORS.primary : COLORS.red400}
+              value={`${winRate}%`}
+              sub={`${wins}W · ${losses}L`}
+              valueColor={winRate >= 50 ? COLORS.primary : COLORS.red400}
             />
             <StatTile
               label="Streak"
-              value={streakLabel}
-              sub={streakSub}
+              value={totalGames > 0 ? streakLabel : '—'}
+              sub={totalGames > 0 ? streakSub : 'no matches yet'}
               valueColor={streakColor}
             />
           </View>
           <View style={[styles.tileRow, { marginTop: SPACING.sm }]}>
             <StatTile
               label="Sets Won"
-              value={stats.setsWon.toString()}
-              sub={`${stats.setsLost} lost`}
+              value={setsWon.toString()}
+              sub={`${setsLost} lost`}
             />
             <StatTile
               label="Set Ratio"
-              value={(stats.setsWon / stats.setsLost).toFixed(2)}
+              value={setsLost > 0 ? (setsWon / setsLost).toFixed(2) : '—'}
               sub="won per lost"
-              valueColor={stats.setsWon > stats.setsLost ? COLORS.primary : COLORS.red400}
+              valueColor={setsWon > setsLost ? COLORS.primary : COLORS.red400}
             />
           </View>
         </View>
@@ -235,19 +261,25 @@ export default function PlayerStats() {
         <View style={styles.section}>
           <Text style={globalStyles.sectionTitle}>Recent Form</Text>
           <View style={styles.card}>
-            <View style={styles.formRow}>
-              {stats.recentForm.map((result, i) => (
-                <View
-                  key={i}
-                  style={[styles.formBadge, result === 'W' ? styles.formWin : styles.formLoss]}
-                >
-                  <Text style={[styles.formBadgeText, result === 'W' ? styles.formWinText : styles.formLossText]}>
-                    {result}
-                  </Text>
+            {recentForm.length > 0 ? (
+              <>
+                <View style={styles.formRow}>
+                  {recentForm.map((result, i) => (
+                    <View
+                      key={i}
+                      style={[styles.formBadge, result === 'W' ? styles.formWin : styles.formLoss]}
+                    >
+                      <Text style={[styles.formBadgeText, result === 'W' ? styles.formWinText : styles.formLossText]}>
+                        {result}
+                      </Text>
+                    </View>
+                  ))}
                 </View>
-              ))}
-            </View>
-            <Text style={styles.formSub}>Last {stats.recentForm.length} matches · oldest → newest</Text>
+                <Text style={styles.formSub}>Last {recentForm.length} matches · oldest → newest</Text>
+              </>
+            ) : (
+              <Text style={styles.emptyHint}>No matches played yet</Text>
+            )}
           </View>
         </View>
 
@@ -255,21 +287,25 @@ export default function PlayerStats() {
         <View style={styles.section}>
           <Text style={globalStyles.sectionTitle}>Best Partnership</Text>
           <View style={styles.card}>
-            <View style={styles.insightRow}>
-              <View style={[styles.insightIcon, { backgroundColor: COLORS.primaryShade }]}>
-                <Icon name="people" size={22} color={COLORS.primary} />
+            {stats?.bestPartner ? (
+              <View style={styles.insightRow}>
+                <View style={[styles.insightIcon, { backgroundColor: COLORS.primaryShade }]}>
+                  <Icon name="people" size={22} color={COLORS.primary} />
+                </View>
+                <View style={styles.insightInfo}>
+                  <Text style={styles.insightName}>{stats.bestPartner.name}</Text>
+                  <Text style={styles.insightSub}>{stats.bestPartner.gamesPlayed} games together</Text>
+                </View>
+                <View style={styles.insightStat}>
+                  <Text style={[styles.insightStatValue, { color: COLORS.primary }]}>
+                    {stats.bestPartner.winRate}%
+                  </Text>
+                  <Text style={styles.insightStatLabel}>win rate</Text>
+                </View>
               </View>
-              <View style={styles.insightInfo}>
-                <Text style={styles.insightName}>{stats.bestPartner.name}</Text>
-                <Text style={styles.insightSub}>{stats.bestPartner.gamesPlayed} games together</Text>
-              </View>
-              <View style={styles.insightStat}>
-                <Text style={[styles.insightStatValue, { color: COLORS.primary }]}>
-                  {stats.bestPartner.winRate}%
-                </Text>
-                <Text style={styles.insightStatLabel}>win rate</Text>
-              </View>
-            </View>
+            ) : (
+              <Text style={styles.emptyHint}>No partnership data yet</Text>
+            )}
           </View>
         </View>
 
@@ -277,21 +313,25 @@ export default function PlayerStats() {
         <View style={styles.section}>
           <Text style={globalStyles.sectionTitle}>Toughest Opponent</Text>
           <View style={styles.card}>
-            <View style={styles.insightRow}>
-              <View style={[styles.insightIcon, { backgroundColor: COLORS.redShade }]}>
-                <Icon name="whatshot" size={22} color={COLORS.red400} />
+            {stats?.toughestOpponent ? (
+              <View style={styles.insightRow}>
+                <View style={[styles.insightIcon, { backgroundColor: COLORS.redShade }]}>
+                  <Icon name="whatshot" size={22} color={COLORS.red400} />
+                </View>
+                <View style={styles.insightInfo}>
+                  <Text style={styles.insightName}>{stats.toughestOpponent.name}</Text>
+                  <Text style={styles.insightSub}>{stats.toughestOpponent.gamesAgainst} games faced</Text>
+                </View>
+                <View style={styles.insightStat}>
+                  <Text style={[styles.insightStatValue, { color: COLORS.red400 }]}>
+                    {stats.toughestOpponent.theirWinRate}%
+                  </Text>
+                  <Text style={styles.insightStatLabel}>their win rate</Text>
+                </View>
               </View>
-              <View style={styles.insightInfo}>
-                <Text style={styles.insightName}>{stats.toughestOpponent.name}</Text>
-                <Text style={styles.insightSub}>{stats.toughestOpponent.gamesAgainst} games faced</Text>
-              </View>
-              <View style={styles.insightStat}>
-                <Text style={[styles.insightStatValue, { color: COLORS.red400 }]}>
-                  {stats.toughestOpponent.theirWinRate}%
-                </Text>
-                <Text style={styles.insightStatLabel}>their win rate</Text>
-              </View>
-            </View>
+            ) : (
+              <Text style={styles.emptyHint}>No opponent data yet</Text>
+            )}
           </View>
         </View>
 
@@ -376,6 +416,8 @@ const styles = StyleSheet.create({
   insightStat: { alignItems: 'flex-end' },
   insightStatValue: { fontSize: FONT_SIZE.xl, fontWeight: '800' },
   insightStatLabel: { color: COLORS.textGray, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 },
+
+  emptyHint: { color: COLORS.textGray, fontSize: 13, textAlign: 'center', paddingVertical: SPACING.sm },
 });
 
 const modal = StyleSheet.create({
