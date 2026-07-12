@@ -8,7 +8,7 @@ import { COLORS, globalStyles } from '@/constants/GlobalStyles';
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { signUp } from "aws-amplify/auth";
+import { signInWithRedirect, signOut, signUp } from "aws-amplify/auth";
 import {
     KeyboardAvoidingView,
     Platform,
@@ -90,7 +90,12 @@ export default function SignUpScreen() {
                     </View>
                     <Divider text='Or log in with' />
 
-                    <SocialRow />
+                    <SocialRow
+                        onGooglePress={async () => {
+                            try { await signOut(); } catch (_) {}
+                            signInWithRedirect({ provider: 'Google' });
+                        }}
+                    />
                     <FooterNote text="Already have an account? " linkText="Log In" onPress={() => { router.back() }} />
                 </ScrollView>
                 {error && (
