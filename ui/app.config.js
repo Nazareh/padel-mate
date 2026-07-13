@@ -6,7 +6,7 @@ module.exports = {
     slug: "padel-mate",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/images/icon.png",
+    icon: "./assets/images/padel-mate-icon.png",
     scheme: "padelmate",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
@@ -17,7 +17,7 @@ module.exports = {
     android: {
       adaptiveIcon: {
         backgroundColor: "#E6F4FE",
-        foregroundImage: "./assets/images/android-icon-foreground.png",
+        foregroundImage: "./assets/images/padel-mate-icon.png",
         backgroundImage: "./assets/images/android-icon-background.png",
         monochromeImage: "./assets/images/android-icon-monochrome.png",
       },
