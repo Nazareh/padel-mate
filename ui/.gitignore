@@ -7,5 +7,6 @@ expo-env.d.ts
 
 # Environment files — never commit real values
 .env
+.env.dev
 .env.prod
 # .env.example is intentionally tracked

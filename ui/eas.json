@@ -6,13 +6,34 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "COGNITO_REGION": "ap-southeast-2",
+        "COGNITO_USER_POOL_ID": "$COGNITO_USER_POOL_ID",
+        "COGNITO_CLIENT_ID": "$COGNITO_CLIENT_ID",
+        "COGNITO_DOMAIN": "$COGNITO_DOMAIN",
+        "API_BASE_URL": "$API_BASE_URL"
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "COGNITO_REGION": "ap-southeast-2",
+        "COGNITO_USER_POOL_ID": "$COGNITO_USER_POOL_ID",
+        "COGNITO_CLIENT_ID": "$COGNITO_CLIENT_ID",
+        "COGNITO_DOMAIN": "$COGNITO_DOMAIN",
+        "API_BASE_URL": "$API_BASE_URL"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "COGNITO_REGION": "ap-southeast-2",
+        "COGNITO_USER_POOL_ID": "$COGNITO_USER_POOL_ID",
+        "COGNITO_CLIENT_ID": "$COGNITO_CLIENT_ID",
+        "COGNITO_DOMAIN": "$COGNITO_DOMAIN",
+        "API_BASE_URL": "$API_BASE_URL"
+      }
     }
   },
   "submit": {
