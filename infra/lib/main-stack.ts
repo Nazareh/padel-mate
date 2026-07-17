@@ -175,7 +175,6 @@ export class MainStack extends cdk.Stack {
     });
   }
 
-  // google-client-id is created here with a placeholder so CDK owns the resource.
   // Update the value in AWS Console before deploying Google Sign-In.
   // Prerequisites (create manually before deploying):
   // - SSM String: /{stackName}/google-client-id
