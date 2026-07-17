@@ -2,14 +2,13 @@ require('dotenv/config');
 
 module.exports = {
   expo: {
-    name: "padel-mate",
+    name: "Padel Mate",
     slug: "padel-mate",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/padel-mate-icon.png",
     scheme: "padelmate",
     userInterfaceStyle: "automatic",
-    newArchEnabled: true,
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.anonymous.padelmate",
@@ -20,7 +19,6 @@ module.exports = {
         foregroundImage: "./assets/images/padel-mate-icon.png",
         monochromeImage: "./assets/images/padel-mate-icon.png",
       },
-      edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
       package: "com.anonymous.padelmate",
     },
@@ -49,6 +47,8 @@ module.exports = {
     experiments: {
       typedRoutes: true,
       reactCompiler: true,
+      newArchEnabled: true,
+      edgeToEdgeEnabled: true,
     },
     extra: {
       cognitoRegion: process.env.COGNITO_REGION,
