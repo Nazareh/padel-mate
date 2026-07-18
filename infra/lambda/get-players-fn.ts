@@ -1,18 +1,26 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
-import { findAllPlayers, findPlayerById } from "./repository/player-repository.js";
+import { findAllPlayers, findPlayerById, ensurePlayerExists } from "./repository/player-repository.js";
 
+const HEADERS = {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent",
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE",
+};
 
-export const handler: APIGatewayProxyHandler = async (event, _context) => {
-    const tableName = process.env.PLAYER_TABLE_NAME;
-    if (!tableName) {
-        console.error('PLAYER_TABLE_NAME env var is not set');
-        throw new Error('PLAYER_TABLE_NAME environment variable is required');
-    }
-
-    console.log("Received event:", JSON.stringify(event, null, 2));
-    console.log("Event resource:", event.resource);
-
+export const handler: APIGatewayProxyHandler = async (event) => {
     try {
+        // Lazily onboard the caller in case PostConfirmation didn't fire (common with Google sign-in)
+        const claims = event.requestContext.authorizer?.claims ?? {};
+        const callerId: string = claims.sub;
+
+        if (callerId) {
+            const givenName: string = claims.given_name || claims.email?.split('@')[0] || 'Player';
+            const familyName: string = claims.family_name || '';
+            await ensurePlayerExists({ id: callerId, givenName, familyName, latestRating: 1500 });
+        }
+
         const data =
             event.resource === "/v1/players/{playerId}"
                 ? await findPlayerById(event.path.split("/")[3])
@@ -20,19 +28,14 @@ export const handler: APIGatewayProxyHandler = async (event, _context) => {
 
         return {
             statusCode: data ? 200 : 404,
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*", // Required for CORS support to work
-                "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent",
-                "Access-Control-Allow-Credentials": "true", // Required for cookies, authorization headers with HTTPS
-                "Access-Control-Allow-Methods": "OPTIONS,GET,PUT,POST,DELETE",
-            },
+            headers: HEADERS,
             body: JSON.stringify(data),
         };
     } catch (error) {
-        console.error("Error reading from DynamoDB:", error);
+        console.error("get-players-fn error:", error);
         return {
             statusCode: 500,
+            headers: HEADERS,
             body: JSON.stringify({ message: "Error reading database" }),
         };
     }

@@ -34,6 +34,17 @@ export async function savePlayer(player: Player) {
     await collection.replaceOne({ _id: id }, { ...rest }, { upsert: true });
 }
 
+// Creates the player only if they don't already exist — safe to call on every request.
+export async function ensurePlayerExists(player: Player) {
+    const collection = await getPlayerCollection();
+    const { id, ...rest } = player;
+    await collection.updateOne(
+        { _id: id },
+        { $setOnInsert: { ...rest } },
+        { upsert: true }
+    );
+}
+
 export async function findAllPlayers(): Promise<Player[]> {
     console.log("Finding all players...");
 
