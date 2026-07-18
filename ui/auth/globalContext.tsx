@@ -140,7 +140,10 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
         refreshUserSession();
 
         const unsubscribe = Hub.listen('auth', ({ payload }) => {
-            if (payload.event === 'signedIn' || payload.event === 'signInWithRedirect') {
+            // signInWithRedirect covers Google sign-in only.
+            // Email/password is handled directly in logInWithEmail, not via Hub,
+            // to avoid a double refreshUserSession call (signedIn also fires for both methods).
+            if (payload.event === 'signInWithRedirect') {
                 refreshUserSession();
             }
         });
@@ -209,6 +212,9 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             setOpponents(result.filter(p => p.id !== id));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
+            // If no player loaded yet (initial login), sign out rather than leaving
+            // the user on an empty screen with no data.
+            if (!player) await forceSignOut();
         } finally {
             setIsLoading(false);
         }
