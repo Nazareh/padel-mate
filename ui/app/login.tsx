@@ -6,6 +6,7 @@ import SocialRow from '@/components/SocialRow';
 import MyTextInput from '@/components/TextInput';
 import { globalStyles } from '@/constants/GlobalStyles';
 import { FEATURE_FLAGS } from '@/constants/featureFlags';
+import { CONFIG } from '@/constants/config';
 import { signInWithRedirect, signOut } from 'aws-amplify/auth';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -72,8 +73,16 @@ export default function SignUpScreen() {
                     )}
                     <SocialRow
                         onGooglePress={async () => {
-                            try { await signOut(); } catch (_) {}
-                            signInWithRedirect({ provider: 'Google' });
+                            const domain = CONFIG.cognitoDomain.replace('https://', '');
+                            const oauthUrl = `https://${domain}/oauth2/authorize?response_type=code&client_id=${CONFIG.cognitoClientId}&redirect_uri=${encodeURIComponent('padelmate://')}&scope=email%20openid%20profile&identity_provider=Google`;
+                            console.log('[auth] Google sign-in: starting');
+                            console.log('[auth] OAuth URL:', oauthUrl);
+                            try {
+                                await signInWithRedirect({ provider: 'Google' });
+                                console.log('[auth] Google sign-in: signInWithRedirect returned');
+                            } catch (err) {
+                                console.error('[auth] Google sign-in: error:', err);
+                            }
                         }}
                     />
                     <FooterNote text="Don't have an account? " linkText="Sign Up" onPress={() => { router.push("/sign-up") }} />

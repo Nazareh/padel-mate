@@ -92,8 +92,13 @@ export default function SignUpScreen() {
 
                     <SocialRow
                         onGooglePress={async () => {
-                            try { await signOut(); } catch (_) {}
-                            signInWithRedirect({ provider: 'Google' });
+                            console.log('[auth] Google sign-in: starting');
+                            try {
+                                await signInWithRedirect({ provider: 'Google' });
+                                console.log('[auth] Google sign-in: signInWithRedirect returned');
+                            } catch (err) {
+                                console.error('[auth] Google sign-in: error:', err);
+                            }
                         }}
                     />
                     <FooterNote text="Already have an account? " linkText="Log In" onPress={() => { router.back() }} />
