@@ -118,14 +118,14 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
 
             const newToken = session.tokens?.idToken?.toString() ?? null;
 
-            // username matches event.userName used by the onboard Lambda as the player _id.
-            // For Google users userId is the Cognito sub (UUID), which differs from the stored id.
-            setUserId(user.username);
+            // userId is the Cognito sub (UUID) — consistent for both email and Google sign-in.
+            // user.username can be 'Google_<sub>' for federated users so we avoid it here.
+            setUserId(user.userId);
             setToken(newToken);
             setIsAuthenticated(true);
             setError(null);
             fetchingData = true;
-            fetchPlayers(user.username, newToken ?? undefined);
+            fetchPlayers(user.userId, newToken ?? undefined);
             fetchMatches(newToken ?? undefined);
 
         } catch (err) {

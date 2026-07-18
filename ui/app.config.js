@@ -1,10 +1,13 @@
-require('dotenv/config');
+const path = require('path');
+require('dotenv').config({
+  path: path.resolve(__dirname, process.env.APP_ENV === 'prod' ? '.env.prod' : '.env'),
+});
 
 module.exports = {
   expo: {
     name: "Padel Mate",
     slug: "padel-mate",
-    version: "1.0.0",
+    version: "1.0.10",
     orientation: "portrait",
     icon: "./assets/images/padel-mate-icon.png",
     scheme: "padelmate",
