@@ -9,7 +9,7 @@ import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { HttpMethod } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 
-const MONGO_DB_NAME = 'my-rating-app';
+const MONGO_DB_NAME = 'padel-mate-db';
 
 // Registered redirect URI for the Expo / React Native app
 const APP_CALLBACK_URL = 'padelmate://';
