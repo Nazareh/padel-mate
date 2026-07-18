@@ -111,15 +111,12 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
 
     // Helper to get session data and update state
     const refreshUserSession = async () => {
-        console.log('[auth] refreshUserSession: start');
         let fetchingData = false;
         try {
             const user = await getCurrentUser();
             const session = await fetchAuthSession();
 
             const newToken = session.tokens?.idToken?.toString() ?? null;
-
-            console.log('[auth] refreshUserSession: user=', user.username, 'hasToken=', !!newToken);
 
             // username matches event.userName used by the onboard Lambda as the player _id.
             // For Google users userId is the Cognito sub (UUID), which differs from the stored id.
@@ -132,8 +129,6 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             fetchMatches(newToken ?? undefined);
 
         } catch (err) {
-            // Session missing or refresh token expired — redirect to login silently
-            console.log('[auth] refreshUserSession: no session ->', err);
             await forceSignOut();
         } finally {
             // If fetchPlayers was initiated it owns isLoading — don't reset it here
@@ -145,12 +140,8 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
         refreshUserSession();
 
         const unsubscribe = Hub.listen('auth', ({ payload }) => {
-            console.log('[auth] Hub event:', payload.event, payload.data ?? '');
             if (payload.event === 'signedIn' || payload.event === 'signInWithRedirect') {
                 refreshUserSession();
-            }
-            if (payload.event === 'signInWithRedirect_failure') {
-                console.error('[auth] signInWithRedirect failed:', payload.data);
             }
         });
 

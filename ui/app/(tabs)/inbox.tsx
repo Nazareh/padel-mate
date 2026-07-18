@@ -6,8 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   LayoutAnimation,
-  Platform,
-  UIManager,
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
@@ -17,9 +15,6 @@ import { globalStyles, COLORS, SPACING, FONT_SIZE, BORDER_RADIUS } from '@/const
 import { useGlobalContext } from '@/auth/globalContext';
 import { CONFIG } from '@/constants/config';
 
-if (Platform.OS === 'android') {
-  UIManager.setLayoutAnimationEnabledExperimental?.(true);
-}
 
 export type MessageType = 'welcome' | 'announcement' | 'event' | 'update';
 
