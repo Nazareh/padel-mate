@@ -46,8 +46,8 @@ export default function RatingChart({ data }: Props) {
     { label: Math.round(minR).toString(), y: toY(minR) },
   ];
 
-  // X-axis: first, middle, last
-  const xIdxs = [0, Math.floor((data.length - 1) / 2), data.length - 1];
+  // X-axis: first, middle (deduplicated), last
+  const xIdxs = [...new Set([0, Math.floor((data.length - 1) / 2), data.length - 1])];
 
   const ratingChange = data[data.length - 1].rating - data[0].rating;
   const changeColor = ratingChange >= 0 ? COLORS.primary : COLORS.red400;
@@ -106,9 +106,9 @@ export default function RatingChart({ data }: Props) {
         })()}
 
         {/* X-axis labels */}
-        {xIdxs.map(i => (
+        {xIdxs.map((i, pos) => (
           <SvgText
-            key={i}
+            key={pos}
             x={pts[i].x} y={svgHeight - 6}
             fontSize="9" fill={COLORS.textGray}
             textAnchor="middle"
