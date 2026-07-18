@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Modal, Pressable, TouchableOpacity, Image, FlatList, RefreshControl } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, Modal, Pressable, TouchableOpacity, Image, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
 import SkeletonBlock from '@/components/SkeletonBlock';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGlobalContext } from '@/auth/globalContext';
 import HeaderProfile from '@/components/HeaderProfile';
-import LoadingOverlay from '@/components/LoadingOverlay';
 import Notification from '@/components/Notification';
 import RatingCircle from '@/components/RatingCircle';
 import RatingChart from '@/components/RatingChart';
@@ -73,6 +72,19 @@ export default function PlayerStats() {
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [pendingUrl, setPendingUrl] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (isLoading && !player) {
+      setTimedOut(false);
+      timeoutRef.current = setTimeout(() => setTimedOut(true), 10_000);
+    } else {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      setTimedOut(false);
+    }
+    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
+  }, [isLoading, player]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -104,10 +116,30 @@ export default function PlayerStats() {
     setProfileModalVisible(false);
   };
 
+  if (!player && isLoading) {
+    return (
+      <SafeAreaView style={globalStyles.safeArea}>
+        <View style={styles.initialLoader}>
+          {timedOut ? (
+            <>
+              <Text style={styles.timeoutText}>Taking longer than usual…</Text>
+              <TouchableOpacity
+                style={styles.retryBtn}
+                onPress={() => userId && fetchPlayers(userId)}
+              >
+                <Text style={styles.retryText}>Retry</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <ActivityIndicator size="large" color={COLORS.primary} />
+          )}
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={globalStyles.safeArea}>
-      <LoadingOverlay visible={isLoading} />
-
       {/* Profile photo modal */}
       <Modal
         visible={profileModalVisible}
@@ -375,6 +407,16 @@ export default function PlayerStats() {
 
 const styles = StyleSheet.create({
   scrollContent: { padding: SPACING.md, paddingBottom: 40 },
+
+  initialLoader: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: SPACING.md },
+  timeoutText: { color: COLORS.textGray, fontSize: FONT_SIZE.md },
+  retryBtn: {
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.xl,
+    borderRadius: BORDER_RADIUS.full,
+    backgroundColor: COLORS.primary,
+  },
+  retryText: { color: COLORS.primaryContent, fontWeight: '700', fontSize: FONT_SIZE.md },
 
   hero: { alignItems: 'center', marginTop: SPACING.sm, gap: SPACING.md },
   heroMeta: {

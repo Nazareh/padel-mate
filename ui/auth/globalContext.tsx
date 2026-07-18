@@ -109,6 +109,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
     // Helper to get session data and update state
     const refreshUserSession = async () => {
         console.log('[auth] refreshUserSession: start');
+        let fetchingData = false;
         try {
             const user = await getCurrentUser();
             const session = await fetchAuthSession();
@@ -123,6 +124,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             setToken(newToken);
             setIsAuthenticated(true);
             setError(null);
+            fetchingData = true;
             fetchPlayers(user.username, newToken ?? undefined);
             fetchMatches(newToken ?? undefined);
 
@@ -131,7 +133,8 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             console.log('[auth] refreshUserSession: no session ->', err);
             await forceSignOut();
         } finally {
-            setIsLoading(false);
+            // If fetchPlayers was initiated it owns isLoading — don't reset it here
+            if (!fetchingData) setIsLoading(false);
         }
     };
 
