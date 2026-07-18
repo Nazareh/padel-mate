@@ -1,7 +1,10 @@
 import { BORDER_RADIUS, COLORS, FONT_SIZE, SPACING } from "@/constants/GlobalStyles";
 import { FEATURE_FLAGS } from "@/constants/featureFlags";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native";
+import Constants from "expo-constants";
+
+const isExpoGo = Constants.executionEnvironment === 'storeClient';
 
 type Props = {
     onGooglePress?: () => void;
@@ -20,9 +23,15 @@ export default function SocialRow({ onGooglePress, onApplePress, onFacebookPress
     return (
         <View style={styles.socialRow}>
             {FEATURE_FLAGS.SOCIAL_LOGIN_GOOGLE && (
-                <TouchableOpacity style={styles.socialButton} onPress={onGooglePress}>
-                    <AntDesign name="google" size={20} color="#EA4335" />
-                    <Text style={styles.socialButtonText}>Continue with Google</Text>
+                <TouchableOpacity
+                    style={[styles.socialButton, isExpoGo && styles.disabledButton]}
+                    onPress={isExpoGo
+                        ? () => Alert.alert('Not available in Expo Go', 'Use the development build to sign in with Google.')
+                        : onGooglePress
+                    }
+                >
+                    <AntDesign name="google" size={20} color={isExpoGo ? COLORS.textGray : "#EA4335"} />
+                    <Text style={[styles.socialButtonText, isExpoGo && styles.disabledText]}>Continue with Google</Text>
                 </TouchableOpacity>
             )}
             {FEATURE_FLAGS.SOCIAL_LOGIN_APPLE && (
@@ -62,6 +71,12 @@ const styles = StyleSheet.create({
         color: COLORS.textLight,
         fontSize: FONT_SIZE.md,
         fontWeight: "600",
+    },
+    disabledButton: {
+        opacity: 0.4,
+    },
+    disabledText: {
+        color: COLORS.textGray,
     },
     appleButton: {
         backgroundColor: "#fff",

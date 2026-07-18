@@ -4,10 +4,11 @@ import FooterNote from '@/components/FooterNote';
 import Logo from '@/components/Logo';
 import SocialRow from '@/components/SocialRow';
 import MyTextInput from '@/components/TextInput';
-import { globalStyles } from '@/constants/GlobalStyles';
+import { globalStyles, COLORS, FONT_SIZE } from '@/constants/GlobalStyles';
 import { FEATURE_FLAGS } from '@/constants/featureFlags';
 import { CONFIG } from '@/constants/config';
 import { signInWithRedirect, signOut } from 'aws-amplify/auth';
+import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import Notification from "@/components/Notification";
@@ -86,6 +87,9 @@ export default function SignUpScreen() {
                         }}
                     />
                     <FooterNote text="Don't have an account? " linkText="Sign Up" onPress={() => { router.push("/sign-up") }} />
+                    <Text style={{ textAlign: 'center', color: COLORS.textGray, fontSize: FONT_SIZE.sm, paddingBottom: 8 }}>
+                        v{Constants.expoConfig?.version}
+                    </Text>
                 </ScrollView>
                 {error && (
                     <Notification
