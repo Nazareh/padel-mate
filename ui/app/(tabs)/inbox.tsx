@@ -23,7 +23,6 @@ export type InboxMessage = {
   type: MessageType;
   title: string;
   body: string;
-  sentAt: string; // ISO date string
   read: boolean;
 };
 
@@ -35,16 +34,6 @@ const TYPE_META: Record<MessageType, { icon: string; color: string; bg: string }
   update:       { icon: 'system-update',  color: COLORS.textGray,   bg: 'rgba(156,163,175,0.12)' },
 };
 
-function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins  = Math.floor(diff / 60_000);
-  const hours = Math.floor(diff / 3_600_000);
-  const days  = Math.floor(diff / 86_400_000);
-  if (mins  < 60)  return `${mins}m ago`;
-  if (hours < 24)  return `${hours}h ago`;
-  if (days  < 7)   return `${days}d ago`;
-  return `${Math.floor(days / 7)}w ago`;
-}
 
 type MessageRowProps = {
   message: InboxMessage;
@@ -71,7 +60,6 @@ function MessageRow({ message, expanded, onPress }: MessageRowProps) {
             {message.title}
           </Text>
           <View style={styles.rowMeta}>
-            <Text style={styles.time}>{relativeTime(message.sentAt)}</Text>
             {!message.read && <View style={styles.unreadDot} />}
           </View>
         </View>
@@ -80,13 +68,6 @@ function MessageRow({ message, expanded, onPress }: MessageRowProps) {
           {message.body}
         </Text>
 
-        {expanded && (
-          <Text style={styles.fullDate}>
-            {new Date(message.sentAt).toLocaleDateString('en-US', {
-              weekday: 'short', day: 'numeric', month: 'long', year: 'numeric',
-            })}
-          </Text>
-        )}
       </View>
     </TouchableOpacity>
   );
@@ -293,10 +274,6 @@ const styles = StyleSheet.create({
     gap: 6,
     flexShrink: 0,
   },
-  time: {
-    fontSize: 11,
-    color: COLORS.textGray,
-  },
   unreadDot: {
     width: 8,
     height: 8,
@@ -312,13 +289,6 @@ const styles = StyleSheet.create({
   bodyExpanded: {
     color: COLORS.textLight,
   },
-  fullDate: {
-    marginTop: SPACING.sm,
-    fontSize: 11,
-    color: COLORS.textGray,
-    fontStyle: 'italic',
-  },
-
   empty: {
     flex: 1,
     alignItems: 'center',

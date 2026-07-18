@@ -9,12 +9,9 @@ type PlayerDocument = Omit<Player, 'id'> & { _id: string };
 
 async function getPlayerCollection(): Promise<Collection<PlayerDocument>> {
     if (!mongoClient) {
-        console.log('[player-repo] connecting to MongoDB, param:', process.env.MONGO_URI_PARAM_NAME, 'db:', process.env.MONGO_DB_NAME);
         const uri = await getParameterValue(process.env.MONGO_URI_PARAM_NAME!);
-        console.log('[player-repo] got URI from SSM, length:', uri?.length ?? 0);
         mongoClient = new MongoClient(uri);
         await mongoClient.connect();
-        console.log('[player-repo] connected');
     }
     let db = mongoClient.db(process.env.MONGO_DB_NAME!);
     return db.collection<PlayerDocument>(process.env.PLAYER_TABLE_NAME!);;
@@ -50,14 +47,8 @@ export async function ensurePlayerExists(player: Player) {
 }
 
 export async function findAllPlayers(): Promise<Player[]> {
-    console.log("Finding all players...");
-
     const collection = await getPlayerCollection();
-
     const docs = await collection.find({}).toArray();
-
-    console.log(`Items found: ${docs.length}`);
-
     return docs.map(({ _id, ...rest }) => ({ id: _id, ...rest } as Player));
 }
 
