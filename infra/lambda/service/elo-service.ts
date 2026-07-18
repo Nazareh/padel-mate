@@ -30,8 +30,10 @@ export function calculateEloUpdates(match: Match, players: Player[]): EloUpdate[
     const team1Expected = expectedScore(team1Avg, team2Avg);
     const team2Expected = expectedScore(team2Avg, team1Avg);
 
-    const team1Delta = K_FACTOR * (result.team1 - team1Expected);
-    const team2Delta = K_FACTOR * (result.team2 - team2Expected);
+    const margin = marginMultiplier(match.scores);
+
+    const team1Delta = K_FACTOR * margin * (result.team1 - team1Expected);
+    const team2Delta = K_FACTOR * margin * (result.team2 - team2Expected);
 
     const updates: EloUpdate[] = [];
 
@@ -73,4 +75,14 @@ function matchResult(sets: { team1: number; team2: number }): { team1: number; t
     if (sets.team1 > sets.team2) return { team1: 1, team2: 0 };
     if (sets.team2 > sets.team1) return { team1: 0, team2: 1 };
     return { team1: 0.5, team2: 0.5 };
+}
+
+function marginMultiplier(scores: SetScore[]): number {
+    const { t1, t2 } = scores.reduce(
+        (acc, s) => ({ t1: acc.t1 + s.team1, t2: acc.t2 + s.team2 }),
+        { t1: 0, t2: 0 }
+    );
+    const diff = Math.abs(t1 - t2);
+    // log₅(1 + diff) anchors at ×1.0 when diff=4; clamped to [0.5, 1.5]
+    return Math.max(0.5, Math.min(1.5, Math.log(1 + diff) / Math.log(5)));
 }
