@@ -43,6 +43,8 @@ type GlobalState = {
     isLoading: boolean;
     error: string | null;
     localAvatarUrl: string | null;
+    inboxUnreadCount: number;
+    setInboxUnreadCount: Dispatch<SetStateAction<number>>;
     logInWithEmail: (email: string, password: string) => Promise<void>;
     fetchPlayers: (id: string) => Promise<void>;
     fetchMatches: () => Promise<void>;
@@ -96,6 +98,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
     const [error, setError] = useState<string | null>(null);
     const [localAvatarUrl, setLocalAvatarUrl] = useState<string | null>(null);
     const [selectedOpponent, setSelectedOpponent] = useState<PlayerData | null>(null);
+    const [inboxUnreadCount, setInboxUnreadCount] = useState(0);
 
     const updateLocalAvatar = (url: string | null) => setLocalAvatarUrl(url);
 
@@ -292,6 +295,7 @@ export function GlobalStateProvider({ children }: PropsWithChildren) {
             error, fetchPlayers, fetchMatches, isLoading, setIsLoading, logMatch, approveOrRejectMatch,
             opponents, player, matches, setError, localAvatarUrl, updateLocalAvatar,
             selectedOpponent, setSelectedOpponent,
+            inboxUnreadCount, setInboxUnreadCount,
         }}>
             {children}
         </GlobalContext.Provider>

@@ -25,6 +25,8 @@ export class MainStack extends cdk.Stack {
   private patchMatchFn: NodejsFunction;
   private onboardPlayerFn: NodejsFunction;
   private preSignUpFn: NodejsFunction;
+  private getMessagesFn: NodejsFunction;
+  private markMessageReadFn: NodejsFunction;
   private mongoUriParameter: ssm.StringParameter;
 
 
@@ -132,6 +134,22 @@ export class MainStack extends cdk.Stack {
     this.mongoUriParameter.grantRead(this.patchMatchFn);
     this.matchTable.grantReadWriteData(this.patchMatchFn);
     this.playerTable.grantReadWriteData(this.patchMatchFn);
+
+    this.getMessagesFn = createLambda(this, "get-messages-fn", this.stackName, {
+      environment: {
+        MONGO_DB_NAME: MONGO_DB_NAME,
+        MONGO_URI_PARAM_NAME: this.mongoUriParameter.parameterName,
+      },
+    });
+    this.mongoUriParameter.grantRead(this.getMessagesFn);
+
+    this.markMessageReadFn = createLambda(this, "mark-message-read-fn", this.stackName, {
+      environment: {
+        MONGO_DB_NAME: MONGO_DB_NAME,
+        MONGO_URI_PARAM_NAME: this.mongoUriParameter.parameterName,
+      },
+    });
+    this.mongoUriParameter.grantRead(this.markMessageReadFn);
 
   }
 
@@ -320,6 +338,21 @@ export class MainStack extends cdk.Stack {
     matchByIdResource.addMethod(
       HttpMethod.PATCH,
       new apigateway.LambdaIntegration(this.patchMatchFn, {}),
+      cognitoAuthConfig
+    );
+
+    const messageResource = apiRoot.addResource("messages");
+    messageResource.addMethod(
+      HttpMethod.GET,
+      new apigateway.LambdaIntegration(this.getMessagesFn, {}),
+      cognitoAuthConfig
+    );
+
+    const messageByIdResource = messageResource.addResource("{messageId}");
+    const messageReadResource = messageByIdResource.addResource("read");
+    messageReadResource.addMethod(
+      HttpMethod.POST,
+      new apigateway.LambdaIntegration(this.markMessageReadFn, {}),
       cognitoAuthConfig
     );
   }

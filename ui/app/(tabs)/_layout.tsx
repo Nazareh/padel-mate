@@ -1,7 +1,10 @@
 import { COLORS } from "@/constants/GlobalStyles";
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { useGlobalContext } from '@/auth/globalContext';
 
 export default function TabLayout() {
+  const { inboxUnreadCount } = useGlobalContext();
+
   return (
     <NativeTabs
       labelStyle={{
@@ -39,6 +42,17 @@ export default function TabLayout() {
           md="emoji_events"
         />
         <NativeTabs.Trigger.Label>Ranking</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="inbox">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'bell', selected: 'bell.fill' }}
+          md="notifications"
+        />
+        <NativeTabs.Trigger.Label>Inbox</NativeTabs.Trigger.Label>
+        {inboxUnreadCount > 0 && (
+          <NativeTabs.Trigger.Badge value={inboxUnreadCount > 9 ? '9+' : String(inboxUnreadCount)} />
+        )}
       </NativeTabs.Trigger>
 
     </NativeTabs>
