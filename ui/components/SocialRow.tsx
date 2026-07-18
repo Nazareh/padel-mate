@@ -1,7 +1,7 @@
-import { BORDER_RADIUS, COLORS } from "@/constants/GlobalStyles";
+import { BORDER_RADIUS, COLORS, FONT_SIZE, SPACING } from "@/constants/GlobalStyles";
 import { FEATURE_FLAGS } from "@/constants/featureFlags";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
     onGooglePress?: () => void;
@@ -21,17 +21,20 @@ export default function SocialRow({ onGooglePress, onApplePress, onFacebookPress
         <View style={styles.socialRow}>
             {FEATURE_FLAGS.SOCIAL_LOGIN_GOOGLE && (
                 <TouchableOpacity style={styles.socialButton} onPress={onGooglePress}>
-                    <AntDesign name="google" size={22} color="#EA4335" />
+                    <AntDesign name="google" size={20} color="#EA4335" />
+                    <Text style={styles.socialButtonText}>Continue with Google</Text>
                 </TouchableOpacity>
             )}
             {FEATURE_FLAGS.SOCIAL_LOGIN_APPLE && (
                 <TouchableOpacity style={[styles.socialButton, styles.appleButton]} onPress={onApplePress}>
-                    <AntDesign name="apple" size={22} color="#000" />
+                    <AntDesign name="apple" size={20} color="#000" />
+                    <Text style={[styles.socialButtonText, { color: "#000" }]}>Continue with Apple</Text>
                 </TouchableOpacity>
             )}
             {FEATURE_FLAGS.SOCIAL_LOGIN_FACEBOOK && (
                 <TouchableOpacity style={[styles.socialButton, styles.facebookButton]} onPress={onFacebookPress}>
                     <FontAwesome name="facebook-f" size={18} color="#fff" />
+                    <Text style={styles.socialButtonText}>Continue with Facebook</Text>
                 </TouchableOpacity>
             )}
         </View>
@@ -40,13 +43,11 @@ export default function SocialRow({ onGooglePress, onApplePress, onFacebookPress
 
 const styles = StyleSheet.create({
     socialRow: {
-        flexDirection: "row",
-        justifyContent: "center",
-        gap: 16,
+        flexDirection: "column",
+        gap: SPACING.sm,
         paddingBottom: 18,
     },
     socialButton: {
-        width: 56,
         height: 56,
         borderRadius: BORDER_RADIUS.full,
         backgroundColor: COLORS.surfaceDark,
@@ -54,9 +55,17 @@ const styles = StyleSheet.create({
         borderColor: COLORS.surfaceBorder,
         alignItems: "center",
         justifyContent: "center",
+        flexDirection: "row",
+        gap: SPACING.sm,
+    },
+    socialButtonText: {
+        color: COLORS.textLight,
+        fontSize: FONT_SIZE.md,
+        fontWeight: "600",
     },
     appleButton: {
         backgroundColor: "#fff",
+        borderColor: "#fff",
     },
     facebookButton: {
         backgroundColor: "#1877F2",

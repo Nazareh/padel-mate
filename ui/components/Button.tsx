@@ -29,8 +29,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         shadowColor: COLORS.primary,
         shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
+        shadowOpacity: 0.4,
+        shadowRadius: 12,
+        elevation: 8,
     },
     primaryButtonText: {
         color: COLORS.backgroundDark,
